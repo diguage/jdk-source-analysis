@@ -1,0 +1,47 @@
+= JDK 源码分析
+
+为了督促小组成员学习，也为了他们更好地成长，“强制”安排给他们阅读 JDK 常用类的源代码。
+
+也欢迎感兴趣的小伙伴加入。或者提交PR。
+
+== 学习计划
+
+大概列了一下，该计划后续还会慢慢更新。
+
+===  集合类
+
+. `Collection`
+. `AbstractCollection`
+. `AbstractList`
+. `ArrayList`
+. `LinkedList`
+. `Map`
+. `AbstractMap`
+. `HashMap`
+. `TreeMap`
+. `Queue`
+. `AbstractQueue`
+. `BlockingQueue`
+. `LinkedTransferQueue`
+. `SynchronousQueue`
+. `PriorityQueue`
+. `LinkedBlockingQueue`
+. `ArrayBlockingQueue`
+. `ConcurrentLinkedQueue`
+. `DelayQueue`
+. `Deque`
+. `BlockingDeque`
+. `LinkedBlockingDeque`
+. `ArrayDeque`
+. `ConcurrentLinkedDeque`
+
+=== 并发类
+
+. `AbstractQueuedSynchronizer`
+. `AbstractQueuedLongSynchronizer`
+
+== 参考书籍
+
+. https://book.douban.com/subject/26745780/[数据结构与算法分析]
+. https://book.douban.com/subject/10432347/[算法]
+. https://book.douban.com/subject/10484692/[Java并发编程实战]
