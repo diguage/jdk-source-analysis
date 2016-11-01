@@ -1,0 +1,28 @@
+== HashMap源码解析
+
+=== HashMap简介
+
+HashMap是基于哈希表实现的，用来存储key-value形式的键值对，允许key和value都为null值，其内部通过单链表解决冲突问题，容量超过了阈值时，会自动增长。 +
+HashMap是非线程安全的，只是用于单线程环境下，多线程环境下可以采用concurrent并发包下的concurrentHashMap. +
+HashMap实现了Serializable接口，支持序列化，实现了Cloneable接口，能被克隆。
+
+=== 签名
+
+[source,java]
+----
+public class HashMap<K,V>
+    extends AbstractMap<K,V>
+    implements Map<K,V>, Cloneable, Serializable
+----
+
+可以看到HashMap 实现了Cloneable和Serializable标记接口：
+
+* 标记接口Cloneable，用于表明HashMap对象会重写java.lang.Object#clone()方法，HashMap实现的是浅拷贝（shallow copy）。
+* 标记接口Serializable，用于表明HashMap对象可以被序列化
+
+*HashMap继承了AbstractMap抽象类，同时也实现了Map接口。*
+
+NOTE: 在语法层面继承接口Map是多余的，这么做仅仅是为了让阅读代码的人明确知道HashMap是属于Map体系的，起到了文档的作用。
+AbstractMap相当于个辅助类，Map的一些操作这里面已经提供了默认实现，后面具体的子类如果没有特殊行为，可直接使用AbstractMap提供的实现。
+
+AbstractMap相当于个辅助类，Map的一些操作这里面已经提供了默认实现，后面具体的子类如果没有特殊行为，可直接使用AbstractMap提供的实现。
