@@ -20,6 +20,7 @@ WARNING: 本文档基于 *JDK 1.8.0_112* 的代码开展分析，请 PR 的小�
 . `Map`
 . `AbstractMap`
 . `HashMap`
+. `LinkedHashMap`
 . `TreeMap`
 . `Queue`
 . `AbstractQueue`
