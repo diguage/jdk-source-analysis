@@ -1,0 +1,75 @@
+== ThreadPoolExecutor 源码分析
+
+=== 大纲
+
+. 基本使用
+  . 使用 `Executors` 创建线程池
+  . 自定义任务，并提交任务
+  . 获取返回结果
+. 线程池的类图结构
+. 创建执行线程
+. 取出任务执行
+. 如何实现 `invokeAny(Collection<? extends Callable<T>> tasks)` ？
+. 如何实现 `invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)` ?
+. 如何实现 `invokeAll(Collection<? extends Callable<T>> tasks)` ?
+. 如何实现 `invokeAll(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)` ？
+. 如何判断线程超时？以及超时后如何杀掉线程？
+. 如何终止任务？温柔终止？或者野蛮终止？
+. 线程池在jDK5、6、7中有哪些升级变化？
+. 拒绝策略
+
+
+
+=== 问题
+
+. 任务添加后，如何执行？
+. 一个任务执行完成后，如何在同一个线程执行下一个任务？
+. 在 `corePoolSize` 比 `maximumPoolSize` 小的情况下，如何判定一个线程是否超时？并且如何删除一个线程？
+. 任务添加后，
+. 如何返回任务执行的结果？
+. 这个线程池还有哪些可以改进的地方？比如 Guava 中提供了哪些线程池？
+
+=== 需要注意的点
+
+. 线程池如何初始化？
+. 任务如何添加？
+. 任务如何执行？
+. 任务如何终止？
+. 遇到异常如何处理？
+  . 线程池队列已满，如何拒绝？
+  . 任务执行过程中出现异常，如何处理？关闭该线程，重启一个吗？
+  . ？？
+. 任务如何存放？
+. 任务存放后，如何取出来？
+. 如何做到不断地一个一个执行下去？
+. 为什么 `Worker` 继承 `AbstractQueuedSynchronizer` ？AQS起什么作用？是否需要先研究一下？
+
+=== 收获
+
+. 可以继承 `ThreadPoolExecutor`，实现 `beforeExecute()` 和 `afterExecute()` 等方法，来加入执行时的回调。类似的回调，还有 `terminated()`
+. 添加任务时， `execute()` 方法的第二种情况，为什么还有再次检查？
+
+
+
+=== 参考资料
+
+. [Java并发包源码学习之线程池（一）ThreadPoolExecutor源码分析 - Jindong](http://jindong.io/2015/03/30/java-concurrent-package-ThreadPoolExecutor/)
+. [ThreadPoolExecutor简介与源码分析 - 邹胜群的个人页面 - 开源中国社区](http://my.oschina.net/zouqun/blog/407149)
+. [Java并发源码分析 - ThreadPoolExecutor - SHOW ME THE CODE](http://onlychoice.github.io/blog/2013/09/13/java-concurrent-source-code-reading-2/)
+. [Java线程池架构原理和源码解析(ThreadPoolExecutor) - xieyuooo的专栏 - 博客频道 - CSDN.NET](http://blog.csdn.net/xieyuooo/article/details/8718741)
+. [Java多线程系列目录(共43篇) - 如果天空不死 - 博客园](http://www.cnblogs.com/skywang12345/p/java_threads_category.html)
+  . 搞清楚了 `ctl` 的含义，高三位是状态，低29位是线程数
+  . 主要属性的含义，主要方法的实现，任务添加后，三种不同的处理方式
+  . 线程池状态变换
+  . 线程池拒绝策略的实现
+  . 带返回值的任务的实现方式，`Callable`，`Future`
+. [ThreadPoolExecutor的基本使用 | 三石·道](http://www.molotang.com/articles/514.html)
+. [ThreadPoolExecutor的任务提交、任务处理、线程复用和维护相关源码分析 | 三石·道](http://www.molotang.com/articles/522.html)
+. [ThreadPoolExecutor的生命周期相关源码分析 | 三石·道](http://www.molotang.com/articles/526.html)
+. [ThreadPoolExecutor的任务饱和丢弃策略及源码实现 | 三石·道](http://www.molotang.com/articles/553.html)
+. [聊聊并发（三）Java线程池的分析和使用 | 并发编程网 - ifeve.com](http://ifeve.com/java-threadpool/)
+. [戏（细）说Executor框架线程池任务执行全过程（上）](http://www.infoq.com/cn/articles/executor-framework-thread-pool-task-execution-part-01?utm_campaign=rightbar_v2&utm_source=infoq&utm_medium=articles_link&utm_content=link_text)
+. [戏（细）说Executor框架线程池任务执行全过程（下）](http://www.infoq.com/cn/articles/executor-framework-thread-pool-task-execution-part-02?utm_campaign=rightbar_v2&utm_source=infoq&utm_medium=articles_link&utm_content=link_text)
+. [ThreadPoolExecutor 源码分析 - techq's blog - 博客频道 - CSDN.NET](http://blog.csdn.net/techq/article/details/6818201)
+. [JAVA线程池(ThreadPoolExecutor)源码分析_journeylin_新浪博客](http://blog.sina.com.cn/s/blog_753035050100wbtm.html)
+. [ThreadPoolExecutor源码分析 - rilley - 博客园](http://www.cnblogs.com/rilley/archive/2012/02/07/2341767.html)
