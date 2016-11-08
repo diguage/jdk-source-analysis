@@ -1,0 +1,19 @@
+== AbstractQueuedSynchronizer
+
+=== 参考资料
+
+WARNING: 访问一些页面时发现一些页面已经不能访问了，后续再搜索补上吧。
+
+. http://www.cnblogs.com/leesf456/p/5350186.html[【JUC】JDK1.8源码分析之AbstractQueuedSynchronizer（二） - leesf - 博客园]
+. http://www.infoq.com/cn/articles/jdk1.8-abstractqueuedsynchronizer[深度解析Java 8：JDK1.8 AbstractQueuedSynchronizer的实现分析（上）]
+. http://www.infoq.com/cn/articles/java8-abstractqueuedsynchronizer[深度解析Java 8：AbstractQueuedSynchronizer的实现分析（下）]
+. http://www.molotang.com/articles/480.html[Lock、ReentrantLock和AbstractQueuedSynchronizer的源码要点分析整理 | 三石·道]
+. http://zhanjindong.com/2015/03/10/java-concurrent-package-aqs-overview[Java并发包源码学习之AQS框架（一）概述 - Jindong Zhan]
+. http://zhanjindong.com/2015/03/11/java-concurrent-package-aqs-clh-and-spin-lock[Java并发包源码学习之AQS框架（二）CLH lock queue和自旋锁 - Jindong Zhan]
+. http://zhanjindong.com/2015/03/14/java-concurrent-package-aqs-locksupport-and-thread-interrupt[Java并发包源码学习之AQS框架（三）LockSupport和interrupt - Jindong Zhan]
+. http://zhanjindong.com/2015/03/15/java-concurrent-package-aqs-AbstractQueuedSynchronizer[Java并发包源码学习之AQS框架（四）AbstractQueuedSynchronizer源码分析 - Jindong Zhan]
+. http://ifeve.com/introduce-abstractqueuedsynchronizer/[AbstractQueuedSynchronizer的介绍和原理分析 | 并发编程网 - ifeve.com]
+. http://coderbee.net/index.php/concurrent/20131209/614[JUC 源码分析 一 AbstractQueuedSynchronizer | 码蜂笔记]
+. http://www.hiyangqi.com/java%20concurrency/java-concurrency-AQS.html[Java 多线程基本工具的原理AQS]
+. http://www.tqcto.com/article/internet/5807.html[JUC 源码分析 3 AbstractQueuedSynchronizer 共享模式 与 CountDownLatch - 互联网 - 爱上编程技术博客]
+. http://jiangwenfeng762.iteye.com/blog/1293814[通过CountDownLatch来分析AbstractQueuedSynchronizer的源码 - - ITeye技术网站]
