@@ -1,6 +1,6 @@
 == JDK1.8 HashMap源码解析
 
-=== HashMap简介
+=== 简介
 
 HashMap是基于哈希表实现的，用来存储key-value形式的键值对，允许key和value都为null值；
 HashMap是非线程安全的，只是用于单线程环境下，多线程环境下可以采用concurrent并发包下的concurrentHashMap；
@@ -27,9 +27,33 @@ AbstractMap相当于个辅助类，Map的一些操作这里面已经提供了默
 
 AbstractMap相当于个辅助类，Map的一些操作这里面已经提供了默认实现，后面具体的子类如果没有特殊行为，可直接使用AbstractMap提供的实现。
 
+接口java.util.Map,主要有四个常用的实现类，分别是HashMap、Hashtable、LinkedHashMap和TreeMap，类继承关系如下图所示：
+
+image::./images/map_structure.png[]
+
+下面针对各个实现类的特点做一些说明：
+
+(1) HashMap：它根据键的hashCode值存储数据，大多数情况下可以直接定位到它的值，因而具有很快的访问速度，但遍历顺序却是不确定的。 +
+HashMap最多只允许一条记录的键为null，允许多条记录的值为null。HashMap非线程安全，即任一时刻可以有多个线程同时写HashMap， +
+可能会导致数据的不一致。如果需要满足线程安全，可以用 Collections的synchronizedMap方法使HashMap具有线程安全的能力， +
+或者使用ConcurrentHashMap。
+
+(2) Hashtable：Hashtable是遗留类，很多映射的常用功能与HashMap类似，不同的是它承自Dictionary类，并且是线程安全的， +
+任一时间只有一个线程能写Hashtable，并发性不如ConcurrentHashMap，因为ConcurrentHashMap引入了分段锁。 +
+Hashtable不建议在新代码中使用，不需要线程安全的场合可以用HashMap替换，需要线程安全的场合可以用ConcurrentHashMap替换。 + 
+
+(3) LinkedHashMap：LinkedHashMap是HashMap的一个子类，保存了记录的插入顺序，在用Iterator遍历LinkedHashMap时，先得到的记录肯定是先插入的，也可以在构造时带参数，按照访问次序排序。
+
+(4) TreeMap：TreeMap实现SortedMap接口，能够把它保存的记录根据键排序，默认是按键值的升序排序，也可以指定排序的比较器，当用Iterator遍历TreeMap时，得到的记录是排过序的。如果使用排序的映射，建议使用TreeMap。在使用TreeMap时，key必须实现Comparable接口或者在构造TreeMap传入自定义的Comparator，否则会在运行时抛出java.lang.ClassCastException类型的异常。
+
+对于上述四种Map类型的类，要求映射中的key是不可变对象。不可变对象是该对象在创建后它的哈希值不会被改变。如果对象的哈希值发生变化，Map对象很可能就定位不到映射的位置了。
+
+通过上面的比较，我们知道了HashMap是Java的Map家族中一个普通成员，鉴于它可以满足大多数场景的使用条件，所以是使用频度最高的一个。下文我们主要结合源码，从存储结构、常用方法分析、扩容等方面了解一下HashMap的工作原理。
+
+
 === 存储结构
 
-HashMap是基于哈希表存储的，在JDK1.6，JDK1.7版本采用数组(位桶) + 链表实现存储元素和解决冲突，同一hash值的链表都存储在一个链表里。
+HashMap是基于哈希表存储的，在JDK1.6，JDK1.7版本采用数组(桶位) + 链表实现存储元素和解决冲突，同一hash值的链表都存储在一个链表里。
 但是当位于一个桶中的元素较多，即hash值相等的元素较多时，通过key值依次查找的效率较低。但是到JDK1.8版本时HashMap采用位桶 + 链表 + 红黑树实现，
 当链表长度超过阈值（8）时，将链表转换为红黑树，这样大大减少了查找时间。
 
@@ -38,11 +62,11 @@ HashMap是基于哈希表存储的，在JDK1.6，JDK1.7版本采用数组(位桶
 首先有一个元素是链表的数组，当添加一个元素（key-value）时，就首先计算元素key的hash值，以此确定元素在数组中的位置，但是可能存在同一hash值的元素
 已经被放在数组同一位置了（也就出现了Hash冲突），这时就添加到同一hash值的元素的后面，他们在数组的同一位置，但是形成了链表，同一个链表上的Hash值是
 相同的，所以说数组存放的是链表。而当链表长度太长时，链表就转换为红黑树，这样大大提高了查找的效率。 +
-当链表数组的容量超过初始容量的0.75（阀值）时，将链表数组扩大2倍，然后把原来数组中的链表重现散列，把原链表数组的搬移到新的数组中。
+当链表数组的容量超过初始容量的0.75（阀值）时，将链表数组扩大2倍，然后把原来数组中的链表重新散列，把原链表数组中的元素迁移到新的数组中。
 
 HashMap原理图：
 
-image::./images/jdk1.8hashmap.png[]
+image::./images/jdk1.8HashMap.png[]
 
 === 源码剖析
 
@@ -72,12 +96,12 @@ static final int MAXIMUM_CAPACITY = 1 << 30;
 static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
 /**
- * 当put一个元素到某个位桶，其链表长度达到8时将链表转换为红黑树
+ * 当put一个元素到某个桶位，其链表长度达到8时将链表转换为红黑树
  */
 static final int TREEIFY_THRESHOLD = 8;
 
 /**
- * 一个位桶上的链表长度小于这个值时将红黑树转链表
+ * 一个桶位上的链表长度小于这个值时将红黑树转链表
  */
 static final int UNTREEIFY_THRESHOLD = 6;
 
@@ -104,6 +128,8 @@ final float loadFactor;
 
 /**
  * 每次扩容和更改map结构的计数器
+ * 如果在使用迭代器的过程中有其他线程修改了map，将抛出ConcurrentModificationException，
+ * 这就是所谓fail-fast策略（速错），这一策略的实现就是通过modCount
  */
 transient int modCount;
 
@@ -124,17 +150,17 @@ transient Node<K,V>[] table;
 说明利用的空间很多，如果一直不进行扩容的话，链表就会越来越长，这样查找的效率很低，
 因为链表的长度很大（当然最新版本使用了红黑树后会改进很多），扩容之后，将原来链表数
 组的每一个链表分成奇偶两个子链表分别挂在新链表数组的散列位置，这样就减少了每个链表
-的长度，增加查找效率。HashMap本来是以空间换时间，所以填充比没必要太大。但是填充比太小
-又会导致空间浪费。如果关注内存，填充比可以稍大，如果主要关注查找性能，填充比可以稍小。
+的长度，增加查找效率。HashMap本来是以空间换时间，所以装载因子没必要太大。但是装载因子太小
+又会导致空间浪费。如果关注内存，装载因子可以稍大，如果主要关注查找性能，装载因子可以稍小。
 ****
 
 ==== 数据结构
-* 位桶数组
+* 桶位数组
 
 [source,java]
 ----
 /**
- * 1.存储元素（位桶）的数组
+ * 1.存储元素（桶位）的数组
  */
 transient Node<k,v>[] table;
 ----
@@ -355,7 +381,11 @@ final int hash(Object k) {
 NOTE: JDK1.8计算hash值的方法进行了改进，取得key的hashcode后，高16位与低16位异或运算重新计算hash值。
 key有可能是null，key为null时，hash值为0，放在数组的0位置。
 
-put方法实现的主要方法putVal()::
+putVal()方法::
+
+执行过程如图：
+
+image::./images/hashmap_put.png[]
 [source,java]
 ----
 final V putVal(int hash, K key, V value, boolean onlyIfAbsent, boolean evict) {
@@ -599,3 +629,97 @@ public boolean containsValue(Object value) {
 
 NOTE: get方法相对put要简单的多，分析源码可以看出hash算法的精髓，不用遍历就可以直接通过
 计算key的hash值，得到查找元素在数组中的桶位，然后比较hash值、key是否相等来获取node。
+
+===== 移除元素
+[source,java]
+----
+public V remove(Object key) {
+    Node<K,V> e;
+    return (e = removeNode(hash(key), key, null, false, true)) == null ? null : e.value;
+}
+
+final Node<K,V> removeNode(int hash, Object key, Object value,
+                           boolean matchValue, boolean movable) {
+    Node<K,V>[] tab; Node<K,V> p; int n, index;
+    if ((tab = table) != null && (n = tab.length) > 0 &&
+        (p = tab[index = (n - 1) & hash]) != null) {
+        //node就是要查找的结点
+        Node<K,V> node = null, e; K k; V v;
+        if (p.hash == hash &&
+            ((k = p.key) == key || (key != null && key.equals(k))))
+            node = p;
+        else if ((e = p.next) != null) {
+            if (p instanceof TreeNode)
+                node = ((TreeNode<K,V>)p).getTreeNode(hash, key);
+            else {
+                do {
+                    if (e.hash == hash &&
+                        ((k = e.key) == key ||
+                         (key != null && key.equals(k)))) {
+                        node = e;
+                        break;
+                    }
+                    //这里p保存的是父节点，因为这里涉及到链表删除的操作
+                    p = e;
+                } while ((e = e.next) != null);
+            }
+        }
+        /*
+         * 当matchValue为false时，直接短路后面的运算，
+         * 进行删除操作，而不用关注value值是否相等或者equals
+         */
+        if (node != null && (!matchValue || (v = node.value) == value ||
+                             (value != null && value.equals(v)))) {
+            if (node instanceof TreeNode)
+                //movable用在树的删除上
+                ((TreeNode<K,V>)node).removeTreeNode(this, tab, movable);
+            else if (node == p)
+                 //要删除节点就是链表的头节点，则将子节点放进桶位
+                tab[index] = node.next;
+            else
+                //删除节点后节点，父节点的next重新连接
+                p.next = node.next;
+            ++modCount; //删除操作也是要记录进modCount
+            --size;
+            afterNodeRemoval(node);
+            return node;
+        }
+    }
+    return null;
+}
+
+/**
+ * jdk1.8新增的重载方法，matchValue为true时，
+ * 只有当key和value都相等时，才会删除
+ */
+public boolean remove(Object key, Object value) {
+    return removeNode(hash(key), key, value, true, true) != null;
+}
+----
+
+=== 小结
+
+本文对JDK1.8 HashMap的原代码进行了简要的分析，主要目的是了解其内部的
+存储机制和实现原理，从而达到在编程中更高效的使用HashMap。 +
+
+HashMap 内部是基于一个数组来实现的，数组中的每个元素称为一个桶(bucket)。
+当数组中被占用的桶的数量超过了装载因子和数组容量设定的阈值后，会对数组进行扩容，
+容量将扩展为原来的2倍。哈希表中所有的 Entry 会被重新散列到新的位置中。 +
+
+因为两个不同的key在散列时有可能发生冲突，HashMap为了避免哈希冲突带来的影响
+做了几点优化。在进行散列处理时，将高位与低位进行异或，从而减小冲突的概率。
+当不同的node被散列到同一个桶中时，每个桶中使用单向链表的方式来保存数据。
+在Java 8 的实现中，如果一个桶中的Node数量超过了阈值(TREEIFY_THRESHOLD = 8)，
+就会将单链表转化为红黑树，当低于阈值(UNTREEIFY_THRESHOLD = 6)时重新转化为
+单链表。 +
+
+分析了HashMap的resize方法可以知道，HashMap在进行扩容时是非常耗性能的操作，
+所以在使用HashMap的时候，应该先估算一下map的大小，初始化的时候给一个大致的数值，
+避免map进行频繁的扩容。
+
+=== 参考
+. link:http://blog.jrwang.me/2016/java-collections-hashmap/[Java 容器源码分析之 HashMap] +
+. link:http://www.tuicode.com/article/56da289f8e6d72823e30a024[JDK1.8源码分析之HashMap（一）] +
+. link:http://blog.csdn.net/tuke_tuke/article/details/51588156[ Java中HashMap底层实现原理(JDK1.8)源码分析]
+. link:http://www.cnblogs.com/ToBeAProgrammer/p/4787761.html[基于jdk1.8的HashMap源码学习笔记] +
+. link:http://tech.meituan.com/java-hashmap.html[Java 8系列之重新认识HashMap]
