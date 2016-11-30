@@ -1,0 +1,870 @@
+== LinkedList源码分析
+
+我们知道ArrayList更适合随机访问，而LinkedList更适合插入和删除。
+
+* 对add(E e)方法的分析，可以得知LinkedList添加数据的效率高；
+* 对remove(int index)方法的分析，可以了解到LinkedList删除数据的效率高；
+* 对get(int index),set(int index, E element)方法的分析，可以看出LinkdedList查询的效率不高（需要定位，最差要遍历一半）；
+
+核心数据结构通过内部类体现，Node就是实际的结点，存放了结点元素和前后结点的引用。
+
+在1.7之前LinkedList是通过headerEntry实现的一个首尾相连的循环链表的。 +
+从1.7开始，LinkedList是一个Node实现的非循环链表。
+[source,java]
+----
+private static class Node<E> {
+    E item;
+    Node<E> next;
+    Node<E> prev;
+
+    Node(Node<E> prev, E element, Node<E> next) {
+        this.item = element;
+        this.next = next;
+        this.prev = prev;
+    }
+}
+----
+代码开始
+[source,java]
+----
+package java.util;
+
+import java.util.function.Consumer;
+----
+
+=== 类的继承关系
+image::images/DiagramForLinkedList.png[]
+继承自AbstractSequentialList，一个LinkedList抽象的实现；
+重点关注实现了Deque接口。
+
+[source,java]
+----
+public class LinkedList<E>
+    extends AbstractSequentialList<E>
+    implements List<E>, Deque<E>, Cloneable, java.io.Serializable
+{
+----
+=== 类的属性
+[source,java]
+----
+    //存储元素个数
+    transient int size = 0;
+
+    //存储头结点
+    transient Node<E> first;
+
+    //存储尾结点
+    transient Node<E> last;
+----
+=== 类的构造器
+[source,java]
+----
+    //无参构造器
+    public LinkedList() {
+    }
+
+    //通过一个集合初始化LinkedList，元素顺序由这个集合的迭代器返回顺序决定
+    public LinkedList(Collection<? extends E> c) {
+        //调用无参构造器
+        this();
+        //添加元素
+        addAll(c);
+    }
+----
+=== 类的方法
+主要的方法的基础是link和unlink方法组,Node<E> node(int index)定位方法（均不是public）
+
+image::images/linkedlist插入新结点.png[]
+[source,java]
+----
+    //在指定节点前插入节点，节点succ不能为空
+    void linkBefore(E e, Node<E> succ) {
+        //获取succ的前结点
+        final Node<E> pred = succ.prev;
+        final Node<E> newNode = new Node<>(pred, e, succ);
+        succ.prev = newNode;
+        if (pred == null)//如果前结点为空
+            first = newNode;
+        else
+            pred.next = newNode;
+        size++;
+        modCount++;
+    }
+    //把对应参数作为第一个节点，内部使用
+    private void linkFirst(E e) {
+        //获取头结点
+        final Node<E> f = first;
+        //定义新结点
+        final Node<E> newNode = new Node<>(null, e, f);
+        first = newNode;
+        if (f == null)//头结点为null
+            // 赋值尾结点（结果只有一个元素）
+            last = newNode;
+        else
+            //把原来的首结点的引用指向这个新加的结点
+            f.prev = newNode;
+        size++;
+        modCount++;
+        //LinkedList也采用了“快速失败”的机制，通过记录modCount参数来实现。在面对并发的修改时，
+        //迭代器很快就会完全失败，而不是冒着在将来某个不确定时间发生任意不确定行为的风险。
+
+    }
+
+    //把对应参数作为尾节点（和前一个方法类似）
+    void linkLast(E e) {
+        // 获取尾结点，l为final类型，不可更改
+        final Node<E> l = last;
+        final Node<E> newNode = new Node<>(l, e, null);
+        last = newNode;
+        if (l == null)
+            first = newNode;
+        else
+            l.next = newNode;
+        size++;
+        modCount++;
+    }
+
+----
+image::images/linkedlist删除指定的结点.png[]
+[source,java]
+----
+      //删除指定节点并返回被删除的元素值
+      E unlink(Node<E> x) {
+          // assert x != null;
+          final E element = x.item;
+          final Node<E> next = x.next;
+          final Node<E> prev = x.prev;
+
+          if (prev == null) {
+              first = next;
+          } else {
+              prev.next = next;
+              x.prev = null;
+          }
+
+          if (next == null) {
+              last = prev;
+          } else {
+              next.prev = prev;
+              x.next = null;
+          }
+
+          x.item = null;
+          size--;
+          modCount++;
+          return element;
+      }
+    //删除首节点并返回删除前首节点的值，内部使用
+    private E unlinkFirst(Node<E> f) {
+        // assert f == first && f != null;
+        final E element = f.item;
+        final Node<E> next = f.next;
+        f.item = null;
+        f.next = null; // help GC
+        first = next;
+        if (next == null)
+            last = null;
+        else
+            next.prev = null;
+        size--;
+        modCount++;
+        return element;
+    }
+    //删除尾节点并返回删除前尾节点的值，内部使用
+    private E unlinkLast(Node<E> l) {
+        // assert l == last && l != null;
+        final E element = l.item;
+        final Node<E> prev = l.prev;
+        l.item = null;
+        l.prev = null; // help GC
+        last = prev;
+        if (prev == null)
+            first = null;
+        else
+            prev.next = null;
+        size--;
+        modCount++;
+        return element;
+    }
+----
+[source,java]
+----
+//获取第一个元素
+    public E getFirst() {
+        final Node<E> f = first;
+        if (f == null)
+            throw new NoSuchElementException();
+        return f.item;
+    }
+//获取最后一个元素
+    public E getLast() {
+        final Node<E> l = last;
+        if (l == null)
+            throw new NoSuchElementException();
+        return l.item;
+    }
+
+//删除第一个元素并返回删除的元素
+    public E removeFirst() {
+        final Node<E> f = first;
+        if (f == null)
+            throw new NoSuchElementException();
+        return unlinkFirst(f);
+    }
+//删除最后一个元素并返回删除的值
+    public E removeLast() {
+        final Node<E> l = last;
+        if (l == null)
+            throw new NoSuchElementException();
+        return unlinkLast(l);
+    }
+//添加元素作为第一个元素
+    public void addFirst(E e) {
+        linkFirst(e);
+    }
+ //添加元素作为最后一个元素
+    public void addLast(E e) {
+        linkLast(e);
+    }
+ //检查是否包含某个元素，返回bool
+    public boolean contains(Object o) {
+        return indexOf(o) != -1;
+    }
+//返回列表长度
+    public int size() {
+        return size;
+    }
+//添加一个元素，默认添加到末尾作为最后一个元素
+    public boolean add(E e) {
+        linkLast(e);
+        return true;
+    }
+//删除指定元素，默认从first节点开始，删除第一次出现的那个元素（需要迭代）
+    public boolean remove(Object o) {
+        if (o == null) {
+            for (Node<E> x = first; x != null; x = x.next) {
+                if (x.item == null) {
+                    unlink(x);
+                    return true;
+                }
+            }
+        } else {
+            for (Node<E> x = first; x != null; x = x.next) {
+                if (o.equals(x.item)) {
+                    unlink(x);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    //添加指定集合的元素到列表，从最后开始添加
+    public boolean addAll(Collection<? extends E> c) {
+        //调用addAll(int index, Collection<? extends E> c)
+        return addAll(size, c);
+    }
+   //从指定位置往后追加，index和之后的元素向后顺延
+    public boolean addAll(int index, Collection<? extends E> c) {
+        checkPositionIndex(index);
+        //转化成数组
+        Object[] a = c.toArray();
+        int numNew = a.length;
+        if (numNew == 0)
+            return false;
+
+        Node<E> pred, succ;
+        if (index == size) {
+            succ = null;
+            pred = last;
+        } else {//如果不是从末尾开始添加，获取新加串的前后结点
+            succ = node(index);
+            pred = succ.prev;
+        }
+        //遍历数组并添加到列表中
+        for (Object o : a) {
+            @SuppressWarnings("unchecked") E e = (E) o;
+            Node<E> newNode = new Node<>(pred, e, null);
+            if (pred == null)
+                first = newNode;
+            else
+                pred.next = newNode;//如果存在前节点，前节点会向后指向新加的节点
+            pred = newNode;//新加的节点成为前一个节点
+        }
+
+        if (succ == null) {
+            last = pred;//如果是从最后开始添加的，则最后添加的节点成为尾节点
+        } else {
+            pred.next = succ;//如果不是从最后开始添加的，则最后添加的节点向后指向之前得到的后续第一个节点
+            succ.prev = pred;//后续的第一个节点也应改为向前指向最后一个添加的节点
+        }
+
+        size += numNew;
+        modCount++;
+        return true;
+    }
+    //清空表
+    public void clear() {
+        //方便gc回收垃圾
+        for (Node<E> x = first; x != null; ) {
+            Node<E> next = x.next;
+            x.item = null;
+            x.next = null;
+            x.prev = null;
+            x = next;
+        }
+        first = last = null;
+        size = 0;
+        modCount++;
+    }
+
+    //获取指定索引的节点的值
+    public E get(int index) {
+        checkElementIndex(index);
+        return node(index).item;
+    }
+    //修改指定索引的值并返回之前的值
+    public E set(int index, E element) {
+        checkElementIndex(index);
+        Node<E> x = node(index);
+        E oldVal = x.item;
+        //只是把item替换掉
+        x.item = element;
+        return oldVal;
+    }
+    //在指定位置后面添加元素
+    public void add(int index, E element) {
+        checkPositionIndex(index);
+
+        if (index == size)
+            linkLast(element);
+        else
+            linkBefore(element, node(index));
+    }
+    //删除指定位置的元素
+    public E remove(int index) {
+        checkElementIndex(index);
+        return unlink(node(index));
+    }
+    //检查索引是否超出范围（checkElementIndex调用），因为元素索引是0~size-1的，所以index必须满足0<=index<size
+    private boolean isElementIndex(int index) {
+        return index >= 0 && index < size;
+    }
+    //检查位置是否超出范围（checkPositionIndex调用），index必须在index~size之间（含），如果超出，返回false
+    private boolean isPositionIndex(int index) {
+        return index >= 0 && index <= size;
+    }
+    //异常详情
+    private String outOfBoundsMsg(int index) {
+        return "Index: "+index+", Size: "+size;
+    }
+    //检查元素索引是否超出范围（set,get,remove时检查），若已超出，就抛出异常
+    private void checkElementIndex(int index) {
+        if (!isElementIndex(index))
+            throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+    }
+    //检查位置是否超出范围（为添加和迭代检查使用），若已超出，就抛出异常
+    private void checkPositionIndex(int index) {
+        if (!isPositionIndex(index))
+            throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+    }
+    //获取指定位置的节点
+    //该方法返回双向链表中指定位置处的节点，而链表中是没有下标索引的，要指定位置出的元素，就要遍历该链表，从源码的实现中，我们看到这里有一个加速动作。
+    //源码中先将index与长度size的一半比较，如果index<size/2，就只从位置0往后遍历到位置index处，而如果index>size/2，就只从位置size往前遍历到位置index处。这样可以减少一部分不必要的遍历。
+    Node<E> node(int index) {
+        // assert isElementIndex(index);
+
+        if (index < (size >> 1)) {
+            Node<E> x = first;
+            for (int i = 0; i < index; i++)
+                x = x.next;
+            return x;
+        } else {
+            Node<E> x = last;
+            for (int i = size - 1; i > index; i--)
+                x = x.prev;
+            return x;
+        }
+    }
+    //获取第一个指定元素的索引位置并返回索引，不存在就返回-1
+    public int indexOf(Object o) {
+        int index = 0;
+        if (o == null) {
+            for (Node<E> x = first; x != null; x = x.next) {
+                if (x.item == null)
+                    return index;
+                index++;
+            }
+        } else {
+            for (Node<E> x = first; x != null; x = x.next) {
+                if (o.equals(x.item))
+                    return index;
+                index++;
+            }
+        }
+        return -1;
+    }
+    //获取最后一个指定元素索引的索引并返回索引，不存在就返回-1
+    public int lastIndexOf(Object o) {
+        int index = size;
+        if (o == null) {
+            for (Node<E> x = last; x != null; x = x.prev) {
+                index--;
+                if (x.item == null)
+                    return index;
+            }
+        } else {
+            for (Node<E> x = last; x != null; x = x.prev) {
+                index--;
+                if (o.equals(x.item))
+                    return index;
+            }
+        }
+        return -1;
+    }
+----
+Queue操作
+
+[source,java]
+----
+    //提供普通队列和双端队列的功能，FIFO
+     //出队（从前端），获得第一个元素，不存在会返回null，不会删除元素（节点）
+    public E peek() {
+        final Node<E> f = first;
+        return (f == null) ? null : f.item;
+    }
+    //出队（从前端），不删除元素，若为null会抛出异常而不是返回null
+    public E element() {
+        return getFirst();
+    }
+    //出队（从前端），如果不存在会返回null，存在的话会返回值并移除这个元素（节点）
+    public E poll() {
+        final Node<E> f = first;
+        return (f == null) ? null : unlinkFirst(f);
+    }
+    //出队（从前端），如果不存在会抛出异常而不是返回null，存在的话会返回值并移除这个元素（节点）
+    public E remove() {
+        return removeFirst();
+    }
+    //入队（从后端），始终返回true
+    public boolean offer(E e) {
+        return add(e);
+    }
+----
+    Deque（双端队列）操作
+[source,java]
+----
+    //入队（从前端），始终返回true
+    public boolean offerFirst(E e) {
+        addFirst(e);
+        return true;
+    }
+    //入队（从后端），始终返回true
+    public boolean offerLast(E e) {
+        addLast(e);
+        return true;
+    }
+    //出队（从前端），获得第一个元素，不存在会返回null，不会删除元素（节点）
+    public E peekFirst() {
+        final Node<E> f = first;
+        return (f == null) ? null : f.item;
+     }
+     //出队（从后端），获得最后一个元素，不存在会返回null，不会删除元素（节点）
+    public E peekLast() {
+        final Node<E> l = last;
+        return (l == null) ? null : l.item;
+    }
+    //出队（从前端），获得第一个元素，不存在会返回null，会删除元素（节点）
+    public E pollFirst() {
+        final Node<E> f = first;
+        return (f == null) ? null : unlinkFirst(f);
+    }
+    //出队（从后端），获得最后一个元素，不存在会返回null，会删除元素（节点）
+    public E pollLast() {
+        final Node<E> l = last;
+        return (l == null) ? null : unlinkLast(l);
+    }
+    //入栈，从前面添加
+    public void push(E e) {
+        addFirst(e);
+    }
+    //出栈，返回栈顶元素，从前面移除（会删除）
+    public E pop() {
+        return removeFirst();
+    }
+    //删除列表中第一出现o的节点
+    public boolean removeFirstOccurrence(Object o) {
+        return remove(o);
+    }
+    //逆向搜索，删除第一次出现o的节点
+    public boolean removeLastOccurrence(Object o) {
+        if (o == null) {
+            for (Node<E> x = last; x != null; x = x.prev) {
+                if (x.item == null) {
+                    unlink(x);
+                    return true;
+                }
+            }
+        } else {
+            for (Node<E> x = last; x != null; x = x.prev) {
+                if (o.equals(x.item)) {
+                    unlink(x);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+----
+ 通用迭代器实现  继承自AbstractSequentialList的方法，AbstractSequentialList抽象类中
+ public Iterator<E> iterator() {
+       return listIterator();
+ }
+通用迭代器与ArrayList不同，ArrayList自己实现了Iterator，说明linkedlist的迭代器天生支持反向迭代。
+
+
+ListIterator迭代器实现与ArrayList类似
+其中的ListItr继承Itr，实现了ListIterator接口，同时重写了hasPrevious()，nextIndex()， previousIndex()，previous()，set(E e)，add(E e)等方法，
+所以这也可以看出了Iterator和ListIterator的区别，就是ListIterator在Iterator的基础上增加了添加对象，修改对象，
+逆向遍历等方法。
+[source,java]
+----
+    public ListIterator<E> listIterator(int index) {
+        checkPositionIndex(index);
+        return new ListItr(index);
+    }
+
+    private class ListItr implements ListIterator<E> {
+        private Node<E> lastReturned;
+        private Node<E> next;
+        private int nextIndex;
+        private int expectedModCount = modCount;
+
+        ListItr(int index) {
+            // assert isPositionIndex(index);
+            next = (index == size) ? null : node(index);
+            nextIndex = index;
+        }
+
+        public boolean hasNext() {
+            return nextIndex < size;
+        }
+
+        public E next() {
+            checkForComodification();
+            if (!hasNext())
+                throw new NoSuchElementException();
+
+            lastReturned = next;
+            next = next.next;
+            nextIndex++;
+            return lastReturned.item;
+        }
+
+        public boolean hasPrevious() {
+            return nextIndex > 0;
+        }
+
+        public E previous() {
+            checkForComodification();
+            if (!hasPrevious())
+                throw new NoSuchElementException();
+
+            lastReturned = next = (next == null) ? last : next.prev;
+            nextIndex--;
+            return lastReturned.item;
+        }
+
+        public int nextIndex() {
+            return nextIndex;
+        }
+
+        public int previousIndex() {
+            return nextIndex - 1;
+        }
+
+        public void remove() {
+            checkForComodification();
+            if (lastReturned == null)
+                throw new IllegalStateException();
+
+            Node<E> lastNext = lastReturned.next;
+            unlink(lastReturned);
+            if (next == lastReturned)
+                next = lastNext;
+            else
+                nextIndex--;
+            lastReturned = null;
+            expectedModCount++;
+        }
+
+        public void set(E e) {
+            if (lastReturned == null)
+                throw new IllegalStateException();
+            checkForComodification();
+            lastReturned.item = e;
+        }
+
+        public void add(E e) {
+            checkForComodification();
+            lastReturned = null;
+            if (next == null)
+                linkLast(e);
+            else
+                linkBefore(e, next);
+            nextIndex++;
+            expectedModCount++;
+        }
+
+        public void forEachRemaining(Consumer<? super E> action) {
+            Objects.requireNonNull(action);
+            while (modCount == expectedModCount && nextIndex < size) {
+                action.accept(next.item);
+                lastReturned = next;
+                next = next.next;
+                nextIndex++;
+            }
+            checkForComodification();
+        }
+
+        final void checkForComodification() {
+            if (modCount != expectedModCount)
+                throw new ConcurrentModificationException();
+        }
+    }
+----
+[source,java]
+----
+    //节点的数据结构内部类，包含前后节点的引用和当前节点
+    private static class Node<E> {
+        E item;
+        Node<E> next;
+        Node<E> prev;
+
+        Node(Node<E> prev, E element, Node<E> next) {
+            this.item = element;
+            this.next = next;
+            this.prev = prev;
+        }
+    }
+----
+[source,java]
+----
+    //反向迭代器（实现Deque接口）
+    //Deque接口定义的方法，实现Iterator接口，用listIterator迭代器返回一个迭代在此双端队列逆向顺序的元素
+    public Iterator<E> descendingIterator() {
+        return new DescendingIterator();
+    }
+    //
+    private class DescendingIterator implements Iterator<E> {
+        private final ListItr itr = new ListItr(size());
+        public boolean hasNext() {
+            return itr.hasPrevious();
+        }
+        public E next() {
+            return itr.previous();
+        }
+        public void remove() {
+            itr.remove();
+        }
+    }
+----
+[source,java]
+----
+    @SuppressWarnings("unchecked")
+    private LinkedList<E> superClone() {
+        try {
+            return (LinkedList<E>) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new InternalError(e);
+        }
+    }
+    //与ArrayList一样都是调用super。clone()
+    //protected native Object clone() throws CloneNotSupportedException;
+    //被复制对象的所有变量都含有与原来的对象相同的值，而所有的对其他对象的引用仍然指向原来的对象。
+    public Object clone() {
+        LinkedList<E> clone = superClone();
+
+        // Put clone into "virgin" state
+        clone.first = clone.last = null;
+        clone.size = 0;
+        clone.modCount = 0;
+
+        // Initialize clone with our elements
+        for (Node<E> x = first; x != null; x = x.next)
+            clone.add(x.item);
+
+        return clone;
+    }
+----
+转换成数组
+[source,java]
+----
+    public Object[] toArray() {
+        Object[] result = new Object[size];
+        int i = 0;
+        for (Node<E> x = first; x != null; x = x.next)
+            result[i++] = x.item;
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    //如果没有参数，就默认生成一个Object数组，如果给了T类型，就将节点内容放入a数组，
+    //如果a的长度小于链表，就使用反射生成一个链表大小的数组，这个时候由于类型是T，所以无法直接实例化。
+    public <T> T[] toArray(T[] a) {
+        if (a.length < size)
+            a = (T[])java.lang.reflect.Array.newInstance(
+                                a.getClass().getComponentType(), size);
+        int i = 0;
+        Object[] result = a;
+        for (Node<E> x = first; x != null; x = x.next)
+            result[i++] = x.item;
+
+        if (a.length > size)
+            a[size] = null;
+
+        return a;
+    }
+----
+
+如果声明该方法，它将会被ObjectOutputStream调用而不是默认的序列化进程。如果你是第一次看见它，
+你会很惊奇尽管它们被外部类调用但事实上这是两个private的方法。并且它们既不存在于java.lang.Object，也没有在Serializable中声明。
+那么ObjectOutputStream如何使用它们的呢？这个吗，ObjectOutputStream使用了反射来寻找是否声明了这两个方法。
+因为ObjectOutputStream使用getPrivateMethod，所以这些方法不得不被声明为priate以至于供ObjectOutputStream来使用。
+[source,java]
+----
+    private static final long serialVersionUID = 876323262645176354L;
+    //定义了自己的序列化方法，通过反射调用
+    private void writeObject(java.io.ObjectOutputStream s)
+        throws java.io.IOException {
+        // Write out any hidden serialization magic
+        s.defaultWriteObject();
+
+        // Write out size
+        s.writeInt(size);
+
+        // Write out all elements in the proper order.
+        for (Node<E> x = first; x != null; x = x.next)
+            s.writeObject(x.item);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void readObject(java.io.ObjectInputStream s)
+        throws java.io.IOException, ClassNotFoundException {
+        // Read in any hidden serialization magic
+        s.defaultReadObject();
+
+        // Read in size
+        int size = s.readInt();
+
+        // Read in all elements in the proper order.
+        for (int i = 0; i < size; i++)
+            linkLast((E)s.readObject());
+    }
+----
+[source,java]
+----
+    //以下关于1.8函数式编程
+    @Override
+    public Spliterator<E> spliterator() {
+        return new LLSpliterator<E>(this, -1, 0);
+    }
+
+    static final class LLSpliterator<E> implements Spliterator<E> {
+        static final int BATCH_UNIT = 1 << 10;  // batch array size increment
+        static final int MAX_BATCH = 1 << 25;  // max batch array size;
+        final LinkedList<E> list; // null OK unless traversed
+        Node<E> current;      // current node; null until initialized
+        int est;              // size estimate; -1 until first needed
+        int expectedModCount; // initialized when est set
+        int batch;            // batch size for splits
+
+        LLSpliterator(LinkedList<E> list, int est, int expectedModCount) {
+            this.list = list;
+            this.est = est;
+            this.expectedModCount = expectedModCount;
+        }
+
+        final int getEst() {
+            int s; // force initialization
+            final LinkedList<E> lst;
+            if ((s = est) < 0) {
+                if ((lst = list) == null)
+                    s = est = 0;
+                else {
+                    expectedModCount = lst.modCount;
+                    current = lst.first;
+                    s = est = lst.size;
+                }
+            }
+            return s;
+        }
+
+        public long estimateSize() { return (long) getEst(); }
+
+        public Spliterator<E> trySplit() {
+            Node<E> p;
+            int s = getEst();
+            if (s > 1 && (p = current) != null) {
+                int n = batch + BATCH_UNIT;
+                if (n > s)
+                    n = s;
+                if (n > MAX_BATCH)
+                    n = MAX_BATCH;
+                Object[] a = new Object[n];
+                int j = 0;
+                do { a[j++] = p.item; } while ((p = p.next) != null && j < n);
+                current = p;
+                batch = j;
+                est = s - j;
+                return Spliterators.spliterator(a, 0, j, Spliterator.ORDERED);
+            }
+            return null;
+        }
+
+        public void forEachRemaining(Consumer<? super E> action) {
+            Node<E> p; int n;
+            if (action == null) throw new NullPointerException();
+            if ((n = getEst()) > 0 && (p = current) != null) {
+                current = null;
+                est = 0;
+                do {
+                    E e = p.item;
+                    p = p.next;
+                    action.accept(e);
+                } while (p != null && --n > 0);
+            }
+            if (list.modCount != expectedModCount)
+                throw new ConcurrentModificationException();
+        }
+
+        public boolean tryAdvance(Consumer<? super E> action) {
+            Node<E> p;
+            if (action == null) throw new NullPointerException();
+            if (getEst() > 0 && (p = current) != null) {
+                --est;
+                E e = p.item;
+                current = p.next;
+                action.accept(e);
+                if (list.modCount != expectedModCount)
+                    throw new ConcurrentModificationException();
+                return true;
+            }
+            return false;
+        }
+
+        public int characteristics() {
+            return Spliterator.ORDERED | Spliterator.SIZED | Spliterator.SUBSIZED;
+        }
+    }
+
+}
+----
+LinkedList与ArrayList的区别：
+LinkedList与ArrayList在性能上各有优缺点，都有各自适用的地方，总结如下：
+
+ArrayList是实现了基于动态数组的数据结构，LinkedList基于链表的数据结构。 +
+LinkedList不支持高效的随机元素访问。 +
+ArrayList的空间浪费主要体现在在list列表的结尾预留一定的容量空间， +
+而LinkedList的空间花费则体现在它的每一个元素都需要消耗相当的空间（需要附加的空间来表明数据元素的逻辑关系），就存储密度来说，ArrayList是优于LinkedList的。 +　　
+当操作是在一列数据的后面添加数据而不是在前面或中间,并且需要随机地访问其中的元素时,使用ArrayList会提供比较好的性能， +
+当你的操作是在一列数据的前面或中间添加或删除数据,并且按照顺序访问其中的元素时,就应该使用LinkedList了。
