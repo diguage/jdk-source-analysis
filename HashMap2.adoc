@@ -3,7 +3,7 @@
 *继上一章介绍了HashMap的签名、数据结构以及存储原理之后，相信大家对HashMap有了更加深入的理解，在使用时也会得心应手。* +
 *本章将继续介绍HashMap的使用，主要是分析HashMap的三种遍历方式。*
 
-==== HashMap遍历
+=== HashMap遍历
 '''
 * *HashMap提供了三种遍历方式：*
 . 遍历所有的Key：Set<K> keySet()
@@ -154,7 +154,8 @@ final class EntrySet extends AbstractSet<Map.Entry<K,V>> {
 理解了 HashIterator 后再看 entrySet() 和 EntrySet 类就比较容易理解了，注意到 HashMap 的实现中使用了一个 entrySet 成员来缓存结果。 keySet() 和 values() 的实现也是类似的，只是 values() 返回的是 Collection ，因为值不能保证唯一性，而键是可以的。
 
 
-==== 注意
+=== 注意
+
 *对于Map中的Key是包装类型时，从map总get元素时要特别注意，get元素的key也必须是对应的包装类型，否者不能获得到对应的value。
 因为get方法内部通过key查找对应的value时，key用的是equals方法比较，所以key的数据类型也必须相同。 +
 例如：*
@@ -166,13 +167,14 @@ map.put(123L,"java");
 String value = map.get(key);  // value是null？还是java？
 ----
 
-==== 小结
+=== 小结
+
 有关HashMap的遍历就介绍这写，遍历HashMap一共有三种方式，一般遍历key和遍历Entry用的比较多，而且遍历Entry要比遍历
 key效率要更快些。对于HashMap的源码暂时就分析这么多，由于本人还是一个菜鸟，水平有限，有些地方也许没有分析的透彻，希望
 大家可以见谅，同时，本次HashMap的源码分析也有很多地方没有讲到，比如：HashMap的存储结构红黑树，以后有时间再来研究一下红黑树
 的实现原理，这里先推荐一篇讲解红黑树的文章link:http://tech.meituan.com/redblack-tree.html[红黑树深入剖析及Java实现]。
 
 
-==== 参考
+=== 参考
 
 link:http://blog.jrwang.me/2016/java-collections-hashmap/[Java 容器源码分析之 HashMap]
