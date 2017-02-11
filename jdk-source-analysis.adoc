@@ -15,7 +15,9 @@ include::ArrayList.adoc[]
 
 include::LinkedList.adoc[]
 
-include::HashMap.adoc[]
+include::HashMap1.adoc[]
+
+include::HashMap2.adoc[]
 
 include::HashMap-qa.adoc[]
 
