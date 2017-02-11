@@ -1,4 +1,4 @@
-= MySQL 学习笔记
+= JDK 源码分析
 D瓜哥 <http://www.diguage.com/>; 罗铜; 张雷
 v0.1.0, 2016-10-31
 :doctype:   book
