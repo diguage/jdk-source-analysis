@@ -1,5 +1,9 @@
 == AbstractQueuedSynchronizer
 
+在 Java 5 之后，JDK 内置了大量的并发工具类。粗略去看这些工具类的源码，你会发现，大多数都在内部继承了 `AbstractQueuedSynchronizer`。由此可见，`AbstractQueuedSynchronizer` 的核心地位。想搞清楚这些并发工具类的原理，`AbstractQueuedSynchronizer` 的源码可以说是不可不看。
+
+
+
 === 参考资料
 
 WARNING: 访问一些页面时发现一些页面已经不能访问了，后续再搜索补上吧。

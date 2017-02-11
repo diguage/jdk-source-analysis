@@ -1,22 +1,4 @@
-== ArrayList 源码分析
-
-. Java 中有很多标识类的接口。这些表示类有什么意义？是否在 Java 虚拟机中对其进行了特殊处理？
-. 在实现 `java.io.Serializable` 时，如果不声明 `serialVersionUID` 变量时，是否会生成这个值？默认的值是什么？在序列化时，是如何保存这个值？在反序列化时，如何从对象的字节码中获取这个值？比较后，如果不同又怎么处理的？
-. 在 `ArrayList` 中有 `writeObject(java.io.ObjectOutputStream s)` 和 `readObject(java.io.ObjectInputStream s)` 方法。在单例模式中，为了解决反序列化的问题，会添加 `readResolve()` 方法。这三个方法有什么用？什么时候被什么调用？被什么调用？设置断点调试一下，看 *调用栈*。
-. ArrayList 在扩容时，使用的是 `oldCapacity + (oldCapacity >> 1)`，这里 `oldCapacity >> 1` 就是直接移位将 oldCapacity 的值减半，取到的值就是 oldCapacity/2 后的最大正整数。
-. ArrayList 中有 `rangeCheck(int index)` 和 `rangeCheckForAdd(int index)`，区别就是前者没有做负数检查。为什么会有这种区别？为什么不检查负数？再为什么不检查负数为什么还能抛出 `ArrayIndexOutOfBoundsException` 异常？（文档中）
-. 《数据结构与算法分析》 中提到 `Iterator` 和 `ListIterator` 的区别以及 `ListIterator` 中一个特殊的使用。再次看书来确认一下。
-. 通过指令来对比 Iterat or 和 foreach 之间的性能差异。
-
-
-=== 参考资料
-
-. http://www.hollischuang.com/archives/1144[单例与序列化的那些事儿-HollisChuang's Blog]
-. http://www.hollischuang.com/archives/197[深度分析Java的枚举类型—-枚举的线程安全性及序列化问题-HollisChuang's Blog]
-
-
-
-== ArrayList实现原理与源码分析
+== `ArrayList` 实现原理与源码分析
 
 对于每种抽象数据类型并不存在什么法则来告诉我们必须要有哪些操作，这是一个设计决策--《数据结构与算法分析》
 
@@ -1087,4 +1069,20 @@ ArrayList在扩展容量时，如果你指定扩展的容量达不到原容量�
 
 image::images/compareListLoop.png[]
 这是对ArrayList效率影响比较大的一个因素。
-每当执行Add等添加元素的方法，都会检查内部数组的容量是否不够了，如果是，它就会以当前容量 的1.5倍来重新构建一个数组，将旧元素Copy到新数组中，然后丢弃旧数组，在这个临界点的扩容操作，应该来说是比较影响效率的。 正确的预估可能的元素，是提高ArrayList使用效率的重要途径。
+每当执行Add等添加元素的方法，都会检查内部数组的容量是否不够了，如果是，它就会以当前容量 的 1.5 倍来重新构建一个数组，将旧元素Copy到新数组中，然后丢弃旧数组，在这个临界点的扩容操作，应该来说是比较影响效率的。 正确的预估可能的元素，是提高ArrayList使用效率的重要途径。
+
+
+=== 问题
+
+. Java 中有很多标识类的接口。这些表示类有什么意义？是否在 Java 虚拟机中对其进行了特殊处理？
+. 在实现 `java.io.Serializable` 时，如果不声明 `serialVersionUID` 变量时，是否会生成这个值？默认的值是什么？在序列化时，是如何保存这个值？在反序列化时，如何从对象的字节码中获取这个值？比较后，如果不同又怎么处理的？
+. 在 `ArrayList` 中有 `writeObject(java.io.ObjectOutputStream s)` 和 `readObject(java.io.ObjectInputStream s)` 方法。在单例模式中，为了解决反序列化的问题，会添加 `readResolve()` 方法。这三个方法有什么用？什么时候被什么调用？被什么调用？设置断点调试一下，看 *调用栈*。
+. ArrayList 在扩容时，使用的是 `oldCapacity + (oldCapacity >> 1)`，这里 `oldCapacity >> 1` 就是直接移位将 oldCapacity 的值减半，取到的值就是 oldCapacity/2 后的最大正整数。
+. ArrayList 中有 `rangeCheck(int index)` 和 `rangeCheckForAdd(int index)`，区别就是前者没有做负数检查。为什么会有这种区别？为什么不检查负数？再为什么不检查负数为什么还能抛出 `ArrayIndexOutOfBoundsException` 异常？（文档中）
+. 《数据结构与算法分析》 中提到 `Iterator` 和 `ListIterator` 的区别以及 `ListIterator` 中一个特殊的使用。再次看书来确认一下。
+. 通过指令来对比 Iterat or 和 foreach 之间的性能差异。
+
+=== 参考资料
+
+. http://www.hollischuang.com/archives/1144[单例与序列化的那些事儿-HollisChuang's Blog]
+. http://www.hollischuang.com/archives/197[深度分析Java的枚举类型—-枚举的线程安全性及序列化问题-HollisChuang's Blog]
