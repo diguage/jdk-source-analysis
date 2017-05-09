@@ -2,6 +2,25 @@
 
 在 Java 5 之后，JDK 内置了大量的并发工具类。粗略去看这些工具类的源码，你会发现，大多数都在内部继承了 `AbstractQueuedSynchronizer`。由此可见，`AbstractQueuedSynchronizer` 的核心地位。想搞清楚这些并发工具类的原理，`AbstractQueuedSynchronizer` 的源码可以说是不可不看。
 
+=== `Node` 详解
+
+==== `Node` 中一些常量定义
+
+区分共享锁还是独占式锁的常量，是如何被使用的？独占锁为何没有初始化？
+
+. `static final Node SHARED = new Node();`
+. `static final Node EXCLUSIVE = null;` -- 为何没有被初始化？
+
+节点的状态
+
+. `static final int CANCELLED =  1;` -- 表示当前的线程被取消；
+. `static final int SIGNAL    = -1;` -- 表示当前节点的后继节点包含的线程需要运行，也就是unpark；
+. `static final int CONDITION = -2;` -- 表示当前节点在等待condition，也就是在condition队列中；
+. `static final int PROPAGATE = -3;` -- 表示当前场景下后续的acquireShared能够得以执行；
+. `0` -- 表示当前节点在sync队列中，等待着获取锁。
+
+
+
 
 
 === 参考资料
