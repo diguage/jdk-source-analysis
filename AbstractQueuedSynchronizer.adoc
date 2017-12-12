@@ -1,6 +1,16 @@
 == AbstractQueuedSynchronizer
 
+Doug Lea
+
 在 Java 5 之后，JDK 内置了大量的并发工具类。粗略去看这些工具类的源码，你会发现，大多数都在内部继承了 `AbstractQueuedSynchronizer`。由此可见，`AbstractQueuedSynchronizer` 的核心地位。想搞清楚这些并发工具类的原理，`AbstractQueuedSynchronizer` 的源码可以说是不可不看。
+
+=== CLH lock queue 介绍
+
+终于看明白了 CLH lock queue。CLH 通过自旋来锁定当前节点。自旋的好处是线程不需要睡眠和唤醒，减小了系统调用的开销。
+
+AQS 中线程不是一直在自旋的，而可能会反复的睡眠和唤醒，这就需要前继释放锁的时候通过 next 指针找到其后继将其唤醒，也就是 AQS 的等待队列中后继是被前继唤醒的。AQS 结合了自旋和睡眠/唤醒两种方法的优点。
+
+_AQS 结合了自旋和睡眠/唤醒两种方法的优点。_ 这句话该如何理解？刚刚想到的一点： AQS 中会先自旋两次，如果不成功则休眠。应该是这样来使用两者的好处！
 
 === `Node` 详解
 
@@ -10,6 +20,8 @@
 
 . `static final Node SHARED = new Node();`
 . `static final Node EXCLUSIVE = null;` -- 为何没有被初始化？
+
+共享锁的话，大家使用同一个 `Node` 实例，而独自锁则是每个任务使用一个 `Node` 实例。可以这样理解吗？
 
 节点的状态
 
