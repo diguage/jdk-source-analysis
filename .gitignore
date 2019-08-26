@@ -1,2 +1,9 @@
 *.html
 *.pdf
+.classpath
+.project
+.settings/
+.vscode/
+target
+*.iml
+
