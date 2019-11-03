@@ -6,4 +6,8 @@
 .vscode/
 target
 *.iml
-
+.DS_Store
+*.svg
+*.html
+.factorypath
+/docs/.asciidoctor/

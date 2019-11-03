@@ -38,9 +38,14 @@ TIP: 对比一下自己的实现和这些经典代码的实现，总结自己差
 
 == JDK 集合类
 
-*Base*::
-代码总行数： 103 + 604 + 469 = 1176 行，预计 2 个小时。
+*Base + Iterator*::
+代码总行数： 103 + 118 + 302 + 195 + 832 + 79 + 604 + 469 = 2702 行，预计 5 个小时。
 . `java.lang.Iterable`
+. `java.util.Iterator`
+. `java.util.PrimitiveIterator`
+. `java.util.ListIterator`
+. `java.util.Spliterator`
+. `java.util.Enumeration`
 . `java.util.Collection`
 . `java.util.AbstractCollection`
 
@@ -75,7 +80,7 @@ TIP: 对比一下自己的实现和这些经典代码的实现，总结自己差
 . `java.util.BitSet`
 
 
-image::docs/java.util.Collection.png[]
+image::./docs/images/java.util.Collection.png[]
 
 *Map*::
 代码总行数： 1183 + 284 + 424 + 860 + 3019 + 1339 + 812 + 1600 + 756 + 2397 + 155 + 1422 = 14251 行，预计 28 个小时。
@@ -92,17 +97,11 @@ image::docs/java.util.Collection.png[]
 . `java.util.Dictionary`
 . `java.util.Hashtable`
 
-image::docs/java.util.Map.png[]
-
-*Iterator*::
-代码总行数： 118 + 302 + 195 = 615 行，预计 2 个小时。
-. `java.util.Iterator`
-. `java.util.PrimitiveIterator`
-. `java.util.ListIterator`
+image::./docs/images/java.util.Map.png[]
 
 来张总体结构图：
 
-image::docs/jdk-collection-classes.png[]
+image::./docs/images/jdk-collection-classes.png[]
 
 TIP: 这里没有包含并发相关的集合类。这块内容放到并发中一起搞。
 
@@ -130,3 +129,7 @@ TIP: 这里没有包含并发相关的集合类。这块内容放到并发中一
                     └── truman  -- 这个目录存放相关测试代码。
                         └── AppTest.java
 ----
+
+== 已经完成部分
+
+* [x] link:./docs/java.util.Iterator.adoc[迭代器 Iterator、Spliterator 与 Iterable]

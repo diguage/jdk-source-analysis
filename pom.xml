@@ -8,9 +8,9 @@
     <groupId>com.diguage</groupId>
     <artifactId>truman</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-
     <name>JDK Source Analysis</name>
-    <!--    <url>http://www.example.com</url>-->
+    <description>truman 这个名来源于《楚门的世界 The Truman Show》，取义走过 API 的墙，看到"外面的"真实的世界。</description>
+    <url>https://www.diguage.com/</url>
 
     <properties>
         <jmh.version>1.21</jmh.version>
@@ -40,7 +40,6 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.assertj/assertj-core -->
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
