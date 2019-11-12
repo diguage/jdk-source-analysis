@@ -723,3 +723,192 @@ HashMap 内部是基于一个数组来实现的，数组中的每个元素称为
 . link:http://blog.csdn.net/tuke_tuke/article/details/51588156[ Java中HashMap底层实现原理(JDK1.8)源码分析]
 . link:http://www.cnblogs.com/ToBeAProgrammer/p/4787761.html[基于jdk1.8的HashMap源码学习笔记] +
 . link:http://tech.meituan.com/java-hashmap.html[Java 8系列之重新认识HashMap]
+
+
+== JDK1.8 HashMap源码解析(二)
+
+*继上一章介绍了HashMap的签名、数据结构以及存储原理之后，相信大家对HashMap有了更加深入的理解，在使用时也会得心应手。* +
+*本章将继续介绍HashMap的使用，主要是分析HashMap的三种遍历方式。*
+
+=== HashMap遍历
+'''
+* *HashMap提供了三种遍历方式：*
+. 遍历所有的Key：Set<K> keySet()
+. 遍历所有的Entry：Set<Map.Entry<K,V>> entrySet()
+. 遍历所有的Value（不常用）：Collection<V> values()
+
+这三个方法的基本用法将不在详细介绍，它们都是返回可迭代的Set或者Collection。要弄清楚这三个方法
+的内部实现机制，首先主要来看一下内部抽象类#HashIterator#。 +
+
+* HashIterator内部类：
+
+[source,java]
+----
+abstract class HashIterator {
+    Node<K,V> next;        // next entry to return
+    Node<K,V> current;     // current entry
+    int expectedModCount;  // for fast-fail
+    int index;             // current slot
+
+    HashIterator() {
+        //用expectedModCount保存刚创建迭代器时的modCount，
+        //实现fail-fast机制需要对比该值和使用时的modCount
+        expectedModCount = modCount;
+        Node<K,V>[] t = table;
+        current = next = null;
+        index = 0;
+        //找到第一个有效的槽
+        if (t != null && size > 0) { // advance to first entry
+            do {} while (index < t.length && (next = t[index++]) == null);
+        }
+    }
+
+    public final boolean hasNext() {
+        return next != null;
+    }
+
+    final Node<K,V> nextNode() {
+        Node<K,V>[] t;
+        Node<K,V> e = next;
+        /*
+         * fail-fast 检查
+         * 当另外一个线程对当前Map修改时，会修改modCount，
+         * 当前线程遍历正在，如果expectedModCount和modCount
+         * 不相等，就会抛出ConcurrentModificationException异常
+         */
+        if (modCount != expectedModCount)
+            throw new ConcurrentModificationException();
+        // table数组中没有元素，抛出NoSuchElementException异常
+        if (e == null)
+            throw new NoSuchElementException();
+        //next = e.next
+        //遍历是通过单链表的方式来访问的，即便是红黑树也可以这样来遍历
+        //TreeNode中也存在next引用，也可以看做单链表
+        if ((next = (current = e).next) == null && (t = table) != null) {
+            //如果到达当前链表末尾next == null
+            //寻找下一个有效的槽
+            do {} while (index < t.length && (next = t[index++]) == null);
+        }
+        return e;
+    }
+
+    public final void remove() {
+        Node<K,V> p = current;
+        if (p == null)
+            throw new IllegalStateException();
+        //fail-fast 检查
+        if (modCount != expectedModCount)
+            throw new ConcurrentModificationException();
+        current = null;
+        K key = p.key;
+        //调用removeNode移除Entry
+        removeNode(hash(key), key, null, false, false);
+        //更新expectedModCount
+        expectedModCount = modCount;
+    }
+}
+
+final class KeyIterator extends HashIterator
+    implements Iterator<K> {
+    public final K next() { return nextNode().key; }  //返回Key
+}
+
+final class ValueIterator extends HashIterator
+    implements Iterator<V> {
+    public final V next() { return nextNode().value; } // 返回Value
+}
+
+final class EntryIterator extends HashIterator
+    implements Iterator<Map.Entry<K,V>> {
+    public final Map.Entry<K,V> next() { return nextNode(); } // 返回Entry
+}
+----
+*KeyIterator、ValueIterator 和 EntryIterator 都继承了 HashIterator，区别只在于 next() 方法返回的是 Key、Value 还是 Entry。*
+
+* Set<Map.Entry<K,V>> entrySet()
+
+[source,java]
+----
+public Set<Map.Entry<K,V>> entrySet() {
+    Set<Map.Entry<K,V>> es;
+    return (es = entrySet) == null ? (entrySet = new EntrySet()) : es;
+}
+
+final class EntrySet extends AbstractSet<Map.Entry<K,V>> {
+  public final int size()                 { return size; }
+  public final void clear()               { HashMap.this.clear(); }
+  //返回一个迭代器
+  public final Iterator<Map.Entry<K,V>> iterator() {
+    return new EntryIterator();
+  }
+  public final boolean contains(Object o) {
+    if (!(o instanceof Map.Entry))
+      return false;
+    Map.Entry<?,?> e = (Map.Entry<?,?>) o;
+    Object key = e.getKey();
+    Node<K,V> candidate = getNode(hash(key), key);
+    return candidate != null && candidate.equals(e);
+  }
+  public final boolean remove(Object o) {
+    if (o instanceof Map.Entry) {
+      Map.Entry<?,?> e = (Map.Entry<?,?>) o;
+      Object key = e.getKey();
+      Object value = e.getValue();
+      return removeNode(hash(key), key, value, true, true) != null;
+    }
+    return false;
+  }
+  public final Spliterator<Map.Entry<K,V>> spliterator() {
+    return new EntrySpliterator<>(HashMap.this, 0, -1, 0, 0);
+  }
+  public final void forEach(Consumer<? super Map.Entry<K,V>> action) {
+    Node<K,V>[] tab;
+    if (action == null)
+      throw new NullPointerException();
+    if (size > 0 && (tab = table) != null) {
+      int mc = modCount;
+      for (int i = 0; i < tab.length; ++i) {
+        for (Node<K,V> e = tab[i]; e != null; e = e.next)
+          action.accept(e);
+      }
+      if (modCount != mc)
+        throw new ConcurrentModificationException();
+    }
+  }
+}
+----
+
+理解了 HashIterator 后再看 entrySet() 和 EntrySet 类就比较容易理解了，注意到 HashMap 的实现中使用了一个 entrySet 成员来缓存结果。 keySet() 和 values() 的实现也是类似的，只是 values() 返回的是 Collection ，因为值不能保证唯一性，而键是可以的。
+
+
+=== 注意
+
+*对于Map中的Key是包装类型时，从map总get元素时要特别注意，get元素的key也必须是对应的包装类型，否者不能获得到对应的value。
+因为get方法内部通过key查找对应的value时，key用的是equals方法比较，所以key的数据类型也必须相同。 +
+例如：*
+[source,java]
+----
+long key = 123;
+Map<Long,String> map = Maps.newHashMap();
+map.put(123L,"java");
+String value = map.get(key);  // value是null？还是java？
+----
+
+=== 小结
+
+有关HashMap的遍历就介绍这写，遍历HashMap一共有三种方式，一般遍历key和遍历Entry用的比较多，而且遍历Entry要比遍历
+key效率要更快些。对于HashMap的源码暂时就分析这么多，由于本人还是一个菜鸟，水平有限，有些地方也许没有分析的透彻，希望
+大家可以见谅，同时，本次HashMap的源码分析也有很多地方没有讲到，比如：HashMap的存储结构红黑树，以后有时间再来研究一下红黑树
+的实现原理，这里先推荐一篇讲解红黑树的文章link:http://tech.meituan.com/redblack-tree.html[红黑树深入剖析及Java实现]。
+
+
+=== 参考
+
+link:http://blog.jrwang.me/2016/java-collections-hashmap/[Java 容器源码分析之 HashMap]
+
+
+== HashMap 问题集
+
+. 如果判断是否到达容量阈值？
+. 为什么
+. 遍历查找时，如果保证可以让红黑树的节点也可以使用next方法来查找？
