@@ -1,0 +1,43 @@
+== AbstractSequentialList
+include::_attributes.adoc[]
+
+=== 类图
+
+先来看一下 `AbstractSequentialList` 的类图：
+
+[plantuml,{puml_attr}]
+....
+@startuml
+skinparam nodesep 100
+'skinparam ranksep 60
+
+title <b>AbstractSequentialList</b>
+
+interface Iterable<E>
+
+interface Collection<E> extends Iterable
+
+abstract class AbstractCollection<E> implements Collection
+
+interface List<E> extends Collection
+
+interface Queue<E> extends Collection
+
+interface Deque<E> extends Queue
+
+abstract class AbstractList<E> extends AbstractCollection implements List
+
+abstract class AbstractSequentialList<E> extends AbstractList
+
+@enduml
+....
+
+`AbstractSequentialList` 是 xref:java.util.LinkedList.adoc[`java.util.LinkedList`] 的父类，主要是基于 xref:java.util.Iterator.adoc#ListIterator[`java.util.ListIterator`] 实现了
+
+* `get(int index)`
+* `set(int index, E element)`
+* `add(int index, E element)`
+* `remove(int index)`
+* `addAll(int index, Collection<? extends E> c)`
+
+等与具体坐标相关的随机访问 List 的方法。

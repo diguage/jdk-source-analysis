@@ -1,0 +1,47 @@
+== TreeMap
+
+先看一个问题：
+
+[source,java]
+----
+import com.sun.xml.internal.ws.api.model.wsdl.WSDLOutput;import java.util.TreeMap;public class Pair implements Comparable<Pair> {
+    int key;
+    long time;
+
+    public Pair(int key) {
+        this.key = key;
+    }
+
+    public Pair(int key, long time) {
+        this.key = key;
+        this.time = time;
+    }
+
+    @Override
+    public int compareTo(Pair o) {
+        return Long.compare(this.time, o.time);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Pair pair = (Pair) o;
+        return key == pair.key;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key);
+    }
+}
+
+class Main {
+    TreeMap<Pair, Pair> data = new TreeMap<>();
+    Pair pair = new Pair(1, System.currentTimeMillis());
+
+    data.put(pair, pair);
+    Pair value = data.get(new Pair(1));
+    System.out.println(pair.equals(value)); // 请问，这里会输出 true ？还是 false ？
+}
+----

@@ -907,8 +907,10 @@ key效率要更快些。对于HashMap的源码暂时就分析这么多，由于�
 link:http://blog.jrwang.me/2016/java-collections-hashmap/[Java 容器源码分析之 HashMap]
 
 
-== HashMap 问题集
+=== HashMap 问题集
 
 . 如果判断是否到达容量阈值？
 . 为什么
 . 遍历查找时，如果保证可以让红黑树的节点也可以使用next方法来查找？
+
+

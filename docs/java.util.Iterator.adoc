@@ -1,4 +1,6 @@
-== 迭代器 Iterator、Spliterator 与 Iterable
+== 迭代器 Iterator、 Enumeration、 Spliterator 与 Iterable
+include::_attributes.adoc[]
+
 
 === 涉及代码
 
@@ -23,10 +25,11 @@ ____
 
 类图如下：
 
-[plantuml, iterator-class-diagram, format=svg,align="center",width=100%]
+[plantuml,{puml_attr}]
 ....
 @startuml
 'skinparam nodesep 70
+skinparam defaultFontName Hiragino Sans GB
 
 title <b>迭代器模式</b>
 
@@ -85,7 +88,7 @@ ConcreteIterator <.. ConcreteAggregate
 从上面的设计模式可以看出，迭代器模式就是为了遍历不同的聚集结构提供诸如开始、下一个、是否结束、当前元素等常见操作的统一接口。来看看 Java 集合类是如何提炼接口的。
 
 .java.util.Iterator
-[source,java]
+[source,java,{source_attr}]
 ----
 public interface Iterator<E> {
 
@@ -113,7 +116,7 @@ public interface Iterator<E> {
 这里多扯一句，Java 在 1.2 以前迭代器是通过另外一个接口实现的：
 
 .java.util.Enumeration
-[source,java]
+[source,java,{source_attr}]
 ----
 public interface Enumeration<E> {
 
@@ -139,7 +142,7 @@ public interface Enumeration<E> {
 既然迭代器可以抽象成一个公共的接口，那么生成迭代器实例的这个操作，也可以抽象成一个接口。 Java 也确实是这样做的：
 
 .java.lang.Iterable
-[source,java]
+[source,java,{source_attr}]
 ----
 public interface Iterable<T> {
 
@@ -182,9 +185,11 @@ ____
 
 类图如下：
 
-[plantuml, factory-method-class-diagram, format=svg,align="center",width=100%]
+[plantuml,{puml_attr}]
 ....
 @startuml
+skinparam defaultFontName Hiragino Sans GB
+
 title <b>工厂方法模式</b>
 
 abstract class Product {
@@ -222,5 +227,48 @@ ConcreteFactory -right-> ConcreteProduct
 
 === `Spliterator`
 
+[#ListIterator]
+=== `ListIterator`
+
+`java.util.Iterator` 是针对整个集合类抽象出来的通用迭代器。但是，可以思考一下，对于 `java.util.List` 是不是可以有更契合的迭代器？
+
+关于这个问题的答案，JDK 给出了自己的答案：
+
+[source,java,{source_attr}]
+----
+public interface ListIterator<E> extends Iterator<E> {
+    // Query Operations
+
+    boolean hasNext();
+
+    E next();
+
+    boolean hasPrevious();
+
+    E previous();
+
+    int nextIndex();
+
+    int previousIndex();
+
+
+    // Modification Operations
+
+    void remove();
+
+    void set(E e);
+
+    void add(E e);
+}
+----
+
+由于 `List` 是有序的，从代码中可以看出，所以，`ListIterator` 在 `Iterator` 基础之上，增加了获前后元素相关的方法；同时，还增加了修改相关的操作方法。
+
+因为增加了 `hasPrevious()` 和 `previous()`，那么 `ListIterator` 就有了双向遍历的能力：既可以像传统迭代器那样，从前向后遍历；又可以逆向，从后想前遍历。这样在某些场景下就会特别方便。
+
+
+=== 参考资料
+
+* https://www.journaldev.com/13457/java-listiterator[Java ListIterator - ListIterator in Java - JournalDev]
 
 

@@ -1,0 +1,5 @@
+== LinkedHashMap
+
+问题：
+
+. `new LinkedHashMap<>(10, 0.75F, true)` 和 `new LinkedHashMap<>()` 除了容量之外，还有什么差别吗？

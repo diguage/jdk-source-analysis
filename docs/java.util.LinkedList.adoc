@@ -1,6 +1,193 @@
-== LinkedList源码分析
+== LinkedList
+include::_attributes.adoc[]
 
-我们知道ArrayList更适合随机访问，而LinkedList更适合插入和删除。
+=== 类图
+
+先来看一下 `ArrayList` 的类图：
+
+[plantuml,{puml_attr}]
+....
+@startuml
+skinparam nodesep 100
+'skinparam ranksep 60
+
+interface Iterable<E>
+
+interface Collection<E> extends Iterable
+
+abstract class AbstractCollection<E> implements Collection
+
+
+interface List<E> extends Collection
+
+interface Queue<E> extends Collection
+
+interface Deque<E> extends Queue
+
+abstract class AbstractList<E> extends AbstractCollection implements List
+
+abstract class AbstractSequentialList<E> extends AbstractList
+
+class LinkedList<E> extends AbstractSequentialList implements Deque, Cloneable, java.io.Serializable
+
+@enduml
+....
+
+=== 初始化
+
+先看看 `LinkedList` 中内部属性和构造函数：
+
+[source,java,{source_attr}]
+----
+transient int size = 0;
+
+/**
+ * Pointer to first node.
+ */
+transient Node<E> first;
+
+/**
+ * Pointer to last node.
+ */
+transient Node<E> last;
+
+/*
+void dataStructureInvariants() {
+    assert (size == 0)
+        ? (first == null && last == null)
+        : (first.prev == null && last.next == null);
+}
+*/
+
+/**
+ * Constructs an empty list.
+ */
+public LinkedList() {
+}
+
+/**
+ * Constructs a list containing the elements of the specified
+ * collection, in the order they are returned by the collection's
+ * iterator.
+ *
+ * @param  c the collection whose elements are to be placed into this list
+ * @throws NullPointerException if the specified collection is null
+ */
+public LinkedList(Collection<? extends E> c) {
+    this();
+    addAll(c);
+}
+
+private static class Node<E> {
+    E item;
+    Node<E> next;
+    Node<E> prev;
+
+    Node(Node<E> prev, E element, Node<E> next) {
+        this.item = element;
+        this.next = next;
+        this.prev = prev;
+    }
+}
+----
+
+从这里一眼即可看出内部使用一个双向链表来保存数据。初始化工作也及其干净，什么也不干。另外一个构造函数后面再分析。
+
+NOTE: D瓜哥觉得使用初始化的头尾节点更方便代码书写，少了很多繁琐的判断。
+
+=== 分析工具
+
+使用反射来获取内部属性，然后做进一步分析。
+
+[source,java,{source_attr}]
+----
+include::{sourcedir}/LinkedListBaseTest.java[]
+----
+
+=== 添加元素
+
+测试代码：
+
+[source,java,{source_attr}]
+----
+include::{sourcedir}/LinkedListTest.java[tag=testAddAtTail]
+----
+
+JDK 源码：
+
+[source,java,{source_attr}]
+----
+/**
+ * Links e as last element.
+ */
+void linkLast(E e) {
+    final Node<E> l = last;
+    final Node<E> newNode = new Node<>(l, e, null);
+    last = newNode;
+    if (l == null)
+        first = newNode;
+    else
+        l.next = newNode;
+    size++;
+    modCount++;
+}
+
+/**
+ * Appends the specified element to the end of this list.
+ *
+ * <p>This method is equivalent to {@link #addLast}.
+ *
+ * @param e element to be appended to this list
+ * @return {@code true} (as specified by {@link Collection#add})
+ */
+public boolean add(E e) {
+    linkLast(e);
+    return true;
+}
+----
+
+再来看看从头部插入元素：
+
+[source,java,{source_attr}]
+----
+include::{sourcedir}/LinkedListTest.java[tag=testAddAtHeader]
+----
+
+JDK 源码：
+
+[source,java,{source_attr}]
+----
+/**
+ * Links e as first element.
+ */
+private void linkFirst(E e) {
+    final Node<E> f = first;
+    final Node<E> newNode = new Node<>(null, e, f);
+    first = newNode;
+    if (f == null)
+        last = newNode;
+    else
+        f.prev = newNode;
+    size++;
+    modCount++;
+}
+
+/**
+ * Inserts the specified element at the beginning of this list.
+ *
+ * @param e the element to add
+ */
+public void addFirst(E e) {
+    linkFirst(e);
+}
+----
+
+从这里就能看出，`LinkedList` 在 `add(e)`、`addLast(e)` 或者 `addFirst(e)` 时，都是对链表的首尾进行操作，会比较高效。
+
+
+
+
+ArrayList更适合随机访问，而LinkedList更适合插入和删除。
 
 * 对add(E e)方法的分析，可以得知LinkedList添加数据的效率高；
 * 对remove(int index)方法的分析，可以了解到LinkedList删除数据的效率高；
@@ -868,3 +1055,5 @@ ArrayList的空间浪费主要体现在在list列表的结尾预留一定的容�
 而LinkedList的空间花费则体现在它的每一个元素都需要消耗相当的空间（需要附加的空间来表明数据元素的逻辑关系），就存储密度来说，ArrayList是优于LinkedList的。 +　　
 当操作是在一列数据的后面添加数据而不是在前面或中间,并且需要随机地访问其中的元素时,使用ArrayList会提供比较好的性能， +
 当你的操作是在一列数据的前面或中间添加或删除数据,并且按照顺序访问其中的元素时,就应该使用LinkedList了。
+
+
