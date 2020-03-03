@@ -149,8 +149,8 @@
                                 <scripts>cjk</scripts>
                                 <pdf-version>1.7</pdf-version>
                                 <rouge-style>github</rouge-style>
-                                <media>screen</media>
-                                <optimize>screen</optimize>
+                                <!--<media>screen</media>-->
+                                <!--<optimize>screen</optimize>-->
                                 <!--<media>prepress</media>-->
                                 <!--<optimize>prepress</optimize>-->
                             </attributes>
