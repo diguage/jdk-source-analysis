@@ -1,5 +1,6 @@
 *.html
 *.pdf
+*.epub
 .classpath
 .project
 .settings/
@@ -10,4 +11,6 @@ target
 *.svg
 *.html
 .factorypath
-/docs/.asciidoctor/
+.asciidoctor/
+*.ttf
+fonts.ttf.tgz
