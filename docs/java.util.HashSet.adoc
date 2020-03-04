@@ -1,2 +1,28 @@
 == HashSet
 
+=== Redis 中的 Set
+
+Redis 中的集合对象编码可以是：
+
+. intset
+. hashtable
+
+转换的条件是：
+
+. 集合对象保存的所有元素都是整数值；
+. 集合对象保存的元素个数不超过 512 个；（通过参数 `set-max-intset-entries` 来调整，默认是 512）
+
+[source,bash,{source_attr}]
+----
+127.0.0.1:6379> SADD num 1 3 5
+(integer) 3
+127.0.0.1:6379> OBJECT encoding num
+"intset"
+
+127.0.0.1:6379> sadd num "seven"
+(integer) 1
+127.0.0.1:6379> OBJECT encoding num
+"hashtable"
+----
+
+在 `t_set.c/setTypeConvert` 中执行转换操作。

@@ -1,4 +1,109 @@
-== JDK1.8 HashMap源码解析(一)
+== HashMap 源码解析
+
+
+=== Redis 中的字典
+
+Redis 底层中的字典就是一个典型的 Hash 实现。
+
+.dict.h
+[source,c,{source_attr}]
+----
+typedef struct dictEntry { // <2>
+    void *key;
+    union {
+        void *val;
+        uint64_t u64;
+        int64_t s64;
+        double d;
+    } v;
+    struct dictEntry *next;
+} dictEntry;
+
+typedef struct dictType {
+    uint64_t (*hashFunction)(const void *key);
+    void *(*keyDup)(void *privdata, const void *key);
+    void *(*valDup)(void *privdata, const void *obj);
+    int (*keyCompare)(void *privdata, const void *key1, const void *key2);
+    void (*keyDestructor)(void *privdata, void *key);
+    void (*valDestructor)(void *privdata, void *obj);
+} dictType;
+
+/* This is our hash table structure. Every dictionary has two of this as we
+ * implement incremental rehashing, for the old to the new table. */
+typedef struct dictht {
+    dictEntry **table; // <1>
+    unsigned long size;
+    unsigned long sizemask;
+    unsigned long used;
+} dictht;
+
+typedef struct dict {
+    dictType *type;
+    void *privdata;
+    dictht ht[2]; // <3>
+    long rehashidx; /* rehashing not in progress if rehashidx == -1 */
+    unsigned long iterators; /* number of iterators currently running */
+} dict;
+----
+<1> `table` 属性是一个数组，数组中每个元素都是一个指向 `dictEntry` 结构的指针。
+<2> `dictEntry` 保存一个键值对。
+<3> 通常使用 `ht[0]`，`ht[1]` 在 Rehash 时才会用到。
+
+添加新元素时，和 Java 一样，计算 Key 的哈希值，然后再根据哈希值与长度掩码（`sizemask`）相与得到数组下标。
+
+Redis 底层使用 MurmurHash2 算法来计算键的哈希值。
+
+// TODO 几种常见的 Hash 算法可以研究一下。
+
+==== Rehash 操作
+
+. 计算新的数组长度
+.. 如果是扩容，则 `used * 2`；
+.. 如果是缩容，则是第一个大于等于 `used` 的 2^n^。 -- 这点和 Java 不同，`HashMap` 中没有自动缩容的机制。
+. 将 `ht[0]` 中的所有键值对重新 Rehash，重新计算哈希值和索引值，放置到 `ht[1]` 上；
+. 迁移完成后，将 `ht[1]` 设置为 `ht[0]`，为 `ht[1]` 创建一个空白哈希表。
+
+还有几点需要特别注意：
+
+. 根据是否正在执行 BGSAVE 或 BGREADWRITEAOF 命令，使用不同的负载阈值来决定是否开启对哈希表的自动扩展工作；
+. 当哈希表负载因子小于 0.1 时，会自动开始对哈希表缩容；
+. Rehash 过程是渐进式的：
+.. 开始 Rehash 后，每次对自动进行的添加、删除、查找或更新时，程序会自动将对应的键值对从 `ht[0]` Rehash 到 `ht[1]` 上；rehashidx 属性值增一。
+.. 记得有后台定时任务来自动扩展的，怎么没有看到说明文档？
+
+Redis 在哈希对象上的编码有可能是：
+
+. ziplist
+. hashtable
+
+转换条件是：
+
+. 哈希对象保存的所有剑指对象字符串长度都小于 64 个字节；（通过参数 `hash-max-ziplist-value` 来调节，默认为 64）
+. 哈希对象保存的剑指对数量小于 512 个；（通过参数 `hash-max-ziplist-entries` 来调节，默认为 512）
+
+[source,bash,{source_attr}]
+----
+127.0.0.1:6379> HMSET profie "name" "diguage" "age" 20 "job" "Developer"
+OK
+127.0.0.1:6379> OBJECT encoding profie
+"ziplist"
+127.0.0.1:6379> HMSET profile address 1234567890123456789012345678901234567890123456789012345678901234
+OK
+127.0.0.1:6379> OBJECT encoding profile
+"ziplist"
+127.0.0.1:6379> HMSET profile address 1234567890123456789012345678901234567890123456789012345678901234S
+OK
+127.0.0.1:6379> OBJECT encoding profile
+"hashtable"
+----
+
+通过 `t_hash.c/hashTypeConvertZiplist` 方法来转换。
+
+
+=== 参考资料
+
+. https://mp.weixin.qq.com/s?__biz=MzA4NTg1MjM0Mg==&mid=2657261203&idx=1&sn=f7ff61ce42e29b874a8026683875bbb1&scene=21#wechat_redirect[Redis内部数据结构详解(1)——dict]
+
 
 === 简介
 
