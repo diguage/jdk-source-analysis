@@ -16,75 +16,84 @@ include::preface.adoc[]
 
 include::java.util.Iterator.adoc[]
 
-include::java.util.AbstractCollection.adoc[]
-
-include::java.util.AbstractList.adoc[]
-
-include::java.util.AbstractMap.adoc[]
-
-include::java.util.AbstractQueue.adoc[]
-
-include::java.util.AbstractSequentialList.adoc[]
-
-include::java.util.AbstractSet.adoc[]
-
-include::java.util.ArrayDeque.adoc[]
-
-include::java.util.ArrayList.adoc[]
-
-include::java.util.BitSet.adoc[]
-
 include::java.util.Collection.adoc[]
 
-include::java.util.Deque.adoc[]
+include::java.util.AbstractCollection.adoc[]
 
-include::java.util.Dictionary.adoc[]
 
-include::java.util.EnumMap.adoc[]
-
-include::java.util.EnumSet.adoc[]
-
-include::java.util.HashMap.adoc[]
-
-include::java.util.HashSet.adoc[]
-
-include::java.util.Hashtable.adoc[]
-
-include::java.util.IdentityHashMap.adoc[]
-
-include::java.util.LinkedHashMap.adoc[]
-
-include::java.util.LinkedHashSet.adoc[]
-
-include::java.util.LinkedList.adoc[]
 
 include::java.util.List.adoc[]
 
-include::java.util.Map.adoc[]
+include::java.util.AbstractList.adoc[]
 
-include::java.util.NavigableMap.adoc[]
+include::java.util.AbstractSequentialList.adoc[]
 
-include::java.util.NavigableSet.adoc[]
+include::java.util.ArrayList.adoc[]
 
-include::java.util.PriorityQueue.adoc[]
-
-include::java.util.Queue.adoc[]
-
-include::java.util.Set.adoc[]
-
-include::java.util.SortedMap.adoc[]
-
-include::java.util.SortedSet.adoc[]
+include::java.util.LinkedList.adoc[]
 
 include::java.util.Stack.adoc[]
 
-include::java.util.TreeMap.adoc[]
+include::java.util.Vector.adoc[]
+
+
+
+include::java.util.Set.adoc[]
+
+include::java.util.AbstractSet.adoc[]
+
+include::java.util.SortedSet.adoc[]
+
+include::java.util.NavigableSet.adoc[]
+
+include::java.util.HashSet.adoc[]
 
 include::java.util.TreeSet.adoc[]
 
-include::java.util.Vector.adoc[]
+include::java.util.LinkedHashSet.adoc[]
+
+include::java.util.BitSet.adoc[]
+
+include::java.util.EnumSet.adoc[]
+
+
+include::java.util.Map.adoc[]
+
+include::java.util.SortedMap.adoc[]
+
+include::java.util.NavigableMap.adoc[]
+
+include::java.util.AbstractMap.adoc[]
+
+include::java.util.HashMap.adoc[]
+
+include::java.util.TreeMap.adoc[]
+
+include::java.util.LinkedHashMap.adoc[]
+
+include::java.util.Dictionary.adoc[]
+
+include::java.util.Hashtable.adoc[]
+
+include::java.util.EnumMap.adoc[]
 
 include::java.util.WeakHashMap.adoc[]
+
+include::java.util.IdentityHashMap.adoc[]
+
+
+
+include::java.util.Queue.adoc[]
+
+include::java.util.Deque.adoc[]
+
+include::java.util.AbstractQueue.adoc[]
+
+include::java.util.ArrayDeque.adoc[]
+
+include::java.util.PriorityQueue.adoc[]
+
+
 
 include::java.util.concurrent.ConcurrentHashMap.adoc[]
 
