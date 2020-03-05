@@ -40,7 +40,7 @@ TIP: 对比一下自己的实现和这些经典代码的实现，总结自己差
 === JDK 集合类
 
 *Base + Iterator*::
-代码总行数： 103 + 118 + 302 + 195 + 832 + 79 + 604 + 469 = 2702 行，预计 5 个小时。
+代码总行数： 103 + 135 + 302 + 195 + 838 + 127 + 734 + 480 = 2914 行，预计 5 个小时。
 . `java.lang.Iterable`
 . `java.util.Iterator`
 . `java.util.PrimitiveIterator`
@@ -51,7 +51,7 @@ TIP: 对比一下自己的实现和这些经典代码的实现，总结自己差
 . `java.util.AbstractCollection`
 
 *List*::
-代码总行数： 734 + 781 + 253 + 1262 + 1456 + 141 + 1468 = 6095 行，预计 12 个小时。
+代码总行数： 1063 + 942 + 253 + 1266 + 1509 + 141 + 1759 = 6933 行，预计 12 个小时。
 . `java.util.List`
 . `java.util.AbstractList`
 . `java.util.AbstractSequentialList`
@@ -61,7 +61,7 @@ TIP: 对比一下自己的实现和这些经典代码的实现，总结自己差
 . `java.util.ArrayList`
 
 *Queue*::
-代码总行数： 218 + 584 + 192 + 992 + 907 = 2893 行，预计 6 个小时。
+代码总行数： 212 + 616 + 192 + 1233 + 987 = 3240 行，预计 6 个小时。
 . `java.util.Queue`
 . `java.util.Deque`
 . `java.util.AbstractQueue`
@@ -69,7 +69,7 @@ TIP: 对比一下自己的实现和这些经典代码的实现，总结自己差
 . `java.util.PriorityQueue`
 
 *Set*::
-代码总行数： 413 + 186 + 264 + 464 + 319 + 361 + 560 + 195 + 1248 = 4010 行，预计 8 个小时。
+代码总行数： 732 + 186 + 264 + 491 + 323 + 361 + 560 + 195 + 1395 = 4507 行，预计 8 个小时。
 . `java.util.Set`
 . `java.util.AbstractSet`
 . `java.util.SortedSet`
@@ -84,7 +84,7 @@ TIP: 对比一下自己的实现和这些经典代码的实现，总结自己差
 image::images/java.util.Collection.png[]
 
 *Map*::
-代码总行数： 1183 + 284 + 424 + 860 + 3019 + 1339 + 812 + 1600 + 756 + 2397 + 155 + 1422 = 14251 行，预计 28 个小时。
+代码总行数： 1687 + 284 + 424 + 857 + 3012 + 1339 + 812 + 1600 + 756 + 2444 + 155 + 1521 = 14891 行，预计 28 个小时。
 . `java.util.Map`
 . `java.util.SortedMap`
 . `java.util.NavigableMap`
