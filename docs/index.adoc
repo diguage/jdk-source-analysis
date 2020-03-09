@@ -101,11 +101,25 @@ include::java.util.Collections.adoc[]
 
 
 
+include::java.util.concurrent.locks.AbstractQueuedSynchronizer.adoc[]
+
+include::java.util.concurrent.locks.ReentrantLock.adoc[]
+
+include::java.util.concurrent.locks.ReentrantReadWriteLock.adoc[]
+
+include::java.util.concurrent.Semaphore.adoc[]
+
+include::java.util.concurrent.CountDownLatch.adoc[]
+
+include::java.util.concurrent.CyclicBarrier.adoc[]
+
+include::java.util.concurrent.Phaser.adoc[]
+
+include::java.util.concurrent.Exchanger.adoc[]
+
 include::java.lang.ThreadLocal.adoc[]
 
-include::java.util.concurrent.ConcurrentSkipListMap.adoc[]
-
-include::java.util.concurrent.ConcurrentHashMap.adoc[]
+include::java.util.concurrent.atomic.AtomicInteger.adoc[]
 
 include::java.util.concurrent.Future.adoc[]
 
@@ -113,9 +127,20 @@ include::java.util.concurrent.FutureTask.adoc[]
 
 include::java.util.concurrent.ThreadPoolExecutor.adoc[]
 
-include::java.util.concurrent.locks.AbstractQueuedSynchronizer.adoc[]
+include::java.util.concurrent.ConcurrentHashMap.adoc[]
 
-include::java.util.concurrent.locks.ReentrantLock.adoc[]
+include::java.util.concurrent.ConcurrentSkipListMap.adoc[]
+
+include::java.util.concurrent.CopyOnWriteArrayList.adoc[]
+
+include::java.util.concurrent.ConcurrentLinkedQueue.adoc[]
+
+include::java.util.concurrent.ArrayBlockingQueue.adoc[]
+
+include::java.util.concurrent.LinkedBlockingQueue.adoc[]
+
+include::java.util.concurrent.PriorityBlockingQueue.adoc[]
+
 
 
 

@@ -1,3 +1,5 @@
 == `ConcurrentSkipListMap`
 
 没想到 JDK 中，居然有跳跃表的实现！
+
+image::images/ConcurrentSkipListMap-search.jpg[]

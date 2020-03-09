@@ -6,6 +6,8 @@ Doug Lea
 
 === CLH lock queue 介绍
 
+image::images/AbstractQueuedSynchronizer-CLH-queue.png[]
+
 终于看明白了 CLH lock queue。CLH 通过自旋来锁定当前节点。自旋的好处是线程不需要睡眠和唤醒，减小了系统调用的开销。
 
 AQS 中线程不是一直在自旋的，而可能会反复的睡眠和唤醒，这就需要前继释放锁的时候通过 next 指针找到其后继将其唤醒，也就是 AQS 的等待队列中后继是被前继唤醒的。AQS 结合了自旋和睡眠/唤醒两种方法的优点。
@@ -31,6 +33,14 @@ _AQS 结合了自旋和睡眠/唤醒两种方法的优点。_ 这句话该如何
 . `static final int PROPAGATE = -3;` -- 表示当前场景下后续的acquireShared能够得以执行；
 . `0` -- 表示当前节点在sync队列中，等待着获取锁。
 
+模板方法：
+
+. `isHeldExclusively()` -- 该线程是否正在独占资源。只有用到condition才需要去实现它。
+. `tryAcquire(int)` -- 独占方式。尝试获取资源，成功则返回true，失败则返回false。
+. `tryRelease(int)` -- 独占方式。尝试释放资源，成功则返回true，失败则返回false。
+. `tryAcquireShared(int)` -- 共享方式。尝试获取资源。负数表示失败；0表示成功，但没有剩余可用资源；正数表示成功，且有剩余资源。
+. `tryReleaseShared(int)` -- 共享方式。尝试释放资源，成功则返回true，失败则返回false。
+
 
 
 
@@ -38,6 +48,9 @@ _AQS 结合了自旋和睡眠/唤醒两种方法的优点。_ 这句话该如何
 === 参考资料
 
 WARNING: 访问一些页面时发现一些页面已经不能访问了，后续再搜索补上吧。
+
+. https://www.cnblogs.com/waterystone/p/4920797.html[Java并发之AQS详解 - waterystone - 博客园]
+. https://www.cnblogs.com/chengxiao/archive/2017/07/24/7141160.html[Java并发包基石-AQS详解 - dreamcatcher-cx - 博客园]
 
 . http://www.cnblogs.com/leesf456/p/5350186.html[【JUC】JDK1.8源码分析之AbstractQueuedSynchronizer（二） - leesf - 博客园]
 . http://www.infoq.com/cn/articles/jdk1.8-abstractqueuedsynchronizer[深度解析Java 8：JDK1.8 AbstractQueuedSynchronizer的实现分析（上）]
