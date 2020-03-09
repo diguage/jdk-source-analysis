@@ -109,6 +109,8 @@ include::java.util.concurrent.ConcurrentHashMap.adoc[]
 
 include::java.util.concurrent.Future.adoc[]
 
+include::java.util.concurrent.FutureTask.adoc[]
+
 include::java.util.concurrent.ThreadPoolExecutor.adoc[]
 
 include::java.util.concurrent.locks.AbstractQueuedSynchronizer.adoc[]
