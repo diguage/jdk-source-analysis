@@ -32,7 +32,7 @@ class ArrayList<E> extends AbstractList implements List, RandomAccess, Cloneable
 ....
 
 * 支持泛型，继承了 `AbstractList`，实现了 `List` 接口。
-* `RandomAccess` 用来表明其支持快速（通常是固定时间）随机访问。
+* `RandomAccess` 用来表明其支持快速（通常是固定时间）随机访问。在 `Collections.binarySearch()` 方法中，它要判断传入的list 是否 `RamdomAccess` 的实例，如果是，调用 `Collections.indexedBinarySearch(list, key)` 方法，如果不是，那么调用 `Collections.iteratorBinarySearch(list, key)` 方法。
 * `Cloneable` 可以调用 `Object.clone()` 方法返回该对象的浅拷贝。
 * `Serializable` 此类可被序列化
 

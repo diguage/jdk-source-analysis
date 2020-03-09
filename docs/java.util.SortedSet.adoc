@@ -101,6 +101,8 @@ Redis 中的有序集合（sorted set），是在 skiplist, dict 和 ziplist 基
 "skiplist"
 ----
 
+在 JDK 中，也有 SkipList 的实现，在 `ConcurrentSkipListMap` 中。不过，它不是作为一个独立的 Collection 来实现的，而是作为 `Map` 的一部分来实现的。
+
 === 参考资料
 
 . ftp://ftp.cs.umd.edu/pub/skipLists/skiplists.pdf[William Pugh《Skip Lists: A Probabilistic Alternative to Balanced Trees》]

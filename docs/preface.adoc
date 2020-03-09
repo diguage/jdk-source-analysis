@@ -3,7 +3,9 @@
 
 为了学好数据结构以及相关算法，同时也为了更好地理解 JDK 的底层实现，计划对 JDK 集合类的源码做一个系统的阅读分析。
 
-欢迎感兴趣的小伙伴提交 PR 或 Issue。
+欢迎随时提交 PR 或 Issue。建了一个 Gitter 聊天室，点击图标加入： https://gitter.im/source-analysis/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge[image:https://badges.gitter.im/source-analysis/community.svg[]]。
+
+浏览请点击： https://diguage.github.io/jdk-source-analysis/[JDK 源码分析]。
 
 WARNING: 本文档基于 *OpenJDK 11.0.6 2020-01-14 LTS* 的代码开展分析，请 PR 的小伙伴使用相同的 JDK。谢谢！
 

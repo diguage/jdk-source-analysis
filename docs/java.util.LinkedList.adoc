@@ -1,9 +1,11 @@
 == LinkedList
 include::_attributes.adoc[]
 
+`LinkedList` 底层使用的是 双向链表 数据结构（JDK1.6 之前为循环链表，JDK1.7 取消了循环。注意双向链表和双向循环链表的区别。）
+
 === 类图
 
-先来看一下 `ArrayList` 的类图：
+先来看一下 `LinkedList` 的类图：
 
 [plantuml,{puml_attr}]
 ....

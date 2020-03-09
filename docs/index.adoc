@@ -95,6 +95,14 @@ include::java.util.PriorityQueue.adoc[]
 
 
 
+include::java.util.Arrays.adoc[]
+
+include::java.util.Collections.adoc[]
+
+
+
+include::java.util.concurrent.ConcurrentSkipListMap.adoc[]
+
 include::java.util.concurrent.ConcurrentHashMap.adoc[]
 
 include::java.util.concurrent.Future.adoc[]
