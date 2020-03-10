@@ -125,6 +125,8 @@ include::java.util.concurrent.Future.adoc[]
 
 include::java.util.concurrent.FutureTask.adoc[]
 
+include::java.util.concurrent.CompletableFuture.adoc[]
+
 include::java.util.concurrent.ThreadPoolExecutor.adoc[]
 
 include::java.util.concurrent.ConcurrentHashMap.adoc[]
@@ -140,6 +142,8 @@ include::java.util.concurrent.ArrayBlockingQueue.adoc[]
 include::java.util.concurrent.LinkedBlockingQueue.adoc[]
 
 include::java.util.concurrent.PriorityBlockingQueue.adoc[]
+
+include::java.lang.ClassLoader.adoc[]
 
 
 

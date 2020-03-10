@@ -1,0 +1,121 @@
+== ClassLoader
+
+include::_attributes.adoc[]
+
+虽然对 `ClassLoader` 的双亲委派流程比较了解，但是一直没有仔细专研过代码实现。今天翻看代码，代码写的简单明了：
+
+[source,java,{source_attr}]
+----
+/**
+ * Loads the class with the specified <a href="#binary-name">binary name</a>.  The
+ * default implementation of this method searches for classes in the
+ * following order:
+ *
+ * <ol>
+ *
+ *   <li><p> Invoke {@link #findLoadedClass(String)} to check if the class
+ *   has already been loaded.  </p></li>
+ *
+ *   <li><p> Invoke the {@link #loadClass(String) loadClass} method
+ *   on the parent class loader.  If the parent is {@code null} the class
+ *   loader built into the virtual machine is used, instead.  </p></li>
+ *
+ *   <li><p> Invoke the {@link #findClass(String)} method to find the
+ *   class.  </p></li>
+ *
+ * </ol>
+ *
+ * <p> If the class was found using the above steps, and the
+ * {@code resolve} flag is true, this method will then invoke the {@link
+ * #resolveClass(Class)} method on the resulting {@code Class} object.
+ *
+ * <p> Subclasses of {@code ClassLoader} are encouraged to override {@link
+ * #findClass(String)}, rather than this method.  </p>
+ *
+ * <p> Unless overridden, this method synchronizes on the result of
+ * {@link #getClassLoadingLock getClassLoadingLock} method
+ * during the entire class loading process.
+ *
+ * @param  name
+ *         The <a href="#binary-name">binary name</a> of the class
+ *
+ * @param  resolve
+ *         If {@code true} then resolve the class
+ *
+ * @return  The resulting {@code Class} object
+ *
+ * @throws  ClassNotFoundException
+ *          If the class could not be found
+ */
+protected Class<?> loadClass(String name, boolean resolve)
+    throws ClassNotFoundException
+{
+    synchronized (getClassLoadingLock(name)) {
+        // First, check if the class has already been loaded
+        Class<?> c = findLoadedClass(name);
+        if (c == null) {
+            long t0 = System.nanoTime();
+            try {
+                if (parent != null) {
+                    c = parent.loadClass(name, false);
+                } else {
+                    c = findBootstrapClassOrNull(name);
+                }
+            } catch (ClassNotFoundException e) {
+                // ClassNotFoundException thrown if class not found
+                // from the non-null parent class loader
+            }
+
+            if (c == null) {
+                // If still not found, then invoke findClass in order
+                // to find the class.
+                long t1 = System.nanoTime();
+                c = findClass(name);
+
+                // this is the defining class loader; record the stats
+                PerfCounter.getParentDelegationTime().addTime(t1 - t0);
+                PerfCounter.getFindClassTime().addElapsedTimeFrom(t1);
+                PerfCounter.getFindClasses().increment();
+            }
+        }
+        if (resolve) {
+            resolveClass(c);
+        }
+        return c;
+    }
+}
+
+/**
+ * Finds the class with the specified <a href="#binary-name">binary name</a>.
+ * This method should be overridden by class loader implementations that
+ * follow the delegation model for loading classes, and will be invoked by
+ * the {@link #loadClass loadClass} method after checking the
+ * parent class loader for the requested class.
+ *
+ * @implSpec The default implementation throws {@code ClassNotFoundException}.
+ *
+ * @param  name
+ *         The <a href="#binary-name">binary name</a> of the class
+ *
+ * @return  The resulting {@code Class} object
+ *
+ * @throws  ClassNotFoundException
+ *          If the class could not be found
+ *
+ * @since  1.2
+ */
+protected Class<?> findClass(String name) throws ClassNotFoundException {
+    throw new ClassNotFoundException(name);
+}
+----
+
+如果自定义 `ClassLoader`，最简单的办法就是重载 `Class<?> findClass(String name)` 方法就可以了。或者为了避免双亲委托机制，可以自己定义一个类加载器，然后重写 `loadClass()` 即可。
+
+[source,java,{source_attr}]
+----
+include::{sourcedir}/ClassLoaderTest.java[]
+----
+
+. `jdk.internal.loader.ClassLoaders.PlatformClassLoader`
+. `jdk.internal.loader.ClassLoaders.AppClassLoader`
+

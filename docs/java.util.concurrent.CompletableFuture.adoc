@@ -1,0 +1,7 @@
+== CompletableFuture
+
+include::_attributes.adoc[]
+
+Java 中的 Promise。
+
+问题：如何获取首先完成的任务返回值？
