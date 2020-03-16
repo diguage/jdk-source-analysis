@@ -136,3 +136,9 @@ digraph G {
 ....
 
 `join()` 方法的本质是让调用线程 `wait()` 方法在当前线程对象实例上。
+
+
+[source,java,{source_attr}]
+----
+include::{sourcedir}/concurrent/ThreadTest.java[]
+----

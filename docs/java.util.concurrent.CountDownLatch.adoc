@@ -1,1 +1,11 @@
 == CountDownLatch
+
+include::_attributes.adoc[]
+
+"Count Down" 在英语中意为倒计数，一个典型场景就是火箭🚀发射时的倒计时。
+
+
+[source,java,{source_attr}]
+----
+include::{sourcedir}/concurrent/CountDownLatchTest.java[]
+----

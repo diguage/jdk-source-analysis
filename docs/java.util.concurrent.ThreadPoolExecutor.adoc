@@ -32,6 +32,7 @@ image::images/ThreadPoolExecutor-process.png[]
 . 任务添加后，
 . 如何返回任务执行的结果？
 . 这个线程池还有哪些可以改进的地方？比如 Guava 中提供了哪些线程池？
+. 如何改造成添加任务，如果没有达到 `maxPoolSize` 则先创建线程？
 
 === 需要注意的点
 
@@ -52,6 +53,11 @@ image::images/ThreadPoolExecutor-process.png[]
 
 . 可以继承 `ThreadPoolExecutor`，实现 `beforeExecute()` 和 `afterExecute()` 等方法，来加入执行时的回调。类似的回调，还有 `terminated()`
 . 添加任务时， `execute()` 方法的第二种情况，为什么还有再次检查？
+
+[source,java,{source_attr}]
+----
+include::{sourcedir}/concurrent/ThreadPoolExecutorTest.java[]
+----
 
 
 

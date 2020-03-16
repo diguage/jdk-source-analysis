@@ -1,5 +1,7 @@
 == ForkJoinPool
 
+include::_attributes.adoc[]
+
 
 image::images/ForkJoinPool-fork-join.webp[]
 
@@ -10,6 +12,11 @@ image::images/ForkJoinPool-invoke-link.png[]
 image::images/ForkJoinPool-data-structures.png[]
 
 image::images/ForkJoinPool-ctl.png[]
+
+[source,java,{source_attr}]
+----
+include::{sourcedir}/concurrent/ForkJoinPoolTest.java[]
+----
 
 
 

@@ -18,11 +18,11 @@
         <assertj.version>3.15.0</assertj.version>
 
         <asciidoctorj.version>2.2.0</asciidoctorj.version>
-        <asciidoctorj-pdf.version>1.5.2</asciidoctorj-pdf.version>
-        <asciidoctorj-epub3.version>1.5.0-alpha.13</asciidoctorj-epub3.version>
+        <asciidoctorj-pdf.version>1.5.3</asciidoctorj-pdf.version>
+        <asciidoctorj-epub3.version>1.5.0-alpha.15</asciidoctorj-epub3.version>
         <asciidoctorj-diagram.version>2.0.1</asciidoctorj-diagram.version>
         <asciidoctor-maven-plugin.version>2.0.0-RC.1</asciidoctor-maven-plugin.version>
-        <jruby.version>9.2.9.0</jruby.version>
+        <jruby.version>9.2.11.0</jruby.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>

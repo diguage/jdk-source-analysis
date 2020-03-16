@@ -103,6 +103,8 @@ include::java.util.Collections.adoc[]
 
 include::java.lang.Thread.adoc[]
 
+include::java.util.concurrent.locks.LockSupport.adoc[]
+
 include::java.util.concurrent.locks.AbstractQueuedSynchronizer.adoc[]
 
 include::java.util.concurrent.locks.ReentrantLock.adoc[]

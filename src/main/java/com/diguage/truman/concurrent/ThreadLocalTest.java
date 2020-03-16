@@ -13,8 +13,12 @@ public class ThreadLocalTest {
     }
 
     private static class FirstApp implements Runnable {
-        private ThreadLocal<String> threadLocal = ThreadLocal.withInitial(() -> "FirstApp-1");
-        private ThreadLocal<String> threadLocal2 = ThreadLocal.withInitial(() -> "FirstApp-2");
+        private ThreadLocal<String> threadLocal
+                = ThreadLocal.withInitial(() -> "FirstApp-1");
+
+        private ThreadLocal<String> threadLocal2
+                = ThreadLocal.withInitial(() -> "FirstApp-2");
+
         private SecondApp secondApp = new SecondApp();
         private ThridApp thridApp = new ThridApp();
 
@@ -28,7 +32,8 @@ public class ThreadLocalTest {
     }
 
     private static class SecondApp implements Runnable {
-        private ThreadLocal<String> threadLocal = ThreadLocal.withInitial(() -> "SecondApp");
+        private ThreadLocal<String> threadLocal
+                = ThreadLocal.withInitial(() -> "SecondApp");
 
         @Override
         public void run() {
@@ -37,7 +42,8 @@ public class ThreadLocalTest {
     }
 
     private static class ThridApp implements Runnable {
-        private ThreadLocal<String> threadLocal = ThreadLocal.withInitial(() -> getClass().getName());
+        private ThreadLocal<String> threadLocal
+                = ThreadLocal.withInitial(() -> getClass().getName());
 
         @Override
         public void run() {

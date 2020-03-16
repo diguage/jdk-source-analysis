@@ -16,7 +16,8 @@ public class ThreadTest {
             try {
                 Thread.sleep(60 * 1000);
             } catch (InterruptedException e) {
-                System.out.println("testState: is interrupted at " + LocalDateTime.now());
+                System.out.println("testState: is interrupted at "
+                        + LocalDateTime.now());
                 e.printStackTrace();
             }
             System.out.println("  EndTime: " + LocalDateTime.now());
@@ -35,7 +36,8 @@ public class ThreadTest {
                 Thread thread = Thread.currentThread();
                 while (true) {
                     if (thread.isInterrupted()) {
-                        System.out.println("InterruptTask was interrupted at " + LocalDateTime.now());
+                        System.out.println("InterruptTask was interrupted at "
+                                + LocalDateTime.now());
                     }
 //                    try {
 //                        Thread.sleep(5 * 1000);
@@ -66,7 +68,8 @@ public class ThreadTest {
     public void testJoin() throws InterruptedException {
         JoinMain.AddThread thread = new JoinMain.AddThread();
         thread.start();
-        thread.join(); // 执行这句话，则下面的输出会等 thread 执行完成后，i值等于100000；如果注释掉，则瞬间向下执行，i值很小。
+        // 执行这句话，则下面的输出会等 thread 执行完成后，i值等于100000；如果注释掉，则瞬间向下执行，i值很小。
+        thread.join();
         System.out.println(JoinMain.i);
     }
 

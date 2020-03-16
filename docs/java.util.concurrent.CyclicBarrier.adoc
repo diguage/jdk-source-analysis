@@ -1,1 +1,8 @@
 == CyclicBarrier
+
+include::_attributes.adoc[]
+
+[source,java,{source_attr}]
+----
+include::{sourcedir}/concurrent/CyclicBarrierTest.java[]
+----

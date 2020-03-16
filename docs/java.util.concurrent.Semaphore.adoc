@@ -1,1 +1,9 @@
 == Semaphore
+
+include::_attributes.adoc[]
+
+
+[source,java,{source_attr}]
+----
+include::{sourcedir}/concurrent/SemaphoreTest.java[]
+----

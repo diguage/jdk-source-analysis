@@ -2,6 +2,7 @@ package com.diguage.truman.concurrent;
 
 import org.junit.Test;
 
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -91,4 +92,40 @@ public class ReentrantLockTest {
             }
         }
     }
+
+    @Test
+    public void testCondition() throws InterruptedException {
+        Lock lock = new ReentrantLock();
+        Condition condition = lock.newCondition();
+        Thread thread = new Thread(new ConditionTask(lock, condition));
+        thread.start();
+        Thread.sleep(2000);
+        lock.lock();
+        condition.signal();
+        lock.unlock();
+    }
+
+    static class ConditionTask implements Runnable {
+        private final Lock lock;
+        private final Condition condition;
+
+        public ConditionTask(Lock lock, Condition condition) {
+            this.lock = lock;
+            this.condition = condition;
+        }
+
+        @Override
+        public void run() {
+            try {
+                lock.lock();
+                condition.await();
+                System.out.println("Thread is going on...");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } finally {
+                lock.unlock();
+            }
+        }
+    }
+
 }

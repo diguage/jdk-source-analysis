@@ -5,6 +5,7 @@ import org.junit.Test;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
@@ -18,7 +19,8 @@ public class ForkJoinPoolTest {
     @Test
     public void test() {
         ForkJoinPool pool = new ForkJoinPool(2);
-        FileCountTask task = new FileCountTask("/Users/diguage/Documents/wiki.diguage.com/java/jdk-source-analysis");
+        String homePath = System.getProperty("user.home");
+        FileCountTask task = new FileCountTask(homePath);
         ForkJoinTask<Integer> result = pool.submit(task);
         try {
             Integer count = result.get();
@@ -50,18 +52,25 @@ public class ForkJoinPoolTest {
                 count += 1;
             } else {
                 File[] files = file.listFiles();
+                if (Objects.isNull(files)) {
+                    files = new File[0];
+                }
                 List<FileCountTask> subTasks = new LinkedList<>();
                 for (File f : files) {
-                    FileCountTask task = new FileCountTask(f);
-                    subTasks.add(task);
-                    task.fork();
+                    if (f.isDirectory()) {
+                        FileCountTask task = new FileCountTask(f);
+                        subTasks.add(task);
+                        task.fork();
+                    } else {
+                        count += 1;
+                    }
                 }
                 for (FileCountTask subTask : subTasks) {
                     count += subTask.join();
                 }
             }
+            System.out.printf("%8d     %s %n", count, file.getAbsolutePath());
             return count;
         }
     }
-
 }

@@ -1,5 +1,7 @@
 == FutureTask
 
+include::_attributes.adoc[]
+
 === 类图
 
 先来看一下 `ArrayList` 的类图：

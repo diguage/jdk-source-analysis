@@ -1,5 +1,7 @@
 == ReentrantLock
 
+include::_attributes.adoc[]
+
 === 谈谈 synchronized 和 ReentrantLock 的区别
 
 . 两者都是可重入锁
@@ -21,6 +23,11 @@ synchronized 是依赖于 JVM 实现的，前面我们也讲到了 虚拟机团�
 如果你想使用上述功能，那么选择ReentrantLock是一个不错的选择。
 +
 . 性能已不是选择标准
+
+[source,java,{source_attr}]
+----
+include::{sourcedir}/concurrent/ReentrantLockTest.java[]
+----
 
 
 
