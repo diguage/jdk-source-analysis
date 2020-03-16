@@ -1,6 +1,6 @@
 == ReentrantLock
 
-=== 谈谈 synchronized和ReentrantLock 的区别
+=== 谈谈 synchronized 和 ReentrantLock 的区别
 
 . 两者都是可重入锁
 +

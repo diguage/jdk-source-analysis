@@ -101,6 +101,8 @@ include::java.util.Collections.adoc[]
 
 
 
+include::java.lang.Thread.adoc[]
+
 include::java.util.concurrent.locks.AbstractQueuedSynchronizer.adoc[]
 
 include::java.util.concurrent.locks.ReentrantLock.adoc[]
@@ -128,6 +130,10 @@ include::java.util.concurrent.FutureTask.adoc[]
 include::java.util.concurrent.CompletableFuture.adoc[]
 
 include::java.util.concurrent.ThreadPoolExecutor.adoc[]
+
+include::java.util.concurrent.ForkJoinTask.adoc[]
+
+include::java.util.concurrent.ForkJoinPool.adoc[]
 
 include::java.util.concurrent.ConcurrentHashMap.adoc[]
 

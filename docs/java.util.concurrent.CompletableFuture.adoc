@@ -4,4 +4,4 @@ include::_attributes.adoc[]
 
 Java 中的 Promise。
 
-问题：如何获取首先完成的任务返回值？
+问题：在一大堆任务中，如何获取第一个完成的返回值？
