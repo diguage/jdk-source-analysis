@@ -111,6 +111,8 @@ include::java.util.concurrent.locks.ReentrantLock.adoc[]
 
 include::java.util.concurrent.locks.ReentrantReadWriteLock.adoc[]
 
+include::java.util.concurrent.locks.StampedLock.adoc[]
+
 include::java.util.concurrent.Semaphore.adoc[]
 
 include::java.util.concurrent.CountDownLatch.adoc[]
@@ -152,6 +154,8 @@ include::java.util.concurrent.LinkedBlockingQueue.adoc[]
 include::java.util.concurrent.PriorityBlockingQueue.adoc[]
 
 include::java.lang.ClassLoader.adoc[]
+
+include::java.net.ServerSocket.adoc[]
 
 
 
