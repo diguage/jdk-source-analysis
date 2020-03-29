@@ -8,6 +8,15 @@
 
 WARNING: 本文档基于 *OpenJDK 11.0.6 2020-01-14 LTS* 的代码开展分析，请 PR 的小伙伴使用相同的 JDK。谢谢！
 
+=== 友情支持
+
+如果您觉得这个笔记对您有所帮助，看在D瓜哥码字的辛苦上，请友情支持一下，D瓜哥感激不尽，😜
+
+[cols="2*^",frame=none]
+|===
+| image:docs/images/alipay.jpeg[title="支付宝", alt="支付宝", width="40%"] | image:docs/images/wxpay.png[title="微信", alt="微信", width="45%"]
+|===
+
 == 总体思路
 
 . 学习基本的数据结构认识。兵马未动粮草先行。先把基础理论搞清楚。
