@@ -15,7 +15,7 @@ WARNING: 本文档基于 *OpenJDK 11.0.6 2020-01-14 LTS* 的代码开展分析�
 
 [cols="2*^",frame=none]
 |===
-| image:images/alipay.jpeg[title="支付宝", alt="支付宝", width="40%"] | image:images/wxpay.png[title="微信", alt="微信", width="45%"]
+| image:images/alipay.png[title="支付宝", alt="支付宝", width="45%"] | image:images/wxpay.png[title="微信", alt="微信", width="45%"]
 |===
 
 === 总体思路
