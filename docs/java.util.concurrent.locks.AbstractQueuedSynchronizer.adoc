@@ -1,5 +1,7 @@
 == AbstractQueuedSynchronizer
 
+include::_attributes.adoc[]
+
 Doug Lea
 
 在 Java 5 之后，JDK 内置了大量的并发工具类。粗略去看这些工具类的源码，你会发现，大多数都在内部继承了 `AbstractQueuedSynchronizer`。由此可见，`AbstractQueuedSynchronizer` 的核心地位。想搞清楚这些并发工具类的原理，`AbstractQueuedSynchronizer` 的源码可以说是不可不看。
@@ -13,6 +15,34 @@ image::images/AbstractQueuedSynchronizer-CLH-queue.png[]
 AQS 中线程不是一直在自旋的，而可能会反复的睡眠和唤醒，这就需要前继释放锁的时候通过 next 指针找到其后继将其唤醒，也就是 AQS 的等待队列中后继是被前继唤醒的。AQS 结合了自旋和睡眠/唤醒两种方法的优点。
 
 _AQS 结合了自旋和睡眠/唤醒两种方法的优点。_ 这句话该如何理解？刚刚想到的一点： AQS 中会先自旋两次，如果不成功则休眠。应该是这样来使用两者的好处！
+
+
+=== 核心点
+
+. 模板方法模式
+.. `boolean tryAcquire(int arg)`
+.. `boolean tryRelease(int arg)`
+.. `int tryAcquireShared(int arg)`
+.. `boolean tryReleaseShared(int arg)`
+.. `boolean isHeldExclusively()`
+
+
+基于 `AbstractQueuedSynchronizer`，我们实现一个互斥锁：
+
+[source,java,{source_attr}]
+----
+include::{sourcedir}/concurrent/Mutex.java[]
+----
+
+互斥锁，也可以称为独占锁，顾名思义就是同一个时刻只能有一个线程获取到锁，而其他获取锁的线程只能在同步队列中等待，只有获取锁的线程释放了锁，后继的线程才能获取锁。
+
+[source,java,{source_attr}]
+----
+include::{sourcedir}/concurrent/AbstractQueuedSynchronizerTest.java[]
+----
+
+运行结果显示，指定时刻，只有一个线程在运行。
+
 
 === `Node` 详解
 

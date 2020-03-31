@@ -2,7 +2,7 @@
 
 include::_attributes.adoc[]
 
-"Count Down" 在英语中意为倒计数，一个典型场景就是火箭🚀发射时的倒计时。
+"Count Down" 在英语中意为倒计数，一个典型场景就是火箭🚀发射时的倒计时。它允许一个或多个线程等待其他线程完成操作。
 
 
 [source,java,{source_attr}]

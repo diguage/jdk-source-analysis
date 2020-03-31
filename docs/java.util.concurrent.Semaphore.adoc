@@ -2,6 +2,7 @@
 
 include::_attributes.adoc[]
 
+信号量
 
 [source,java,{source_attr}]
 ----
