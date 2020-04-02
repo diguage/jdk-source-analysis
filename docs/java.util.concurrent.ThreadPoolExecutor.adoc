@@ -113,6 +113,7 @@ include::{sourcedir}/concurrent/ThreadPoolExecutorTest.java[]
 
 === 参考资料
 
+. https://mp.weixin.qq.com/s/baYuX8aCwQ9PP6k7TDl2Ww[Java线程池实现原理及其在美团业务中的实践]
 . http://jindong.io/2015/03/30/java-concurrent-package-ThreadPoolExecutor/[Java并发包源码学习之线程池（一）ThreadPoolExecutor源码分析 - Jindong]
 . http://my.oschina.net/zouqun/blog/407149[ThreadPoolExecutor简介与源码分析 - 邹胜群的个人页面 - 开源中国社区]
 . http://onlychoice.github.io/blog/2013/09/13/java-concurrent-source-code-reading-2/[Java并发源码分析 - ThreadPoolExecutor - SHOW ME THE CODE]

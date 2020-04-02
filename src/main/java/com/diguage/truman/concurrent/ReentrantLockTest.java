@@ -2,6 +2,7 @@ package com.diguage.truman.concurrent;
 
 import org.junit.Test;
 
+import java.time.LocalDateTime;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -95,7 +96,7 @@ public class ReentrantLockTest {
 
     @Test
     public void testCondition() throws InterruptedException {
-        Lock lock = new ReentrantLock();
+        ReentrantLock lock = new ReentrantLock();
         Condition condition = lock.newCondition();
         Thread thread = new Thread(new ConditionTask(lock, condition));
         thread.start();
@@ -128,4 +129,43 @@ public class ReentrantLockTest {
         }
     }
 
+    @Test
+    public void testExclusive() throws InterruptedException {
+        ReentrantLock lock = new ReentrantLock(true);
+        Thread t1 = new Thread("t1") {
+            @Override
+            public void run() {
+                try {
+                    lock.lock();
+                    System.out.println("t1 : " + LocalDateTime.now());
+                    Thread.sleep(10000);
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace();
+                } finally {
+                    lock.unlock();
+                }
+            }
+        };
+        t1.start();
+
+        Thread.sleep(10);
+
+        Thread t2 = new Thread("t2") {
+            @Override
+            public void run() {
+                try {
+                    lock.lock();
+                    System.out.println("t2 : " + LocalDateTime.now());
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace();
+                } finally {
+                    lock.unlock();
+                }
+            }
+        };
+        t2.start();
+
+        Thread.sleep(15000);
+        System.out.println("DONE");
+    }
 }

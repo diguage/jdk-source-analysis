@@ -43,6 +43,8 @@ include::{sourcedir}/concurrent/AbstractQueuedSynchronizerTest.java[]
 
 运行结果显示，指定时刻，只有一个线程在运行。
 
+查看 `AbstractQueuedSynchronizer` 继承关系可以看出，在 `ReentrantLock`，`ReentrantReadWriteLock` 和 `Semaphore` 三个类中实现了公平锁和非公平锁。
+
 
 === `Node` 详解
 
@@ -79,6 +81,7 @@ include::{sourcedir}/concurrent/AbstractQueuedSynchronizerTest.java[]
 
 WARNING: 访问一些页面时发现一些页面已经不能访问了，后续再搜索补上吧。
 
+. https://www.cnblogs.com/dennyzhangdd/p/7218510.html[《The java.util.concurrent Synchronizer Framework》 JUC同步器框架（AQS框架）原文翻译 - 只会一点java - 博客园]
 . https://www.cnblogs.com/waterystone/p/4920797.html[Java并发之AQS详解 - waterystone - 博客园]
 . https://www.cnblogs.com/chengxiao/archive/2017/07/24/7141160.html[Java并发包基石-AQS详解 - dreamcatcher-cx - 博客园]
 

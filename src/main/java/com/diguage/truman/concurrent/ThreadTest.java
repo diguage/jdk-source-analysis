@@ -1,8 +1,11 @@
 package com.diguage.truman.concurrent;
 
 import org.junit.Test;
+import org.junit.experimental.theories.Theories;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author D瓜哥, https://www.diguage.com/
@@ -88,6 +91,28 @@ public class ThreadTest {
     @Test
     public void testYield() {
         Thread.yield();
+    }
+
+    @Test
+    public void testChildThread() {
+        // TODO 如何掩饰父子线程？如何在父子线程之间传递数据？
+        List<Thread> threads = new ArrayList<>();
+        Thread thread1 = new Thread(() -> {
+            Thread thread = Thread.currentThread();
+            ThreadLocal<Integer> threadLocal = ThreadLocal.withInitial(() -> 119);
+
+            Thread child = new Thread(() -> {
+            });
+
+            System.out.printf("id=%d, parentId=%d %n", thread.getId(), 123);
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        threads.add(thread1);
+        thread1.start();
     }
 
 }

@@ -2,6 +2,8 @@
 
 include::_attributes.adoc[]
 
+`ReentrantLock` 是重入锁，也是排他锁。
+
 === 谈谈 synchronized 和 ReentrantLock 的区别
 
 . 两者都是可重入锁

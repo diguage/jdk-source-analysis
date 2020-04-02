@@ -106,4 +106,5 @@ include::{sourcedir}/concurrent/ThreadLocalTest.java[]
 
 . https://snailclimb.gitee.io/javaguide/#/docs/java/Multithread/JavaConcurrencyAdvancedCommonInterviewQuestions?id=_33-threadlocal%e5%8e%9f%e7%90%86[JavaGuide
  之 ThreadLocal]
+. https://www.cnblogs.com/dennyzhangdd/p/7978455.html[ThreadLocal终极源码剖析-一篇足矣！ - 只会一点java - 博客园]
 

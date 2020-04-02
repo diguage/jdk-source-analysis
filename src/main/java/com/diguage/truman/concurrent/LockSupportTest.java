@@ -39,4 +39,18 @@ public class LockSupportTest {
         }
     }
 
+    @Test
+    public void testParkAndUnpark() throws InterruptedException {
+        System.out.println("--m1------");
+        Thread thread = new Thread(() -> {
+            System.out.println("--t1------");
+            LockSupport.park();
+            System.out.println("--t2------");
+        });
+        thread.start();
+        Thread.sleep(5000);
+        LockSupport.unpark(thread);
+        System.out.println("--m2------");
+    }
+
 }
