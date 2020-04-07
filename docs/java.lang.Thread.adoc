@@ -112,28 +112,10 @@ public class Thread implements Runnable {
 }
 ----
 
-[graphviz,{puml_attr}]
-....
-digraph G {
-    rankdir=LR;  //Rank Direction Left to Right
+image::images/thread-lifecycle.jpeg[]
 
-    NEW -> RUNNABLE[label="start()"];
+image::images/thread-states.jpeg[]
 
-    RUNNABLE -> BLOCKED
-    BLOCKED -> RUNNABLE
-
-    RUNNABLE -> TERMINATED
-
-    WAITING -> RUNNABLE[label="Object.notify()\nObject.notifyAll()"];
-    RUNNABLE -> WAITING[label="Object.wait()\nThread.join()\nLockSupport.park()"];
-
-
-    RUNNABLE -> TIMED_WAITING[label="Thread.sleep(time)\nObject.wait(time)\nThread.join(time)\nLockSupport.parkNanos(time)\nLockSupport.parkUntil(time)"];
-    TIMED_WAITING -> RUNNABLE
-
-    {rank=same;WAITING TIMED_WAITING}  // Put them on the same level
-}
-....
 
 `join()` 方法的本质是让调用线程 `wait()` 方法在当前线程对象实例上。
 

@@ -134,3 +134,4 @@ public final class $Proxy0 extends Proxy implements UserService {
 . https://tech.meituan.com/2019/09/05/java-bytecode-enhancement.html[字节码增强技术探索 - 美团技术团队]
 . https://www.geeksforgeeks.org/get-name-of-current-method-being-executed-in-java/[Get name of current method being executed in Java - GeeksforGeeks]
 . http://www.throwable.club/2018/12/08/java-reflection-dynamic-proxy/[深入分析Java反射(四)-动态代理 - Throwable's Blog]
+. http://www.throwable.club/2018/12/16/cglib-dynamic-proxy-analyze/[CGLIB动态代理原理分析 - Throwable's Blog]
