@@ -119,3 +119,38 @@ include::{sourcedir}/ClassLoaderTest.java[]
 . `jdk.internal.loader.ClassLoaders.PlatformClassLoader`
 . `jdk.internal.loader.ClassLoaders.AppClassLoader`
 
+.JDK 8 及以前的加载体系
+[graphviz,{puml_attr}]
+....
+digraph G {
+  node [shape = box]
+  edge[dir = back]
+
+  BootstrapClassLoader -> ExtClassLoader
+  ExtClassLoader -> AppClassLoader
+}
+....
+
+在 JDK 8 及以前，`AppClassLoader` 和 `ExtClassLoader` 这两个类都是 `sun.misc.Launcher` 中的内部类。 `BootstrapClassLoader` 是由 C++ 代码实现的。所以，不存在 Java 类定义。
+
+image::images/load-class-process.png[]
+
+.JDK 9 之后的加载体系
+[graphviz,{puml_attr}]
+....
+digraph G {
+  node [shape = box]
+  edge[dir = back]
+
+  BootClassLoader -> PlatformClassLoader
+  PlatformClassLoader -> AppClassLoader
+}
+....
+
+在 JDK 9 以后，`AppClassLoader`，`PlatformClassLoader` 和 `BootClassLoader` 三个类都定义在 `jdk.internal.loader.ClassLoaders` 中。`BootClassLoader` 是由 Java 和 C++ 混合实现，所以有类的定义。
+
+`ClassLoader` 提供的资源加载的方法中的核心方法是 `ClassLoader#getResource(String name)`，它是基于用户应用程序的 ClassPath 搜索资源，遵循"资源加载的双亲委派模型"，资源名称必须使用路径分隔符 `/` 去分隔目录，但是不能以 `/` 作为资源名的起始字符，其他几个方法都是基于此方法进行衍生，添加复数操作等其他操作。`getResource(String name)` 方法不会显示抛出异常，当资源搜索失败的时候，会返回 `null`。
+
+=== 参考资料
+
+. http://www.throwable.club/2018/11/30/java-resource-load/[通过源码浅析Java中的资源加载 - Throwable's Blog]

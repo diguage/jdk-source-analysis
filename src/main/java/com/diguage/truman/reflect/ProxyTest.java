@@ -34,7 +34,7 @@ public class ProxyTest {
         String getById(Integer id);
     }
 
-    public static interface UserPostService {
+    static interface UserPostService {
         String postUser(String name);
     }
 
@@ -66,11 +66,35 @@ public class ProxyTest {
 
         System.out.println("UserCode = "
                 + ((UserPostService) proxy).postUser("diguage"));
+
+        Object proxy2 = Proxy.newProxyInstance(classLoader,
+                interfaces, new LogProxy(userService));
+        System.out.println("UserName = "
+                + ((UserGetService) proxy2).getById(119));
+
+        System.out.println("UserCode = "
+                + ((UserPostService) proxy2).postUser("diguage"));
+    }
+
+    @Test
+    public void testGetCallerMethodName() {
+        System.out.println(getCallerMethod());
+
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        System.out.println(methodName);
+    }
+
+    public String getCallerMethod() {
+        String methodName = Thread.currentThread()
+                .getStackTrace()[2] // 注意下标值
+                .getMethodName();
+        return methodName;
     }
 
     @Test
     public void test() {
-//        ProxyGenerator`.generateProxyClass(
-//                proxyN`ame, interfaces.toArray(EMPTY_CLASS_ARRAY), accessFlags);
+        System.out.println(Long.MAX_VALUE);
+
     }
 }
