@@ -127,6 +127,11 @@ public final class $Proxy0 extends Proxy implements UserService {
 . 如何抽象代理动作？
 . 如何在方法内获取参数列表？
 
+=== CGLIB
+
+. 通过生成子类的方式来产生代理，某些情况比动态代理运行速度要快一些。
+. 不能代理 `final` 修饰的类。
+
 === 参考资料
 
 . https://www.cnblogs.com/gonjan-blog/p/6685611.html[java动态代理实现与原理详细分析 - Gonjian - 博客园]

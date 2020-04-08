@@ -163,6 +163,8 @@ include::java.lang.reflect.Proxy.adoc[]
 
 include::java.net.ServerSocket.adoc[]
 
+include::java.util.ServiceLoader.adoc[]
+
 
 
 
