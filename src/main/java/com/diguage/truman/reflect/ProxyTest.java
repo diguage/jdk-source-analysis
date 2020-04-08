@@ -91,10 +91,4 @@ public class ProxyTest {
                 .getMethodName();
         return methodName;
     }
-
-    @Test
-    public void test() {
-        System.out.println(Long.MAX_VALUE);
-
-    }
 }

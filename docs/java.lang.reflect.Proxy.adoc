@@ -107,6 +107,17 @@ public final class $Proxy0 extends Proxy implements UserService {
 .. 代码中有明确限制：在 `java.lang.reflect.Proxy.ProxyBuilder.ProxyBuilder(java.lang.ClassLoader, java.util.List<java.lang.Class<?>>)` 中有 `interfaces.size() > 65535` 的判断语句。
 .. 字节码中，对于接口数量是用一个 `u2` 变量表示的，该变量的最大值是 `2^16^ - 1 = 65535`。
 
+注解底层也是基于动态代理实现的。
+
+[source,java,{source_attr}]
+----
+include::{sourcedir}/reflect/ProxyAnnoTest.java[]
+----
+
+每个注解都是一个接口声明，然后基于这个接口使用动态代理生成一个代理类。而被标注的注解，就是一个代理类的实例对象。
+
+代理类中的 `InvocationHandler` 则是 `AnnotationInvocationHandler` 实例，实例变量 `Map<String, Object> memberValues` 保存着注解中成员属性的名称和值的映射，注解成员属性的名称实际上就对应着接口中抽象方法的名称。
+
 
 总结
 
@@ -140,3 +151,4 @@ public final class $Proxy0 extends Proxy implements UserService {
 . https://www.geeksforgeeks.org/get-name-of-current-method-being-executed-in-java/[Get name of current method being executed in Java - GeeksforGeeks]
 . http://www.throwable.club/2018/12/08/java-reflection-dynamic-proxy/[深入分析Java反射(四)-动态代理 - Throwable's Blog]
 . http://www.throwable.club/2018/12/16/cglib-dynamic-proxy-analyze/[CGLIB动态代理原理分析 - Throwable's Blog]
+. http://www.throwable.club/2020/03/16/annotation-implementation/[JDK中注解的底层实现 - Throwable's Blog]

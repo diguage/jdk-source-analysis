@@ -2,6 +2,12 @@
 
 include::_attributes.adoc[]
 
+在JDK1.2之后，Java线程模型已经确定了基于操作系统原生线程模型实现。
+
+image::images/jvm-thread-to-os-thread.jpeg[]
+
+Java线程最终会映射为系统内核原生线程，所以Java线程调度最终取决于系操作系统，而目前主流的操作系统内核线程调度基本都是使用抢占式线程调度。也就是可以死记硬背一下：**Java线程是使用抢占式线程调度方式进行线程调度的。**
+
 线程状态在 `Thread` 类已经通过一个枚举给出了所有可能：
 
 .Thread
@@ -117,10 +123,38 @@ image::images/thread-lifecycle.jpeg[]
 image::images/thread-states.jpeg[]
 
 
-`join()` 方法的本质是让调用线程 `wait()` 方法在当前线程对象实例上。
+Java 对象内存占用大小：
 
+. 对象头在32位系统上占用8bytes，64位系统上占用16bytes。开启（-XX:+UseCompressedOops）对象头大小为12bytes（64位机器）。
+. 64位机器上，数组对象的对象头占用24个字节，启用压缩之后占用16个字节。之所以比普通对象占用内存多是因为需要额外的空间存储数组的长度。
+. 64位机器上reference类型占用8个字节，开启指针压缩后占用4个字节。
+. 复合对象，直接计算当前对象占用空间大小，包括当前类及超类的基本类型实例字段大小、引用类型实例字段引用大小、实例基本类型数组总占用空间、实例引用类型数组引用本身占用空间大小; 但是不包括超类继承下来的和当前类声明的实例引用字段的对象本身的大小、实例引用数组引用的对象本身的大小。
+. 对齐填充是以每个对象为单位进行的。
+
+
+HotSpot的对齐方式为8字节对齐： `（对象头 + 实例数据 + padding） % 8等于0且0 <= padding < 8`。
+
+[source,java,{source_attr}]
+----
+include::{sourcedir}/concurrent/JolTest.java[]
+----
+
+`join()` 方法的本质是让调用线程 `wait()` 方法在当前线程对象实例上。
 
 [source,java,{source_attr}]
 ----
 include::{sourcedir}/concurrent/ThreadTest.java[]
 ----
+
+线程上下文切换(`Context Switch`)，都保存了哪些信息？怎么保存的？
+
+
+* Windows 系统中，https://docs.microsoft.com/zh-cn/sysinternals/downloads/process-explorer[Process Explorer] 可以查看上下文切换信息。
+* 阿里巴巴推出的 https://github.com/alibaba/arthas[Alibaba Arthas] 也是一个诊断利器。
+
+
+=== 参考资料
+
+. http://www.throwable.club/2019/06/23/java-concurrency-thread-state/[Java线程生命周期与状态切换 - Throwable's Blog]
+. https://www.iteye.com/blog/yueyemaitian-2033046[一个对象占用多少字节？ - 田麦 - ITeye博客]
+. https://www.cnblogs.com/zhanjindong/p/3757767.html[一个Java对象到底占用多大内存？ - zhanjindong - 博客园]

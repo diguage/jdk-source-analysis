@@ -12,6 +12,11 @@ public class ThreadLocalTest {
         new Thread(new FirstApp()).start();
     }
 
+    @Test
+    public void testInheritableThreadLocal() {
+        // TODO: InheritableThreadLocal
+    }
+
     private static class FirstApp implements Runnable {
         private ThreadLocal<String> threadLocal
                 = ThreadLocal.withInitial(() -> "FirstApp-1");

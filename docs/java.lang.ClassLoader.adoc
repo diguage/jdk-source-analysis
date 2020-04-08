@@ -151,6 +151,9 @@ digraph G {
 
 `ClassLoader` 提供的资源加载的方法中的核心方法是 `ClassLoader#getResource(String name)`，它是基于用户应用程序的 ClassPath 搜索资源，遵循"资源加载的双亲委派模型"，资源名称必须使用路径分隔符 `/` 去分隔目录，但是不能以 `/` 作为资源名的起始字符，其他几个方法都是基于此方法进行衍生，添加复数操作等其他操作。`getResource(String name)` 方法不会显示抛出异常，当资源搜索失败的时候，会返回 `null`。
 
+* 如何识别内部类？
+* 如何获取内部类的正确类名？
+
 === 参考资料
 
 . http://www.throwable.club/2018/11/30/java-resource-load/[通过源码浅析Java中的资源加载 - Throwable's Blog]
