@@ -127,6 +127,8 @@ include::java.lang.ThreadLocal.adoc[]
 
 include::java.util.concurrent.atomic.AtomicInteger.adoc[]
 
+include::java.util.concurrent.atomic.LongAdder.adoc[]
+
 include::java.util.concurrent.Future.adoc[]
 
 include::java.util.concurrent.FutureTask.adoc[]

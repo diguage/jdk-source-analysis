@@ -5,13 +5,38 @@ import org.junit.Test;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author D瓜哥, https://www.diguage.com/
  * @since 2020-03-10 10:50
  */
 public class ThreadPoolExecutorTest {
+
+    @Test
+    public void testStatus() {
+        int COUNT_BITS = Integer.SIZE - 3;
+        int COUNT_MASK = (1 << COUNT_BITS) - 1;
+
+        // runState is stored in the high-order bits
+        int RUNNING = -1 << COUNT_BITS;
+        int SHUTDOWN = 0 << COUNT_BITS;
+        int STOP = 1 << COUNT_BITS;
+        int TIDYING = 2 << COUNT_BITS;
+        int TERMINATED = 3 << COUNT_BITS;
+
+        System.out.printf("%32s // %d%n", Integer.toBinaryString(RUNNING), RUNNING);
+        System.out.printf("%32s // %d%n", Integer.toBinaryString(SHUTDOWN), SHUTDOWN);
+        System.out.printf("%32s // %d%n", Integer.toBinaryString(STOP), STOP);
+        System.out.printf("%32s // %d%n", Integer.toBinaryString(TIDYING), TIDYING);
+        System.out.printf("%32s // %d%n", Integer.toBinaryString(TERMINATED), TERMINATED);
+    }
+
     @Test
     public void testPoolSize() {
         ThreadPoolExecutor executorService
