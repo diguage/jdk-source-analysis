@@ -104,6 +104,8 @@
                         <rouge-style>monokai</rouge-style>
                         <imagesdir>.</imagesdir>
                         <icons>font</icons>
+                        <linkcss>true</linkcss>
+                        <stylesdir>assets/css</stylesdir>
                         <toclevels>3</toclevels>
                         <sectnums>true</sectnums>
                         <sectnumlevels>3</sectnumlevels>
@@ -125,6 +127,7 @@
                             <outputDirectory>${project.build.directory}/docs/html</outputDirectory>
                             <attributes>
                                 <toc>left</toc>
+                                <docinfo1>true</docinfo1>
                             </attributes>
                         </configuration>
                     </execution>
