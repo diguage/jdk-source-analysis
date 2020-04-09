@@ -104,3 +104,8 @@ private int awaitDone(boolean timed, long nanos)
     }
 }
 ----
+
+
+=== 参考资料
+
+. http://www.throwable.club/2019/07/02/java-concurrency-listenable-future/[JUC线程池扩展可回调的Future - Throwable's Blog]
