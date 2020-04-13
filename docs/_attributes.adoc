@@ -7,5 +7,5 @@ ifndef::puml_attr[]
 endif::[]
 
 ifndef::source_attr[]
-source_attr: linenums,indent=0,subs="attributes,verbatim"
+:source_attr: linenums,indent=0,subs="attributes,verbatim"
 endif::[]
