@@ -1,4 +1,4 @@
-= LongAdder
+== LongAdder
 
 include::_attributes.adoc[]
 

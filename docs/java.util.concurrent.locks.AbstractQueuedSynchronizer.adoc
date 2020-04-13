@@ -16,6 +16,8 @@ AQS 中线程不是一直在自旋的，而可能会反复的睡眠和唤醒，�
 
 _AQS 结合了自旋和睡眠/唤醒两种方法的优点。_ 这句话该如何理解？刚刚想到的一点： AQS 中会先自旋两次，如果不成功则休眠。应该是这样来使用两者的好处！
 
+自己实现一个 CLH 锁！
+
 
 === 核心点
 
@@ -48,6 +50,15 @@ include::{sourcedir}/concurrent/AbstractQueuedSynchronizerTest.java[]
 
 === `Node` 详解
 
+* `waitStatus`：当前 `Node` 的等待状态，有五个可选值。
+* `prev`：当前 `Node` 实例的前驱节点引用。
+* `next`：当前 `Node` 实例的后继节点引用。
+* `thread`：当前 `Node` 实例持有的线程实例引用。
+* `nextWaiter`：这个值是一个比较容易令人生疑的值，虽然表面上它称为"下一个等待的节点"，但是实际上它有三种取值的情况。
+.. 值为静态实例 `Node.EXCLUSIVE`(也就是 `null`)，代表当前的 `Node` 实例是独占模式。
+.. 值为静态实例 `Node.SHARED`，代表当前的 `Node` 实例是共享模式。
+.. 值为非 `Node.EXCLUSIVE` 和 `Node.SHARED` 的其他节点实例，代表 `Condition` 等待队列中当前节点的下一个等待节点。
+
 ==== `Node` 中一些常量定义
 
 区分共享锁还是独占式锁的常量，是如何被使用的？独占锁为何没有初始化？
@@ -73,7 +84,15 @@ include::{sourcedir}/concurrent/AbstractQueuedSynchronizerTest.java[]
 . `tryAcquireShared(int)` -- 共享方式。尝试获取资源。负数表示失败；0表示成功，但没有剩余可用资源；正数表示成功，且有剩余资源。
 . `tryReleaseShared(int)` -- 共享方式。尝试释放资源，成功则返回true，失败则返回false。
 
+=== 独占模式
 
+独占模式的同步器的一个显著特点就是：头节点的第一个有效(非取消)的后继节点，总是尝试获取资源，一旦获取资源成功就会解除阻塞并且晋升为头节点，原来所在节点会移除出同步等待队列，原来的队列长度就会减少1，然后头结点的第一个有效的后继节点继续开始竞争资源。
+
+=== 共享模式
+
+共享模式的同步器的一个显著特点就是：头节点的第一个有效(非取消)的后继节点，总是尝试获取资源，一旦获取资源成功就会解除阻塞并且晋升为头节点，原来所在节点会移除出同步等待队列，原来的队列长度就会减少1，重新设置头节点的过程会传播唤醒的状态，简单来说就是唤醒一个有效的后继节点，只要一个节点可以晋升为头节点，它的后继节点就能被唤醒。节点的唤醒顺序遵循类似于FIFO的原则，通俗说就是先阻塞或者阻塞时间最长则先被唤醒。
+
+=== `ConditionObject`
 
 
 
@@ -81,6 +100,7 @@ include::{sourcedir}/concurrent/AbstractQueuedSynchronizerTest.java[]
 
 WARNING: 访问一些页面时发现一些页面已经不能访问了，后续再搜索补上吧。
 
+. http://www.throwable.club/2019/04/07/java-juc-aqs-source-code/[JUC同步器框架AbstractQueuedSynchronizer源码图文分析 - Throwable's Blog]
 . https://www.cnblogs.com/dennyzhangdd/p/7218510.html[《The java.util.concurrent Synchronizer Framework》 JUC同步器框架（AQS框架）原文翻译 - 只会一点java - 博客园]
 . https://www.cnblogs.com/waterystone/p/4920797.html[Java并发之AQS详解 - waterystone - 博客园]
 . https://www.cnblogs.com/chengxiao/archive/2017/07/24/7141160.html[Java并发包基石-AQS详解 - dreamcatcher-cx - 博客园]

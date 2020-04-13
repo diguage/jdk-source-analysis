@@ -247,10 +247,12 @@ include::{sourcedir}/concurrent/ThreadPoolExecutorTest.java[]
 
 === 参考资料
 
+. http://www.throwable.club/2019/07/15/java-concurrency-thread-pool-executor/[JUC线程池ThreadPoolExecutor源码分析 - Throwable's Blog]
+. https://www.cnblogs.com/leesf456/p/5585627.html[【JUC】JDK1.8源码分析之ThreadPoolExecutor（一） - leesf - 博客园]
 . https://mp.weixin.qq.com/s/baYuX8aCwQ9PP6k7TDl2Ww[Java线程池实现原理及其在美团业务中的实践]
 . http://calvin1978.blogcn.com/articles/java-threadpool.html[Java ThreadPool的正确打开方式 | 江南白衣]
 . http://calvin1978.blogcn.com/articles/tomcat-threadpool.html[Tomcat线程池，更符合大家想象的可扩展线程池 | 江南白衣]
-. http://www.throwable.club/2019/07/15/java-concurrency-thread-pool-executor/[JUC线程池ThreadPoolExecutor源码分析 - Throwable's Blog]
+. http://www.throwable.club/2019/07/15/java-concurrency-thread-pool-executor/[JUC线程池ThreadPoolExecutor源码分析 - Throwable's Blog
 . http://jindong.io/2015/03/30/java-concurrent-package-ThreadPoolExecutor/[Java并发包源码学习之线程池（一）ThreadPoolExecutor源码分析 - Jindong]
 . http://my.oschina.net/zouqun/blog/407149[ThreadPoolExecutor简介与源码分析 - 邹胜群的个人页面 - 开源中国社区]
 . http://onlychoice.github.io/blog/2013/09/13/java-concurrent-source-code-reading-2/[Java并发源码分析 - ThreadPoolExecutor - SHOW ME THE CODE]
