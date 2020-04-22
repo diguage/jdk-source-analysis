@@ -147,4 +147,4 @@ include::{sourcedir}/concurrent/ArrayBlockingQueueTest.java[]
 
 === 参考资料
 
-*
+* https://www.pdai.tech/md/java/thread/java-thread-x-juc-collection-BlockingQueue.html[JUC集合: BlockingQueue详解 | Java 全栈知识体系]

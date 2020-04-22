@@ -14,6 +14,10 @@ include::preface.adoc[]
 
 :sectnums:
 
+
+image::images/java-collections-overview.png[]
+
+
 include::java.util.Iterator.adoc[]
 
 include::java.util.Collection.adoc[]
@@ -100,6 +104,8 @@ include::java.util.Arrays.adoc[]
 include::java.util.Collections.adoc[]
 
 
+image::images/java-concurrent-overview.png[]
+
 
 include::java.lang.Thread.adoc[]
 
@@ -154,6 +160,8 @@ include::java.util.concurrent.ArrayBlockingQueue.adoc[]
 include::java.util.concurrent.LinkedBlockingQueue.adoc[]
 
 include::java.util.concurrent.PriorityBlockingQueue.adoc[]
+
+include::java.util.concurrent.DelayQueue.adoc[]
 
 
 

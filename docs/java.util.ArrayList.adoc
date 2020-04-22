@@ -1,4 +1,4 @@
-== `ArrayList` 实现原理与源码分析
+== `ArrayList`
 
 include::_attributes.adoc[]
 

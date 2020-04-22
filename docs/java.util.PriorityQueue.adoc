@@ -1,2 +1,24 @@
 == PriorityQueue
 
+include::_attributes.adoc[]
+
+对于 `PriorityQueue` 来说，最重要的一点就是要清楚他是基于堆结构实现，可以用它来实现优先队列。
+
+
+image::images/PriorityQueue-offer.png[]
+
+image::images/PriorityQueue-poll.png[]
+
+image::images/PriorityQueue-remove2.png[]
+
+
+[source,java,{source_attr}]
+----
+include::{sourcedir}/PriorityQueueTest.java[tag=size]
+----
+
+从上述例子中可以看出，`PriorityQueue` 的长度是回增长的。所以，如果需要定长的优先队列，则需要将多余数据"弹出"。
+
+=== 参考资料
+
+. https://www.pdai.tech/md/java/collection/java-collection-PriorityQueue.html[Collection - PriorityQueue源码解析 | Java 全栈知识体系]

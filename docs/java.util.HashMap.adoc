@@ -1,5 +1,10 @@
-== HashMap 源码解析
+== HashMap
 
+=== HashMap 问题集
+
+. 如果判断是否到达容量阈值？
+. 为什么
+. 遍历查找时，如果保证可以让红黑树的节点也可以使用next方法来查找？
 
 === Redis 中的字典
 
@@ -830,7 +835,7 @@ HashMap 内部是基于一个数组来实现的，数组中的每个元素称为
 . link:http://tech.meituan.com/java-hashmap.html[Java 8系列之重新认识HashMap]
 
 
-== JDK1.8 HashMap源码解析(二)
+=== JDK 1.8 的实现
 
 *继上一章介绍了HashMap的签名、数据结构以及存储原理之后，相信大家对HashMap有了更加深入的理解，在使用时也会得心应手。* +
 *本章将继续介绍HashMap的使用，主要是分析HashMap的三种遍历方式。*
@@ -999,7 +1004,7 @@ map.put(123L,"java");
 String value = map.get(key);  // value是null？还是java？
 ----
 
-=== 小结
+==== 小结
 
 有关HashMap的遍历就介绍这写，遍历HashMap一共有三种方式，一般遍历key和遍历Entry用的比较多，而且遍历Entry要比遍历
 key效率要更快些。对于HashMap的源码暂时就分析这么多，由于本人还是一个菜鸟，水平有限，有些地方也许没有分析的透彻，希望
@@ -1009,13 +1014,6 @@ key效率要更快些。对于HashMap的源码暂时就分析这么多，由于�
 
 === 参考
 
-link:http://blog.jrwang.me/2016/java-collections-hashmap/[Java 容器源码分析之 HashMap]
-
-
-=== HashMap 问题集
-
-. 如果判断是否到达容量阈值？
-. 为什么
-. 遍历查找时，如果保证可以让红黑树的节点也可以使用next方法来查找？
+* https://blog.jrwang.me/2016/java-collections-hashmap/[Java 容器源码分析之 HashMap - JR's Blog]
 
 
