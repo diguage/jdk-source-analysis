@@ -109,6 +109,8 @@ include::{sourcedir}/concurrent/ThreadLocalTest.java[]
 
 JDK 的 `InheritableThreadLocal` 类可以完成父线程到子线程的值传递。但对于使用线程池等会池化复用线程的执行组件的情况，线程由线程池创建好，并且线程是池化起来反复使用的；这时父子线程关系的 `ThreadLocal` 值传递已经没有意义，应用需要的实际上是把任务提交给线程池时的 `ThreadLocal` 值传递到 任务执行时。为了解决这个问题，阿里巴巴研发了 https://github.com/alibaba/transmittable-thread-local[alibaba/transmittable-thread-local] 库。
 
+哈希冲突了怎么解决？
+
 === 参考资料
 
 . https://snailclimb.gitee.io/javaguide/#/docs/java/Multithread/JavaConcurrencyAdvancedCommonInterviewQuestions?id=_33-threadlocal%e5%8e%9f%e7%90%86[JavaGuide

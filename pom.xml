@@ -106,7 +106,7 @@
                         <icons>font</icons>
                         <linkcss>true</linkcss>
                         <stylesdir>assets/css</stylesdir>
-                        <toclevels>3</toclevels>
+                        <toclevels>1</toclevels>
                         <sectnums>true</sectnums>
                         <sectnumlevels>3</sectnumlevels>
                         <sectanchors>true</sectanchors>

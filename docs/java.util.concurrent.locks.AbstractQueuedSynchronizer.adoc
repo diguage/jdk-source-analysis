@@ -94,6 +94,8 @@ include::{sourcedir}/concurrent/AbstractQueuedSynchronizerTest.java[]
 
 === `ConditionObject`
 
+关于这段代码的研究，可以参看 xref:java.util.concurrent.ArrayBlockingQueue.adoc[`java.util.concurrent.ArrayBlockingQueue`]。`ArrayBlockingQueue` 在实现 `poll(long, java.util.concurrent.TimeUnit)` 方法时，使用了 `Condition notEmpty` 对象来调用 `ConditionObject.awaitNanos(long)` 方法。
+
 
 
 === 参考资料

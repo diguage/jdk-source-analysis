@@ -1,5 +1,45 @@
 == ArrayBlockingQueue
 
+include::_attributes.adoc[]
+
+image::images/BlockingQueue.png[align="center"]
+
+=== 方法组
+
+[cols="8,45,34,13"]
+|===
+| |插入 |移除 |检查
+
+|抛异常
+|`boolean add(E e)`
+|`boolean remove(Object o)`
+|`E element()`
+
+|特定值
+|`boolean offer(E e)`
+|`E poll()`
+|`E peek()`
+
+|阻塞
+|`void put(E e)`
+|`E take()`
+|
+
+|超时
+|`boolean offer(E e, long timeout, TimeUnit unit)`
+|`E poll(long timeout, TimeUnit unit)`
+|
+|===
+
+四组方法：
+
+* **抛异常**：如果试图的操作无法立即执行，抛一个异常。
+* **特定值**：如果试图的操作无法立即执行，返回一个特定的值(通常是 `true`, `false` 或 `null`)。
+* **阻塞**：如果试图的操作无法立即执行，该方法调用将会发生阻塞，直到能够执行。
+* **超时**：如果试图的操作无法立即执行，该方法调用将会发生阻塞，直到能够执行，但等待时间不会超过给定值。返回一个特定值以告知该操作是否成功(典型的是 true / false)。
+
+
+
 `ArrayBlockingQueue` 是 `BlockingQueue` 接口的有界队列实现类，底层采用数组来实现。`ArrayBlockingQueue` 一旦创建，容量不能改变。
 
 `ArrayBlockingQueue` 默认情况下不能保证线程访问队列的公平性，所谓公平性是指严格按照线程等待的绝对时间顺序，即最先等待的线程能够最先访问到 `ArrayBlockingQueue`。而非公平性则是指访问 `ArrayBlockingQueue` 的顺序不是遵守严格的时间顺序，有可能存在，当 `ArrayBlockingQueue` 可以被访问时，长时间阻塞的线程依然无法访问到 `ArrayBlockingQueue`。如果保证公平性，通常会降低吞吐量。
@@ -96,3 +136,15 @@ public E poll() {
 
 底层使用数组来实现，长度确定后就不再变化，通过下标循环往复地使用数组，类似与将数组组成了一个圆。
 
+
+[source,java,{source_attr}]
+----
+include::{sourcedir}/concurrent/ArrayBlockingQueueTest.java[]
+----
+
+`poll(long, java.util.concurrent.TimeUnit)` 方法，其实就是使用 `Condition notEmpty` 对象来调用 `ConditionObject.awaitNanos(long)` 方法，在其中再调用了 xref:java.util.concurrent.locks.LockSupport.adoc[`LockSupport.parkNanos(java.lang.Object, long)`] 方法来实现"休眠等待"。
+
+
+=== 参考资料
+
+*

@@ -1,0 +1,159 @@
+== Netty
+
+include::_attributes.adoc[]
+
+=== JDK 原生 Socket 编程
+
+使用 JDK 原生的 Socket API 进行网络编程：
+
+[source,java,{source_attr}]
+----
+include::{sourcedir}/netty/Test02.java[]
+----
+
+* 阻塞
+* 高性能
+
+=== Server startup
+
+[source,java,{source_attr}]
+----
+include::{sourcedir}/netty/Test03.java[]
+----
+
+两个问题
+
+. 服务端的 Socket 在哪里初始化？
+. 在哪里 accept 连接？
+
+*Netty 服务端启动*
+
+. 创建服务端 `Channel`
+.. `io.netty.bootstrap.AbstractBootstrap.bind(int)`
+.. `io.netty.bootstrap.AbstractBootstrap.doBind(SocketAddress)`
+.. `io.netty.bootstrap.AbstractBootstrap.initAndRegister()`
+. 初始化服务端 `Channel`
+.. `NioServerSocketChannel.NioServerSocketChannel()` 在 `NioServerSocketChannel` 默认初始化函数中，使用了 JDK 内置的 `SelectorProvider.provider()` 方法返回的 `SelectorProvider` 对象。
+.. 在 `NioServerSocketChannel.newSocket(SelectorProvider)` 方法中，调用 `provider.openServerSocketChannel()` 来创建 `ServerSocketChannel` 对象。
+.. 在 `AbstractNioChannel.AbstractNioChannel(Channel, SelectableChannel, int)` 构造函数中，设置 `selectableChannel.configureBlocking(false)`。
+. 注册 Selector
+. 端口绑定 -- 调用底层 API，实现对端口的绑定。
+
+*服务端 `Channel` 初始化过程*
+
+. 通过 `bind()` 进入
+. `initAndRegister()`
+. 在 `AbstractBootstrap.initAndRegister()` 中通过 `channelFactory.newChannel()` 利用反射机制来创建 `Channel`。
+. 在 `ServerBootstrap.init(Channel)` 中，初始化 `Channel`
+.. `setChannelOptions`
+.. `setAttributes`
+.. 配置 `ChannelHandler` -- 配置服务端 pipeline。
+... 初始化时，调用 `AbstractBootstrap.handler(io.netty.channel.ChannelHandler)`，配置 `ChannelHandler` 对象
+... 通过调用 `AbstractBootstrap.initAndRegister()` 方法调用 `ServerBootstrap.init(Channel)` 方法，在其中，将 `ChannelHandler` 对象追加到 `Channel` 对象的 pipeline 的最后面。
+.. add `ServerBootstrapAcceptor`
+... 上一步执行完毕后，在 `ServerBootstrap.init(Channel)` 方法中，会创建一个 `ServerBootstrapAcceptor` 对象添加到 pipeline 后面。
+
+*注册 selector*
+
+. `AbstractChannel.AbstractUnsafe.register(EventLoop, ChannelPromise)` 入口
+.. `AbstractChannel.this.eventLoop = eventLoop;` 绑定线程
+.. `AbstractChannel.AbstractUnsafe.register0(ChannelPromise)` 实际注册
+... `AbstractChannel.doRegister()` 调用底层 JDK API 注册
+... `pipeline.invokeHandlerAddedIfNeeded()`
+... `pipeline.fireChannelRegistered()`
++
+从示例代码的输出可以看出，`Test03.ServerHandler` 中三个"事件"方法被调用的顺序是： `handlerAdded`，`channelRegistered` 和 `channelActive`。
+
+*端口绑定*
+
+. `AbstractChannel.AbstractUnsafe.bind(SocketAddress, ChannelPromise)` 入口
+.. `AbstractBootstrap.doBind(SocketAddress)`
+... `javaChannel().bind()` JDK 底层绑定 `io.netty.channel.AbstractChannel.AbstractUnsafe.bind`
+.... ` pipeline.fireChannelActive()` 传播事件
+... `HeadContext.readIfIsAutoRead()`
+
+
+=== `NioEventLoop`
+
+// ch04
+
+. 默认情况下，Netty 服务端起多少个线程？何时启动？
+. Netty 是如何解决 JDK 空轮询 Bug 的？
+. Netty 如何保证异步串行无锁化？
+
+//
+
+. `NioEventLoop` 创建
+. `NioEventLoop` 启动
+. `NioEventLoop` 执行逻辑
+
+==== `NioEventLoop` 创建
+
+`NioEventLoop` 默认是在调用 `NioEventLoopGroup()` 时被创建，默认是 2 倍的 CPU 数量（由常量 `MultithreadEventLoopGroup.DEFAULT_EVENT_LOOP_THREADS` 来定义）。
+
+在 `MultithreadEventExecutorGroup.MultithreadEventExecutorGroup(int, Executor, EventExecutorChooserFactory, Object...)` 构造函数中：
+
+. 创建 `new ThreadPerTaskExecutor(newDefaultThreadFactory())` 线程池；
++
+每次执行任务都会创建一个线程实体。
++
+`NioEventLoop` 线程命名规则 `nioEventLoop-1-XX`。在 `io.netty.util.concurrent.DefaultThreadFactory` 中可以看到。
++
+这里还有两点需要注意：创建的线程对象和 `Runable` 被分别包装成了 `FastThreadLocalThread` 和 `FastThreadLocalRunnable`，主要是对 `ThreadLocal` 做了一些优化。
++
+. 使用 `for` 循环，利用 `MultithreadEventExecutorGroup.newChild(Executor, Object...)` 方法创建 `NioEventLoop` 对象。
++
+有三个作用：①保存线程执行器 `ThreadPerTaskExecutor`；②创建一个 `MpscQueue`；③创建一个 selector。
++
+在 `NioEventLoop.newTaskQueue(int)` 方法，然后调用 `NioEventLoop.newTaskQueue0(int)` 方法，创建 `MpscQueue`。
++
+. 调用 `DefaultEventExecutorChooserFactory.newChooser(EventExecutor[])` 方法，创建线程选择器。
++
+`isPowerOfTwo()` 判断是否是 2 的幂，如果是则返回 `PowerOfTwoEventExecutorChooser`（优化），返回 `index++ & (length - 1)`；否则返回 `GenericEventExecutorChooser`（普通），返回 `abs(index++ % length)`。
+
+
+==== `NioEventLoop` 启动
+
+* 服务端启动绑定接口
+* 新连接接入，通过 choose 绑定一个 `NioEventLoop`
+
+在 `AbstractBootstrap.doBind0` 方法中，调用 `SingleThreadEventExecutor.execute(java.lang.Runnable)` 开始启动，再调用 `SingleThreadEventExecutor.execute(java.lang.Runnable, boolean)`，最后通过 `SingleThreadEventExecutor.startThread` 方法来启动。实际启动工作，最后委托给了 `SingleThreadEventExecutor.doStartThread` 方法来执行，这个方法中，调用 `SingleThreadEventExecutor.this.run();` 来启动 `NioEventLoop`。
+
+==== `NioEventLoop` 执行逻辑
+
+. `run() -> for(;;)`
+.. `select()` 检查是否有 I/O 事件
+.. `processSelectedKeys()` 处理 I/O 事件
+.. `SingleThreadEventExecutor.runAllTasks(long)` 处理异步任务队列
+
+*select() 方法*
+
+* deadline 以及任务穿插逻辑处理
++
+`NioEventLoop.select(long)`
++
+* 阻塞式select
+* 避免 JDK 空轮询的 Bug
++
+在 `NioEventLoop.run()` 方法中，每次轮询，都会记录一下轮询次数 `selectCnt`；在 `NioEventLoop.unexpectedSelectorWakeup(selectCnt)`方法中，如果轮询次数大于 `SELECTOR_AUTO_REBUILD_THRESHOLD`(该值默认是 `512`，可以通过 `io.netty.selectorAutoRebuildThreshold` 参数来改)，则重建。
++
+重建工作在 `NioEventLoop.rebuildSelector()` 方法中完成，然后又委托给 `NioEventLoop.rebuildSelector0()` 来实际执行。主要工作就是创建一个新的 `selector`，然后把老的 `selector` 上的 `SelectionKey` 注册到新的 `selector` 上。
+
+*`processSelectedKeys()`*
+
+* selected keySet 优化
++
+`SelectedSelectionKeySet` 底层是一个数组。只实现了增加操作，删除操作没有实现。为什么？
++
+* `processSelectedKeysOptimized()`
++
+`NioEventLoop.processSelectedKeysOptimized()`，重点在 `NioEventLoop.processSelectedKey(SelectionKey, AbstractNioChannel)` 。
+
+
+
+
+
+
+
+
+
