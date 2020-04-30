@@ -36,6 +36,9 @@ public class PriorityQueueTest {
         assertThat(queue).hasSize(capacity);
         assertThat(queue).contains(9);
         assertThat(queue).doesNotContain(0);
+        Integer num = queue.poll();
+        // 可见，默认就是最小堆。
+        assertThat(num).isEqualTo(5);
     }
     // end::size[]
 }

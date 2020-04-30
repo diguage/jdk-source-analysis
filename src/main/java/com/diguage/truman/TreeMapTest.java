@@ -63,10 +63,52 @@ public class TreeMapTest {
     }
     // end::question[]
 
+    // tag::classPerson[]
+    public static class Person {
+        long id;
+        int sortFactor;
+
+        public Person(long id) {
+            this(id, (int) id);
+        }
+
+        public Person(long id, int sortFactor) {
+            this.id = id;
+            this.sortFactor = sortFactor;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            Person person = (Person) o;
+            return id == person.id;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id);
+        }
+
+        @Override
+        public String toString() {
+            return "Person{" +
+                    "id=" + id +
+                    ", age=" + sortFactor +
+                    '}';
+        }
+    }
+    // end::classPerson[]
+
     // tag::resort[]
     @Test
     public void testSort() {
-        Comparator<Person> comparator = Comparator.comparingInt(a -> a.age);
+        Comparator<Person> comparator
+                = Comparator.comparingInt(a -> a.sortFactor);
         TreeMap<Person, Person> map = new TreeMap<>(comparator);
         for (int i = 0; i < 10; i++) {
             if ((i & 1) == 1) {
@@ -76,7 +118,7 @@ public class TreeMapTest {
                 Person param = new Person(i / 2);
                 Person person = map.get(param);
                 if (Objects.nonNull(person)) {
-                    person.age = new Random().nextInt();
+                    person.sortFactor = new Random().nextInt();
                 }
             }
         }
@@ -93,43 +135,34 @@ public class TreeMapTest {
             System.out.println(person);
         }
     }
-
-    public static class Person {
-        long id;
-        int age;
-
-        public Person(long id) {
-            this(id, (int) id);
-        }
-
-        public Person(long id, int age) {
-            this.id = id;
-            this.age = age;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Person person = (Person) o;
-            return id == person.id;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(id);
-        }
-
-        @Override
-        public String toString() {
-            return "Person{" +
-                    "id=" + id +
-                    ", age=" + age +
-                    '}';
-        }
-    }
     // end::resort[]
 
+    // tag::duplicateSortFactor[]
+    @Test
+    public void testDuplicateSortFactor() {
+        Comparator<Person> comparator
+                = Comparator.comparingInt(a -> a.sortFactor);
+        TreeMap<Person, Person> treeMap = new TreeMap<>(comparator);
+        Person p1 = new Person(1, 0);
+        Person p2 = new Person(2, 0);
+        assert !p1.equals(p2);
+        System.out.println(p1.equals(p2));
+
+        for (int i = 0; i < 10; i++) {
+            Person person = new Person(i, 0);
+            treeMap.put(person, person);
+        }
+
+        assert (treeMap.size() == 1);
+        treeMap.forEach((k, v) -> {
+            System.out.println("-----------------------");
+            System.out.printf("kid= %-4d kfactor= %-8d%n", k.id, k.sortFactor);
+            System.out.printf("vid= %-4d vfactor= %-8d%n", v.id, v.sortFactor);
+        });
+    }
+    // end::duplicateSortFactor[]
+
+    // tag::commonCase[]
     @Test
     public void testPut() {
         TreeMap<Integer, Integer> treeMap = new TreeMap<>();
@@ -137,5 +170,6 @@ public class TreeMapTest {
             treeMap.put(i, i * 100);
         }
     }
+    // end::commonCase[]
 
 }

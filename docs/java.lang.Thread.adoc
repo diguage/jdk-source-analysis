@@ -146,6 +146,8 @@ include::{sourcedir}/concurrent/JolTest.java[]
 include::{sourcedir}/concurrent/ThreadTest.java[]
 ----
 
+线程休眠苏醒后，中断信号就会被清除！所以，如果要响应这种中断，还需要再异常捕获代码段再次中断才行！
+
 线程上下文切换(`Context Switch`)，都保存了哪些信息？怎么保存的？
 
 
@@ -158,3 +160,6 @@ include::{sourcedir}/concurrent/ThreadTest.java[]
 . http://www.throwable.club/2019/06/23/java-concurrency-thread-state/[Java线程生命周期与状态切换 - Throwable's Blog]
 . https://www.iteye.com/blog/yueyemaitian-2033046[一个对象占用多少字节？ - 田麦 - ITeye博客]
 . https://www.cnblogs.com/zhanjindong/p/3757767.html[一个Java对象到底占用多大内存？ - zhanjindong - 博客园]
+. https://zhuanlan.zhihu.com/p/45667127[一文搞懂 Java 线程中断 - 知乎]
+. https://blog.csdn.net/justloveyou_/article/details/54929949[Java 并发：线程间通信与协作_Java_Rico's Blogs-CSDN博客]
+. https://blog.csdn.net/zheng548/article/details/54426947[synchronized和锁(ReentrantLock) 区别_Java_小风筝-CSDN博客]

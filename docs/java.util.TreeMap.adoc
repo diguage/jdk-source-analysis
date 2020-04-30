@@ -11,18 +11,29 @@ include::{sourcedir}/TreeMapTest.java[tag=question]
 
 `TreeMap` 底层是一个红黑树。
 
+先定义一个测试实体类：
+
+[source,java,{source_attr}]
+----
+include::{sourcedir}/TreeMapTest.java[tag=classPerson]
+----
+
 [source,java,{source_attr}]
 ----
 include::{sourcedir}/TreeMapTest.java[tag=resort]
 ----
 
-修改排序字段，打印时，依然可以保持有序性。这个实现是怎么回事？
-
+修改排序字段，打印时，依然可以保持有序性。__这个实现是怎么回事？__
 
 [source,java,{source_attr}]
 ----
-public class TreeMapTest {
+include::{sourcedir}/TreeMapTest.java[tag=duplicateSortFactor]
+----
 
-include::{sourcedir}/TreeMapTest.java[lines=132..-1]
+由此看出，`TreeMap` 不能接受排序因子相同的值。如果存在，则后来者把前者的 `Value` 覆盖掉。
+
+[source,java,{source_attr}]
+----
+include::{sourcedir}/TreeMapTest.java[tag=commonCase]
 ----
 

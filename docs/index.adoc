@@ -15,8 +15,8 @@ include::preface.adoc[]
 :sectnums:
 
 
-image::images/java-collections-overview.png[]
 
+include::java.collection.adoc[]
 
 include::java.util.Iterator.adoc[]
 
@@ -59,6 +59,7 @@ include::java.util.LinkedHashSet.adoc[]
 include::java.util.BitSet.adoc[]
 
 include::java.util.EnumSet.adoc[]
+
 
 
 include::java.util.Map.adoc[]
@@ -104,8 +105,9 @@ include::java.util.Arrays.adoc[]
 include::java.util.Collections.adoc[]
 
 
-image::images/java-concurrent-overview.png[]
 
+
+include::java.util.concurrent.adoc[]
 
 include::java.lang.Thread.adoc[]
 
@@ -165,6 +167,7 @@ include::java.util.concurrent.DelayQueue.adoc[]
 
 
 
+
 include::java.lang.ClassLoader.adoc[]
 
 include::java.lang.reflect.Field.adoc[]
@@ -174,6 +177,8 @@ include::java.lang.reflect.Proxy.adoc[]
 include::java.net.ServerSocket.adoc[]
 
 include::java.util.ServiceLoader.adoc[]
+
+
 
 
 include::io.netty.adoc[]

@@ -5,6 +5,8 @@ import org.junit.Test;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
 
 /**
  * @author D瓜哥, https://www.diguage.com/
@@ -214,4 +216,118 @@ public class ThreadTest {
         thread1.start();
     }
 
+    @Test
+    public void testInterruptNoAction() {
+        // 虽然给线程发出了中断信号，但程序中并没有响应中断信号的逻辑，所以程序不会有任何反应。
+        Thread thread = new Thread(() -> {
+            while (true) {
+                Thread.yield();
+            }
+        });
+        thread.start();
+        thread.interrupt();
+        LockSupport.park();
+    }
+
+    @Test
+    public void testInterruptAction() {
+        Thread thread = new Thread(() -> {
+            while (true) {
+                Thread.yield();
+                // 响应中断
+                if (Thread.currentThread().isInterrupted()) {
+                    System.out.println("Java技术栈线程被中断，程序退出。");
+                    return;
+                }
+            }
+        });
+        thread.start();
+        thread.interrupt();
+        LockSupport.parkNanos(TimeUnit.MINUTES.toNanos(1));
+    }
+
+    @Test
+    public void testInterruptFailure() throws InterruptedException {
+        Thread thread = new Thread(() -> {
+            while (true) {
+                // 响应中断
+                if (Thread.currentThread().isInterrupted()) {
+                    System.out.println("Java技术栈线程被中断，程序退出。");
+                    return;
+                }
+
+                try {
+                    // sleep() 方法被中断后会清除中断标记，所以循环会继续运行。。
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    System.out.println("Java技术栈线程休眠被中断，程序退出。");
+                }
+                System.out.println(Thread.currentThread().getState() + " 线程苏醒，继续执行……");
+            }
+        });
+        thread.start();
+        Thread.sleep(100); // 注意加上这句话！否则线程还没启动就被终端了
+        thread.interrupt();
+        LockSupport.parkNanos(TimeUnit.MINUTES.toNanos(1));
+        System.out.println(thread.getState());
+    }
+
+    @Test
+    public void testInterruptSleep() throws InterruptedException {
+        Thread thread = new Thread(() -> {
+            while (true) {
+                // 响应中断
+                if (Thread.currentThread().isInterrupted()) {
+                    System.out.println("Java技术栈线程被中断，程序退出。");
+                    return;
+                }
+
+                try {
+                    // sleep() 方法被中断后会清除中断标记，所以循环会继续运行。。
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    System.out.println("Java技术栈 线程 休眠被中断，程序退出。");
+                    Thread.currentThread().interrupt();
+                }
+                System.out.println(Thread.currentThread().getState() + " 线程苏醒，继续执行……");
+            }
+        });
+        thread.start();
+        Thread.sleep(100); // 注意加上这句话！否则线程还没启动就被终端了
+        thread.interrupt();
+        LockSupport.parkNanos(TimeUnit.MINUTES.toNanos(1));
+        System.out.println(thread.getState());
+    }
+
+    @Test
+    public void testSynchronized() throws InterruptedException {
+        class Account {
+            int money = 100;
+
+            synchronized void increase() {
+                System.out.println("start to increase");
+                money -= 10;
+                double var = 0;
+                for (int i = 0; i < 10000000; i++) {
+                    var = Math.PI * Math.E * i;
+                    if (i % 2000000 == 0) {
+                        throw new RuntimeException("fire");
+                    }
+                }
+                System.out.println("finish increasing." + var);
+            }
+
+            synchronized void decrease() {
+                System.out.println("start to decrease");
+                money += 20;
+                System.out.println("finish decreasing.");
+            }
+        }
+        Account account = new Account();
+        new Thread(account::increase).start();
+        Thread.sleep(1);
+        new Thread(account::decrease).start();
+        LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(30));
+        System.out.println(account.money);
+    }
 }
