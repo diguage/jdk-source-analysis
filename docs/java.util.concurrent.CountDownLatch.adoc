@@ -53,31 +53,6 @@ private final Sync sync;
 
 管中窥豹，从这里也可以看出 `CountDownLatch` 中的等待控制几乎都是依赖 `AbstractQueuedSynchronizer` 来实现的。
 
-=== `countDown()`
-
-[source,java,{source_attr}]
-----
-/**
- * Decrements the count of the latch, releasing all waiting threads if
- * the count reaches zero.
- *
- * <p>If the current count is greater than zero then it is decremented.
- * If the new count is zero then all waiting threads are re-enabled for
- * thread scheduling purposes.
- *
- * <p>If the current count equals zero then nothing happens.
- */
-public void countDown() {
-    sync.releaseShared(1);
-}
-----
-
-`countDown()` 方法直接减少锁存器计数，直到零，则释放所有等待的线程。
-
-image::images/CountDownLatch-countDown-1.png[]
-
-image::images/CountDownLatch-countDown-2.png[]
-
 === `await()`
 
 [source,java,{source_attr}]
@@ -114,11 +89,87 @@ public void await() throws InterruptedException {
 }
 ----
 
-对 `await()` 的处理直接委托给了 `sync` 的 `acquireSharedInterruptibly(1)` 方法，当然这个方法是从 `AbstractQueuedSynchronizer` 继承而来的。
+对 `await()` 的处理直接委托给了 `sync` 的 `acquireSharedInterruptibly(1)` 方法，当然这个方法是从 `AbstractQueuedSynchronizer` 继承而来的。来看一下这个方法：
+
+.AbstractQueuedSynchronizer
+[source,java,{source_attr}]
+----
+    /**
+     * Acquires in shared mode, aborting if interrupted.  Implemented
+     * by first checking interrupt status, then invoking at least once
+     * {@link #tryAcquireShared}, returning on success.  Otherwise the
+     * thread is queued, possibly repeatedly blocking and unblocking,
+     * invoking {@link #tryAcquireShared} until success or the thread
+     * is interrupted.
+     * @param arg the acquire argument.
+     * This value is conveyed to {@link #tryAcquireShared} but is
+     * otherwise uninterpreted and can represent anything
+     * you like.
+     * @throws InterruptedException if the current thread is interrupted
+     */
+    public final void acquireSharedInterruptibly(int arg)
+            throws InterruptedException {
+        if (Thread.interrupted())
+            throw new InterruptedException();
+        if (tryAcquireShared(arg) < 0)
+            doAcquireSharedInterruptibly(arg);
+    }
+----
+
+结合上面提到的 `Sync` 中的 `tryAcquireShared(int acquires)` 方法，可以看出，当 `getState()` 不为零时，就会导致 `tryAcquireShared(arg)` 结果返回小于零，进而调用 `doAcquireSharedInterruptibly(arg)`，将线程进入排队，然后挂起线程。
+
 
 image::images/CountDownLatch-await-park.png[]
 
 image::images/CountDownLatch-await-unpark.png[]
+
+=== `countDown()`
+
+[source,java,{source_attr}]
+----
+/**
+ * Decrements the count of the latch, releasing all waiting threads if
+ * the count reaches zero.
+ *
+ * <p>If the current count is greater than zero then it is decremented.
+ * If the new count is zero then all waiting threads are re-enabled for
+ * thread scheduling purposes.
+ *
+ * <p>If the current count equals zero then nothing happens.
+ */
+public void countDown() {
+    sync.releaseShared(1);
+}
+----
+
+这里的 `releaseShared(1)` 方法是从 `AbstractQueuedSynchronizer` 继承过来的，来看一下这个方法的实现：
+
+.AbstractQueuedSynchronizer
+[source,java,{source_attr}]
+----
+    /**
+     * Releases in shared mode.  Implemented by unblocking one or more
+     * threads if {@link #tryReleaseShared} returns true.
+     *
+     * @param arg the release argument.  This value is conveyed to
+     *        {@link #tryReleaseShared} but is otherwise uninterpreted
+     *        and can represent anything you like.
+     * @return the value returned from {@link #tryReleaseShared}
+     */
+    public final boolean releaseShared(int arg) {
+        if (tryReleaseShared(arg)) {
+            doReleaseShared();
+            return true;
+        }
+        return false;
+    }
+----
+
+结合上面提到的 `Sync` 中的 `tryReleaseShared(int releases)` 方法，我们可以看出：`countDown()` 方法直接减少锁存器计数，如果不为零，则无所作为；减少到零，则释放所有上述通过 `await()` 方法挂起的所有等待线程。
+
+image::images/CountDownLatch-countDown-1.png[]
+
+image::images/CountDownLatch-countDown-2.png[]
 
 [qanda]
 `CountDownLatch` 为什么使用共享锁？::
