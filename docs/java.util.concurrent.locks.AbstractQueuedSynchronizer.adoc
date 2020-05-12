@@ -88,6 +88,122 @@ include::{sourcedir}/concurrent/AbstractQueuedSynchronizerTest.java[]
 
 独占模式的同步器的一个显著特点就是：头节点的第一个有效(非取消)的后继节点，总是尝试获取资源，一旦获取资源成功就会解除阻塞并且晋升为头节点，原来所在节点会移除出同步等待队列，原来的队列长度就会减少1，然后头结点的第一个有效的后继节点继续开始竞争资源。
 
+[source,java,{source_attr}]
+----
+    /**
+     * Checks and updates status for a node that failed to acquire.
+     * Returns true if thread should block. This is the main signal
+     * control in all acquire loops.  Requires that pred == node.prev.
+     *
+     * @param pred node's predecessor holding status
+     * @param node the node
+     * @return {@code true} if thread should block
+     */
+    private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) {
+        // 如果前一个节点已经在排队，则新加入的节点就应该 park
+        int ws = pred.waitStatus;
+        if (ws == Node.SIGNAL)
+            /*
+             * This node has already set status asking a release
+             * to signal it, so it can safely park.
+             */
+            return true;
+        // 如果前一个节点已经取消，则删除取消节点
+        if (ws > 0) {
+            /*
+             * Predecessor was cancelled. Skip over predecessors and
+             * indicate retry.
+             */
+            // 跳过已经取消的节点
+            do {
+                node.prev = pred = pred.prev;
+            } while (pred.waitStatus > 0);
+            // 加入队列
+            pred.next = node;
+        } else {
+            /*
+             * waitStatus must be 0 or PROPAGATE.  Indicate that we
+             * need a signal, but don't park yet.  Caller will need to
+             * retry to make sure it cannot acquire before parking.
+             */
+            // 如果前一个节点没有取消，则尝试将前一个节点设置为 Node.SIGNAL
+            pred.compareAndSetWaitStatus(ws, Node.SIGNAL);
+        }
+        return false;
+    }
+
+    /**
+     * Convenience method to interrupt current thread.
+     */
+    static void selfInterrupt() {
+        Thread.currentThread().interrupt();
+    }
+
+    /**
+     * Convenience method to park and then check if interrupted.
+     *
+     * @return {@code true} if interrupted
+     */
+    private final boolean parkAndCheckInterrupt() {
+        LockSupport.park(this);
+        return Thread.interrupted();
+    }
+
+    /*
+     * Various flavors of acquire, varying in exclusive/shared and
+     * control modes.  Each is mostly the same, but annoyingly
+     * different.  Only a little bit of factoring is possible due to
+     * interactions of exception mechanics (including ensuring that we
+     * cancel if tryAcquire throws exception) and other control, at
+     * least not without hurting performance too much.
+     */
+
+    /**
+     * Acquires in exclusive uninterruptible mode for thread already in
+     * queue. Used by condition wait methods as well as acquire.
+     *
+     * @param node the node
+     * @param arg the acquire argument
+     * @return {@code true} if interrupted while waiting
+     */
+    final boolean acquireQueued(final Node node, int arg) {
+        boolean interrupted = false;
+        try {
+            for (;;) {
+                final Node p = node.predecessor();
+                if (p == head && tryAcquire(arg)) {
+                    setHead(node);
+                    p.next = null; // help GC
+                    return interrupted;
+                }
+                // 此时 node 节点已经通过 addWaiter 方法加入到队列中
+                // 1、如果前一个节点是 SIGNAL，则返回 true，park 该线程
+                // 2.1 如果前一个节点取消，则通过遍历将之前的连续的取消节点全部删除，
+                //     返回 false，再次自旋尝试获取锁
+                // 2.2 如果前一个节点没有取消，则将前一个节点尝试修改为 SIGNAL。
+                //     那么下一次循环时，走第一个判断，返回 true，park 该线程。
+                //     或者前驱节点已经弹出队列，则该线程尝试获取锁。
+                if (shouldParkAfterFailedAcquire(p, node))
+                    interrupted |= parkAndCheckInterrupt();
+            }
+        } catch (Throwable t) {
+            cancelAcquire(node);
+            if (interrupted)
+                selfInterrupt();
+            throw t;
+        }
+    }
+----
+
+可以画一下流程图：
+
+. 以 `ReentrantLock` 为例，在独占模式下，获取锁的过程
+. 以 `ReentrantLock` 为例，在独占模式下，释放锁的过程
+. 使用 `Condition` 对象，`await()` 的过程
+. 使用 `Condition` 对象，`signal()` 的过程
+. 以 `Semaphore` 为例，在共享模式下，获取锁的过程
+. 以 `Semaphore` 为例，在共享模式下，释放锁的过程
+
 === 共享模式
 
 共享模式的同步器的一个显著特点就是：头节点的第一个有效(非取消)的后继节点，总是尝试获取资源，一旦获取资源成功就会解除阻塞并且晋升为头节点，原来所在节点会移除出同步等待队列，原来的队列长度就会减少1，重新设置头节点的过程会传播唤醒的状态，简单来说就是唤醒一个有效的后继节点，只要一个节点可以晋升为头节点，它的后继节点就能被唤醒。节点的唤醒顺序遵循类似于FIFO的原则，通俗说就是先阻塞或者阻塞时间最长则先被唤醒。

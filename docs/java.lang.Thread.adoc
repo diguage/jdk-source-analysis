@@ -139,7 +139,7 @@ HotSpot的对齐方式为8字节对齐： `（对象头 + 实例数据 + padding
 include::{sourcedir}/concurrent/JolTest.java[]
 ----
 
-`join()` 方法的本质是让调用线程 `wait()` 方法在当前线程对象实例上。
+`join()` 方法的本质是当前线程对象实例调用线程 `wait()` 方法。
 
 [source,java,{source_attr}]
 ----

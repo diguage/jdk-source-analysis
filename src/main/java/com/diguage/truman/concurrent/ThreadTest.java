@@ -4,7 +4,11 @@ import org.junit.Test;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.DelayQueue;
+import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
@@ -100,6 +104,78 @@ public class ThreadTest {
         thread.interrupt();
     }
 
+    // TODO
+    @Test
+    public void testInterruptStatus1() throws InterruptedException {
+        class InterruptTask implements Runnable {
+            @Override
+            public void run() {
+                long i = 0;
+                while (true) {
+                    i++;
+                }
+            }
+        }
+        Thread thread = new Thread(new InterruptTask());
+        thread.start();
+        Thread.sleep(1000);
+        thread.interrupt();
+        System.out.println("thread.isInterrupted() = " + thread.isInterrupted());
+        System.out.println("thread.isInterrupted() = " + thread.isInterrupted());
+        LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(2));
+    }
+
+    // TODO
+    @Test
+    public void testInterruptStatus2() throws InterruptedException {
+        class IntDelay implements Delayed {
+
+            private int num;
+            private long deadline;
+
+            public IntDelay(int num) {
+                this.num = num;
+                deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(num);
+            }
+
+            @Override
+            public long getDelay(TimeUnit unit) {
+                return deadline - System.currentTimeMillis();
+            }
+
+            @Override
+            public int compareTo(Delayed o) {
+                IntDelay param = (IntDelay) o;
+                return Integer.compare(this.num, param.num);
+            }
+        }
+
+        class InterruptTask implements Runnable {
+            @Override
+            public void run() {
+                Thread current = Thread.currentThread();
+                DelayQueue<IntDelay> queue = new DelayQueue<>();
+                queue.add(new IntDelay(1));
+                try {
+                    System.out.println("Wait  " + LocalDateTime.now());
+                    queue.take();
+                    System.out.println("Taken " + LocalDateTime.now());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("current.isInterrupted() = " + current.isInterrupted());
+                System.out.println("current.isInterrupted() = " + current.isInterrupted());
+            }
+        }
+
+        Thread thread = new Thread(new InterruptTask());
+        thread.start();
+        Thread.sleep(500);
+        thread.interrupt();
+        System.out.println("thread.isInterrupted() = " + thread.isInterrupted());
+        LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(2));
+    }
+
     @Test
     public void testWaitLock() throws InterruptedException {
         // 测试 wait 是否释放锁
@@ -184,13 +260,27 @@ public class ThreadTest {
 
     @Test
     public void testYield() throws InterruptedException {
+        Map<Integer, Integer> map = new HashMap<>();
+        Integer key = 1;
+        Integer key2 = 2;
         Thread thread = new Thread(() -> {
             while (true) {
                 Thread.yield();
+                Integer num = map.getOrDefault(key, 1);
+                map.put(key, ++num);
+            }
+        });
+        Thread thread2 = new Thread(() -> {
+            while (true) {
+                Integer num = map.getOrDefault(key2, 1);
+                map.put(key2, ++num);
             }
         });
         thread.start();
-        Thread.sleep(100);
+        thread2.start();
+        Thread.sleep(1000);
+        // 如果 Thread.yield() 没有让出 CPU，则两个值相差不多；否则相差很大。
+        System.out.println(map.toString().replace(",", "\n"));
         System.out.println(thread.getState());
     }
 
