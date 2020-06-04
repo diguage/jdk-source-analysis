@@ -1,3 +1,3 @@
-== AtomicInteger
+= AtomicInteger
 
 `AtomicInteger` 类主要利用 CAS (compare and swap) + volatile 和 native 方法来保证原子操作，从而避免 `synchronized` 的高开销，执行效率大为提升。

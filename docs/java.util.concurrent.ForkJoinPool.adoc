@@ -1,4 +1,4 @@
-== ForkJoinPool
+= ForkJoinPool
 
 include::_attributes.adoc[]
 
@@ -21,7 +21,7 @@ include::{sourcedir}/concurrent/ForkJoinPoolTest.java[]
 
 
 
-=== 参考资料
+== 参考资料
 
 . https://blog.csdn.net/u010841296/article/details/83963637[ForkJoinPool实现原理和源码解析_Java_Java程序员的进阶之路-CSDN博客]
 . https://segmentfault.com/a/1190000016781127[Java多线程进阶（四三）—— J.U.C之executors框架：Fork/Join框架（1） 原理 - 透彻理解Java并发编程 - SegmentFault 思否]

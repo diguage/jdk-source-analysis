@@ -1,3 +1,3 @@
-== ConcurrentLinkedQueue
+= ConcurrentLinkedQueue
 
 `ConcurrentLinkedQueue` 主要使用 CAS 非阻塞算法来实现线程安全。这是一个非阻塞队列。对比来看，`LinkedBlockingQueue` 是一个可以阻塞的队列。

@@ -1,4 +1,4 @@
-== ClassLoader
+= ClassLoader
 
 include::_attributes.adoc[]
 
@@ -154,6 +154,6 @@ digraph G {
 * 如何识别内部类？
 * 如何获取内部类的正确类名？
 
-=== 参考资料
+== 参考资料
 
 . http://www.throwable.club/2018/11/30/java-resource-load/[通过源码浅析Java中的资源加载 - Throwable's Blog]

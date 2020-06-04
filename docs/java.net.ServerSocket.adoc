@@ -1,4 +1,4 @@
-== ServerSocket
+= ServerSocket
 
 include::_attributes.adoc[]
 
@@ -11,6 +11,6 @@ image::images/simplex-half-duplex-full-duplex.jpg[]
 include::{sourcedir}/net/SocketFullDuplexTest.java[]
 ----
 
-=== 参考资料
+== 参考资料
 
 . http://hafizahabdullah.blogspot.com/2013/08/fp303-cn-simplex-half-duplex-and-full.html[P2E for Students: FP303 CN: Simplex, Half-Duplex and Full-Duplex]

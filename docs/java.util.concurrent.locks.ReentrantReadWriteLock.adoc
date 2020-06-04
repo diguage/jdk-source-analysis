@@ -1,4 +1,4 @@
-== ReentrantReadWriteLock
+= ReentrantReadWriteLock
 
 include::_attributes.adoc[]
 

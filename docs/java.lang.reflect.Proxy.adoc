@@ -1,4 +1,4 @@
-== Proxy
+= Proxy
 
 include::_attributes.adoc[]
 
@@ -129,7 +129,7 @@ include::{sourcedir}/reflect/ProxyAnnoTest.java[]
 
 既然都生成代理类了，为什么不直接继承代理类呢？这样就可以对代理类所有的方法进行增强了。
 
-=== 思考题
+== 思考题
 
 如何自己写代码来实现代码生成、加载类的动态代理？
 
@@ -138,12 +138,12 @@ include::{sourcedir}/reflect/ProxyAnnoTest.java[]
 . 如何抽象代理动作？
 . 如何在方法内获取参数列表？
 
-=== CGLIB
+== CGLIB
 
 . 通过生成子类的方式来产生代理，某些情况比动态代理运行速度要快一些。
 . 不能代理 `final` 修饰的类。
 
-=== 参考资料
+== 参考资料
 
 . https://www.cnblogs.com/gonjan-blog/p/6685611.html[java动态代理实现与原理详细分析 - Gonjian - 博客园]
 . https://www.fancylight.top/2019/05/22/java%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86/#%E4%BB%A3%E7%90%86%E7%B1%BB%E6%96%87%E4%BB%B6[java动态代理 | 博客]

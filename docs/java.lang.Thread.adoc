@@ -1,4 +1,4 @@
-== Thread
+= Thread
 
 include::_attributes.adoc[]
 
@@ -155,7 +155,7 @@ include::{sourcedir}/concurrent/ThreadTest.java[]
 * 阿里巴巴推出的 https://github.com/alibaba/arthas[Alibaba Arthas] 也是一个诊断利器。
 
 
-=== 参考资料
+== 参考资料
 
 . http://www.throwable.club/2019/06/23/java-concurrency-thread-state/[Java线程生命周期与状态切换 - Throwable's Blog]
 . https://www.iteye.com/blog/yueyemaitian-2033046[一个对象占用多少字节？ - 田麦 - ITeye博客]

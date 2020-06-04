@@ -1,12 +1,12 @@
-== HashMap
+= HashMap
 
-=== HashMap 问题集
+== HashMap 问题集
 
 . 如果判断是否到达容量阈值？
 . 为什么
 . 遍历查找时，如果保证可以让红黑树的节点也可以使用next方法来查找？
 
-=== Redis 中的字典
+== Redis 中的字典
 
 Redis 底层中的字典就是一个典型的 Hash 实现。
 
@@ -60,7 +60,7 @@ Redis 底层使用 MurmurHash2 算法来计算键的哈希值。
 
 // TODO 几种常见的 Hash 算法可以研究一下。
 
-==== Rehash 操作
+=== Rehash 操作
 
 . 计算新的数组长度
 .. 如果是扩容，则 `used * 2`；
@@ -105,18 +105,18 @@ OK
 通过 `t_hash.c/hashTypeConvertZiplist` 方法来转换。
 
 
-=== 参考资料
+== 参考资料
 
 . https://mp.weixin.qq.com/s?__biz=MzA4NTg1MjM0Mg==&mid=2657261203&idx=1&sn=f7ff61ce42e29b874a8026683875bbb1&scene=21#wechat_redirect[Redis内部数据结构详解(1)——dict]
 
 
-=== 简介
+== 简介
 
 HashMap是基于哈希表实现的，用来存储key-value形式的键值对，允许key和value都为null值；
 HashMap是非线程安全的，只是用于单线程环境下，多线程环境下可以采用concurrent并发包下的concurrentHashMap；
 HashMap实现了Serializable接口，支持序列化，实现了Cloneable接口，能被克隆。
 
-=== 签名
+== 签名
 
 [source,java]
 ----
@@ -161,13 +161,13 @@ Hashtable不建议在新代码中使用，不需要线程安全的场合可以�
 通过上面的比较，我们知道了HashMap是Java的Map家族中一个普通成员，鉴于它可以满足大多数场景的使用条件，所以是使用频度最高的一个。下文我们主要结合源码，从存储结构、常用方法分析、扩容等方面了解一下HashMap的工作原理。
 
 
-=== 存储结构
+== 存储结构
 
 HashMap是基于哈希表存储的，在JDK1.6，JDK1.7版本采用数组(桶位) + 链表实现存储元素和解决冲突，同一hash值的链表都存储在一个链表里。
 但是当位于一个桶中的元素较多，即hash值相等的元素较多时，通过key值依次查找的效率较低。但是到JDK1.8版本时HashMap采用位桶 + 链表 + 红黑树实现，
 当链表长度超过阈值（8）时，将链表转换为红黑树，这样大大减少了查找时间。
 
-=== 实现原理
+== 实现原理
 
 首先有一个元素是链表的数组，当添加一个元素（key-value）时，就首先计算元素key的hash值，以此确定元素在数组中的位置，但是可能存在同一hash值的元素
 已经被放在数组同一位置了（也就出现了Hash冲突），这时就添加到同一hash值的元素的后面，他们在数组的同一位置，但是形成了链表，同一个链表上的Hash值是
@@ -178,9 +178,9 @@ HashMap原理图：
 
 image::./images/jdk1.8HashMap.png[]
 
-=== 源码剖析
+== 源码剖析
 
-==== 重要属性
+=== 重要属性
 
 [source,java]
 ----
@@ -264,7 +264,7 @@ transient Node<K,V>[] table;
 又会导致空间浪费。如果关注内存，装载因子可以稍大，如果主要关注查找性能，装载因子可以稍小。
 ****
 
-==== 数据结构
+=== 数据结构
 * 桶位数组
 
 [source,java]
@@ -356,7 +356,7 @@ Java序列化会把某一个类存储以文件形式存储在物理空间，但�
 应该在这些字段前加上transient关键字。它的意思是临时的，即不会随类一起序列化到本地，所以当还原后，这个关键字定义的变量也就不再存在。
 ****
 
-==== 构造函数
+=== 构造函数
 
 * 默认构造函数HashMap()
 
@@ -457,9 +457,9 @@ final void putMapEntries(Map<? extends K, ? extends V> m, boolean evict) {
 }
 ----
 
-==== HashMap存取机制
+=== HashMap存取机制
 
-===== 1.添加元素
+==== 1.添加元素
 
 [source,java]
 ----
@@ -674,7 +674,7 @@ public void putAll(Map<? extends K, ? extends V> m) {
 }
 ----
 
-===== 获取元素
+==== 获取元素
 
 [source,java]
 ----
@@ -740,7 +740,7 @@ public boolean containsValue(Object value) {
 NOTE: get方法相对put要简单的多，分析源码可以看出hash算法的精髓，不用遍历就可以直接通过
 计算key的hash值，得到查找元素在数组中的桶位，然后比较hash值、key是否相等来获取node。
 
-===== 移除元素
+==== 移除元素
 [source,java]
 ----
 public V remove(Object key) {
@@ -807,7 +807,7 @@ public boolean remove(Object key, Object value) {
 }
 ----
 
-=== 小结
+== 小结
 
 本文对JDK1.8 HashMap的原代码进行了简要的分析，主要目的是了解其内部的
 存储机制和实现原理，从而达到在编程中更高效的使用HashMap。 +
@@ -827,7 +827,7 @@ HashMap 内部是基于一个数组来实现的，数组中的每个元素称为
 所以在使用HashMap的时候，应该先估算一下map的大小，初始化的时候给一个大致的数值，
 避免map进行频繁的扩容。
 
-=== 参考
+== 参考
 . link:http://blog.jrwang.me/2016/java-collections-hashmap/[Java 容器源码分析之 HashMap] +
 . link:http://www.tuicode.com/article/56da289f8e6d72823e30a024[JDK1.8源码分析之HashMap（一）] +
 . link:http://blog.csdn.net/tuke_tuke/article/details/51588156[ Java中HashMap底层实现原理(JDK1.8)源码分析]
@@ -835,12 +835,12 @@ HashMap 内部是基于一个数组来实现的，数组中的每个元素称为
 . link:http://tech.meituan.com/java-hashmap.html[Java 8系列之重新认识HashMap]
 
 
-=== JDK 1.8 的实现
+== JDK 1.8 的实现
 
 *继上一章介绍了HashMap的签名、数据结构以及存储原理之后，相信大家对HashMap有了更加深入的理解，在使用时也会得心应手。* +
 *本章将继续介绍HashMap的使用，主要是分析HashMap的三种遍历方式。*
 
-=== HashMap遍历
+== HashMap遍历
 '''
 * *HashMap提供了三种遍历方式：*
 . 遍历所有的Key：Set<K> keySet()
@@ -991,7 +991,7 @@ final class EntrySet extends AbstractSet<Map.Entry<K,V>> {
 理解了 HashIterator 后再看 entrySet() 和 EntrySet 类就比较容易理解了，注意到 HashMap 的实现中使用了一个 entrySet 成员来缓存结果。 keySet() 和 values() 的实现也是类似的，只是 values() 返回的是 Collection ，因为值不能保证唯一性，而键是可以的。
 
 
-=== 注意
+== 注意
 
 *对于Map中的Key是包装类型时，从map总get元素时要特别注意，get元素的key也必须是对应的包装类型，否者不能获得到对应的value。
 因为get方法内部通过key查找对应的value时，key用的是equals方法比较，所以key的数据类型也必须相同。 +
@@ -1004,7 +1004,7 @@ map.put(123L,"java");
 String value = map.get(key);  // value是null？还是java？
 ----
 
-==== 小结
+=== 小结
 
 有关HashMap的遍历就介绍这写，遍历HashMap一共有三种方式，一般遍历key和遍历Entry用的比较多，而且遍历Entry要比遍历
 key效率要更快些。对于HashMap的源码暂时就分析这么多，由于本人还是一个菜鸟，水平有限，有些地方也许没有分析的透彻，希望
@@ -1012,7 +1012,7 @@ key效率要更快些。对于HashMap的源码暂时就分析这么多，由于�
 的实现原理，这里先推荐一篇讲解红黑树的文章link:http://tech.meituan.com/redblack-tree.html[红黑树深入剖析及Java实现]。
 
 
-=== 参考
+== 参考
 
 * https://blog.jrwang.me/2016/java-collections-hashmap/[Java 容器源码分析之 HashMap - JR's Blog]
 

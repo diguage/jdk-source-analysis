@@ -1,4 +1,4 @@
-== CountDownLatch
+= CountDownLatch
 
 include::_attributes.adoc[]
 
@@ -53,7 +53,7 @@ private final Sync sync;
 
 管中窥豹，从这里也可以看出 `CountDownLatch` 中的等待控制几乎都是依赖 `AbstractQueuedSynchronizer` 来实现的。
 
-=== `await()`
+== `await()`
 
 [source,java,{source_attr}]
 ----
@@ -123,7 +123,7 @@ image::images/CountDownLatch-await-park.png[]
 
 image::images/CountDownLatch-await-unpark.png[]
 
-=== `countDown()`
+== `countDown()`
 
 [source,java,{source_attr}]
 ----
@@ -175,7 +175,7 @@ image::images/CountDownLatch-countDown-2.png[]
 `CountDownLatch` 为什么使用共享锁？::
 答：前面我们分析 `ReentrantReadWriteLock` 的时候学习过AQS的共享锁模式，比如当前锁是由一个线程获取为互斥锁，那么这时候所有需要获取共享锁的线程都要进入AQS队列中进行排队，当这个互斥锁释放的时候，会一个接着一个地唤醒这些连续的排队的等待获取共享锁的线程，注意，这里的用语是“一个接着一个地唤醒”，也就是说这些等待获取共享锁的线程不是一次性唤醒的。
 
-=== 参考资料
+== 参考资料
 
 . https://www.cnblogs.com/leesf456/p/5406191.html[【JUC】JDK1.8源码分析之CountDownLatch（五） - leesf - 博客园]
 . https://juejin.im/post/5d0660f2518825092c7170dd[死磕 java同步系列之CountDownLatch源码解析 - 掘金]

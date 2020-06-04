@@ -10,178 +10,178 @@ ifndef::source-highlighter[:source-highlighter: rouge]
 
 :!sectnums:
 
-include::preface.adoc[]
+include::preface.adoc[leveloffset=+1]
 
 :sectnums:
 
 
 
-include::java.collection.adoc[]
+include::java.collection.adoc[leveloffset=+1]
 
-include::java.util.Iterator.adoc[]
+include::java.util.Iterator.adoc[leveloffset=+1]
 
-include::java.util.Collection.adoc[]
+include::java.util.Collection.adoc[leveloffset=+1]
 
-include::java.util.AbstractCollection.adoc[]
+include::java.util.AbstractCollection.adoc[leveloffset=+1]
 
 
 
-include::java.util.List.adoc[]
+include::java.util.List.adoc[leveloffset=+1]
 
-include::java.util.AbstractList.adoc[]
+include::java.util.AbstractList.adoc[leveloffset=+1]
 
-include::java.util.AbstractSequentialList.adoc[]
+include::java.util.AbstractSequentialList.adoc[leveloffset=+1]
 
-include::java.util.ArrayList.adoc[]
+include::java.util.ArrayList.adoc[leveloffset=+1]
 
-include::java.util.LinkedList.adoc[]
+include::java.util.LinkedList.adoc[leveloffset=+1]
 
-include::java.util.Stack.adoc[]
+include::java.util.Stack.adoc[leveloffset=+1]
 
-include::java.util.Vector.adoc[]
+include::java.util.Vector.adoc[leveloffset=+1]
 
 
 
-include::java.util.Set.adoc[]
+include::java.util.Set.adoc[leveloffset=+1]
 
-include::java.util.AbstractSet.adoc[]
+include::java.util.AbstractSet.adoc[leveloffset=+1]
 
-include::java.util.SortedSet.adoc[]
+include::java.util.SortedSet.adoc[leveloffset=+1]
 
-include::java.util.NavigableSet.adoc[]
+include::java.util.NavigableSet.adoc[leveloffset=+1]
 
-include::java.util.HashSet.adoc[]
+include::java.util.HashSet.adoc[leveloffset=+1]
 
-include::java.util.TreeSet.adoc[]
+include::java.util.TreeSet.adoc[leveloffset=+1]
 
-include::java.util.LinkedHashSet.adoc[]
+include::java.util.LinkedHashSet.adoc[leveloffset=+1]
 
-include::java.util.BitSet.adoc[]
+include::java.util.BitSet.adoc[leveloffset=+1]
 
-include::java.util.EnumSet.adoc[]
+include::java.util.EnumSet.adoc[leveloffset=+1]
 
 
 
-include::java.util.Map.adoc[]
+include::java.util.Map.adoc[leveloffset=+1]
 
-include::java.util.SortedMap.adoc[]
+include::java.util.SortedMap.adoc[leveloffset=+1]
 
-include::java.util.NavigableMap.adoc[]
+include::java.util.NavigableMap.adoc[leveloffset=+1]
 
-include::java.util.AbstractMap.adoc[]
+include::java.util.AbstractMap.adoc[leveloffset=+1]
 
-include::java.util.HashMap.adoc[]
+include::java.util.HashMap.adoc[leveloffset=+1]
 
-include::java.util.TreeMap.adoc[]
+include::java.util.TreeMap.adoc[leveloffset=+1]
 
-include::java.util.LinkedHashMap.adoc[]
+include::java.util.LinkedHashMap.adoc[leveloffset=+1]
 
-include::java.util.Dictionary.adoc[]
+include::java.util.Dictionary.adoc[leveloffset=+1]
 
-include::java.util.Hashtable.adoc[]
+include::java.util.Hashtable.adoc[leveloffset=+1]
 
-include::java.util.EnumMap.adoc[]
+include::java.util.EnumMap.adoc[leveloffset=+1]
 
-include::java.util.WeakHashMap.adoc[]
+include::java.util.WeakHashMap.adoc[leveloffset=+1]
 
-include::java.util.IdentityHashMap.adoc[]
+include::java.util.IdentityHashMap.adoc[leveloffset=+1]
 
 
 
-include::java.util.Queue.adoc[]
+include::java.util.Queue.adoc[leveloffset=+1]
 
-include::java.util.Deque.adoc[]
+include::java.util.Deque.adoc[leveloffset=+1]
 
-include::java.util.AbstractQueue.adoc[]
+include::java.util.AbstractQueue.adoc[leveloffset=+1]
 
-include::java.util.ArrayDeque.adoc[]
+include::java.util.ArrayDeque.adoc[leveloffset=+1]
 
-include::java.util.PriorityQueue.adoc[]
+include::java.util.PriorityQueue.adoc[leveloffset=+1]
 
 
 
-include::java.util.Arrays.adoc[]
+include::java.util.Arrays.adoc[leveloffset=+1]
 
-include::java.util.Collections.adoc[]
+include::java.util.Collections.adoc[leveloffset=+1]
 
 
 
 
-include::java.util.concurrent.adoc[]
+include::java.util.concurrent.adoc[leveloffset=+1]
 
-include::java.lang.Thread.adoc[]
+include::java.lang.Thread.adoc[leveloffset=+1]
 
-include::java.util.concurrent.locks.LockSupport.adoc[]
+include::java.util.concurrent.locks.LockSupport.adoc[leveloffset=+1]
 
-include::java.util.concurrent.locks.AbstractQueuedSynchronizer.adoc[]
+include::java.util.concurrent.locks.AbstractQueuedSynchronizer.adoc[leveloffset=+1]
 
-include::java.util.concurrent.locks.ReentrantLock.adoc[]
+include::java.util.concurrent.locks.ReentrantLock.adoc[leveloffset=+1]
 
-include::java.util.concurrent.locks.ReentrantReadWriteLock.adoc[]
+include::java.util.concurrent.locks.ReentrantReadWriteLock.adoc[leveloffset=+1]
 
-include::java.util.concurrent.locks.StampedLock.adoc[]
+include::java.util.concurrent.locks.StampedLock.adoc[leveloffset=+1]
 
-include::java.util.concurrent.Semaphore.adoc[]
+include::java.util.concurrent.Semaphore.adoc[leveloffset=+1]
 
-include::java.util.concurrent.CountDownLatch.adoc[]
+include::java.util.concurrent.CountDownLatch.adoc[leveloffset=+1]
 
-include::java.util.concurrent.CyclicBarrier.adoc[]
+include::java.util.concurrent.CyclicBarrier.adoc[leveloffset=+1]
 
-include::java.util.concurrent.Phaser.adoc[]
+include::java.util.concurrent.Phaser.adoc[leveloffset=+1]
 
-include::java.util.concurrent.Exchanger.adoc[]
+include::java.util.concurrent.Exchanger.adoc[leveloffset=+1]
 
-include::java.lang.ThreadLocal.adoc[]
+include::java.lang.ThreadLocal.adoc[leveloffset=+1]
 
-include::java.util.concurrent.atomic.AtomicInteger.adoc[]
+include::java.util.concurrent.atomic.AtomicInteger.adoc[leveloffset=+1]
 
-include::java.util.concurrent.atomic.LongAdder.adoc[]
+include::java.util.concurrent.atomic.LongAdder.adoc[leveloffset=+1]
 
-include::java.util.concurrent.Future.adoc[]
+include::java.util.concurrent.Future.adoc[leveloffset=+1]
 
-include::java.util.concurrent.FutureTask.adoc[]
+include::java.util.concurrent.FutureTask.adoc[leveloffset=+1]
 
-include::java.util.concurrent.CompletableFuture.adoc[]
+include::java.util.concurrent.CompletableFuture.adoc[leveloffset=+1]
 
-include::java.util.concurrent.ThreadPoolExecutor.adoc[]
+include::java.util.concurrent.ThreadPoolExecutor.adoc[leveloffset=+1]
 
-include::java.util.concurrent.ForkJoinTask.adoc[]
+include::java.util.concurrent.ForkJoinTask.adoc[leveloffset=+1]
 
-include::java.util.concurrent.ForkJoinPool.adoc[]
+include::java.util.concurrent.ForkJoinPool.adoc[leveloffset=+1]
 
-include::java.util.concurrent.ConcurrentHashMap.adoc[]
+include::java.util.concurrent.ConcurrentHashMap.adoc[leveloffset=+1]
 
-include::java.util.concurrent.ConcurrentSkipListMap.adoc[]
+include::java.util.concurrent.ConcurrentSkipListMap.adoc[leveloffset=+1]
 
-include::java.util.concurrent.CopyOnWriteArrayList.adoc[]
+include::java.util.concurrent.CopyOnWriteArrayList.adoc[leveloffset=+1]
 
-include::java.util.concurrent.ConcurrentLinkedQueue.adoc[]
+include::java.util.concurrent.ConcurrentLinkedQueue.adoc[leveloffset=+1]
 
-include::java.util.concurrent.ArrayBlockingQueue.adoc[]
+include::java.util.concurrent.ArrayBlockingQueue.adoc[leveloffset=+1]
 
-include::java.util.concurrent.LinkedBlockingQueue.adoc[]
+include::java.util.concurrent.LinkedBlockingQueue.adoc[leveloffset=+1]
 
-include::java.util.concurrent.PriorityBlockingQueue.adoc[]
+include::java.util.concurrent.PriorityBlockingQueue.adoc[leveloffset=+1]
 
-include::java.util.concurrent.DelayQueue.adoc[]
+include::java.util.concurrent.DelayQueue.adoc[leveloffset=+1]
 
 
 
 
-include::java.lang.ClassLoader.adoc[]
+include::java.lang.ClassLoader.adoc[leveloffset=+1]
 
-include::java.lang.reflect.Field.adoc[]
+include::java.lang.reflect.Field.adoc[leveloffset=+1]
 
-include::java.lang.reflect.Proxy.adoc[]
+include::java.lang.reflect.Proxy.adoc[leveloffset=+1]
 
-include::java.net.ServerSocket.adoc[]
+include::java.net.ServerSocket.adoc[leveloffset=+1]
 
-include::java.util.ServiceLoader.adoc[]
+include::java.util.ServiceLoader.adoc[leveloffset=+1]
 
 
 
 
-include::io.netty.adoc[]
+include::io.netty.adoc[leveloffset=+1]
 
 
 

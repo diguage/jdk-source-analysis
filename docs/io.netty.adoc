@@ -1,20 +1,20 @@
-== Netty
+= Netty
 
 include::_attributes.adoc[]
 
-=== JDK 原生 Socket 编程
+== JDK 原生 Socket 编程
 
 使用 JDK 原生的 Socket API 进行网络编程：
 
 [source,java,{source_attr}]
 ----
-include::{sourcedir}/netty/Test02.java[]
+include::{sourcedir}/netty/ServerSocketTest.java[]
 ----
 
 * 阻塞
 * 高性能
 
-=== Server startup
+== Server startup
 
 [source,java,{source_attr}]
 ----
@@ -73,7 +73,7 @@ include::{sourcedir}/netty/Test03.java[]
 ... `HeadContext.readIfIsAutoRead()`
 
 
-=== `NioEventLoop`
+== `NioEventLoop`
 
 // ch04
 
@@ -87,7 +87,7 @@ include::{sourcedir}/netty/Test03.java[]
 . `NioEventLoop` 启动
 . `NioEventLoop` 执行逻辑
 
-==== `NioEventLoop` 创建
+=== `NioEventLoop` 创建
 
 `NioEventLoop` 默认是在调用 `NioEventLoopGroup()` 时被创建，默认是 2 倍的 CPU 数量（由常量 `MultithreadEventLoopGroup.DEFAULT_EVENT_LOOP_THREADS` 来定义）。
 
@@ -112,14 +112,14 @@ include::{sourcedir}/netty/Test03.java[]
 `isPowerOfTwo()` 判断是否是 2 的幂，如果是则返回 `PowerOfTwoEventExecutorChooser`（优化），返回 `index++ & (length - 1)`；否则返回 `GenericEventExecutorChooser`（普通），返回 `abs(index++ % length)`。
 
 
-==== `NioEventLoop` 启动
+=== `NioEventLoop` 启动
 
 * 服务端启动绑定接口
 * 新连接接入，通过 choose 绑定一个 `NioEventLoop`
 
 在 `AbstractBootstrap.doBind0` 方法中，调用 `SingleThreadEventExecutor.execute(java.lang.Runnable)` 开始启动，再调用 `SingleThreadEventExecutor.execute(java.lang.Runnable, boolean)`，最后通过 `SingleThreadEventExecutor.startThread` 方法来启动。实际启动工作，最后委托给了 `SingleThreadEventExecutor.doStartThread` 方法来执行，这个方法中，调用 `SingleThreadEventExecutor.this.run();` 来启动 `NioEventLoop`。
 
-==== `NioEventLoop` 执行逻辑
+=== `NioEventLoop` 执行逻辑
 
 . `run() -> for(;;)`
 .. `select()` 检查是否有 I/O 事件

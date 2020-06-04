@@ -1,4 +1,4 @@
-== LinkedHashMap
+= LinkedHashMap
 
 
 image::images/LinkedHashMap.png[]

@@ -1,4 +1,4 @@
-== AbstractQueuedSynchronizer
+= AbstractQueuedSynchronizer
 
 include::_attributes.adoc[]
 
@@ -6,7 +6,7 @@ Doug Lea
 
 在 Java 5 之后，JDK 内置了大量的并发工具类。粗略去看这些工具类的源码，你会发现，大多数都在内部继承了 `AbstractQueuedSynchronizer`。由此可见，`AbstractQueuedSynchronizer` 的核心地位。想搞清楚这些并发工具类的原理，`AbstractQueuedSynchronizer` 的源码可以说是不可不看。
 
-=== CLH lock queue 介绍
+== CLH lock queue 介绍
 
 image::images/AbstractQueuedSynchronizer-CLH-queue.png[]
 
@@ -19,7 +19,7 @@ _AQS 结合了自旋和睡眠/唤醒两种方法的优点。_ 这句话该如何
 自己实现一个 CLH 锁！
 
 
-=== 核心点
+== 核心点
 
 . 模板方法模式
 .. `boolean tryAcquire(int arg)`
@@ -48,7 +48,7 @@ include::{sourcedir}/concurrent/AbstractQueuedSynchronizerTest.java[]
 查看 `AbstractQueuedSynchronizer` 继承关系可以看出，在 `ReentrantLock`，`ReentrantReadWriteLock` 和 `Semaphore` 三个类中实现了公平锁和非公平锁。
 
 
-=== `Node` 详解
+== `Node` 详解
 
 * `waitStatus`：当前 `Node` 的等待状态，有五个可选值。
 * `prev`：当前 `Node` 实例的前驱节点引用。
@@ -59,7 +59,7 @@ include::{sourcedir}/concurrent/AbstractQueuedSynchronizerTest.java[]
 .. 值为静态实例 `Node.SHARED`，代表当前的 `Node` 实例是共享模式。
 .. 值为非 `Node.EXCLUSIVE` 和 `Node.SHARED` 的其他节点实例，代表 `Condition` 等待队列中当前节点的下一个等待节点。
 
-==== `Node` 中一些常量定义
+=== `Node` 中一些常量定义
 
 区分共享锁还是独占式锁的常量，是如何被使用的？独占锁为何没有初始化？
 
@@ -84,7 +84,7 @@ include::{sourcedir}/concurrent/AbstractQueuedSynchronizerTest.java[]
 . `tryAcquireShared(int)` -- 共享方式。尝试获取资源。负数表示失败；0表示成功，但没有剩余可用资源；正数表示成功，且有剩余资源。
 . `tryReleaseShared(int)` -- 共享方式。尝试释放资源，成功则返回true，失败则返回false。
 
-=== 独占模式
+== 独占模式
 
 独占模式的同步器的一个显著特点就是：头节点的第一个有效(非取消)的后继节点，总是尝试获取资源，一旦获取资源成功就会解除阻塞并且晋升为头节点，原来所在节点会移除出同步等待队列，原来的队列长度就会减少1，然后头结点的第一个有效的后继节点继续开始竞争资源。
 
@@ -204,17 +204,17 @@ include::{sourcedir}/concurrent/AbstractQueuedSynchronizerTest.java[]
 . 以 `Semaphore` 为例，在共享模式下，获取锁的过程
 . 以 `Semaphore` 为例，在共享模式下，释放锁的过程
 
-=== 共享模式
+== 共享模式
 
 共享模式的同步器的一个显著特点就是：头节点的第一个有效(非取消)的后继节点，总是尝试获取资源，一旦获取资源成功就会解除阻塞并且晋升为头节点，原来所在节点会移除出同步等待队列，原来的队列长度就会减少1，重新设置头节点的过程会传播唤醒的状态，简单来说就是唤醒一个有效的后继节点，只要一个节点可以晋升为头节点，它的后继节点就能被唤醒。节点的唤醒顺序遵循类似于FIFO的原则，通俗说就是先阻塞或者阻塞时间最长则先被唤醒。
 
-=== `ConditionObject`
+== `ConditionObject`
 
 关于这段代码的研究，可以参看 xref:java.util.concurrent.ArrayBlockingQueue.adoc[`java.util.concurrent.ArrayBlockingQueue`]。`ArrayBlockingQueue` 在实现 `poll(long, java.util.concurrent.TimeUnit)` 方法时，使用了 `Condition notEmpty` 对象来调用 `ConditionObject.awaitNanos(long)` 方法。
 
 
 
-=== 参考资料
+== 参考资料
 
 WARNING: 访问一些页面时发现一些页面已经不能访问了，后续再搜索补上吧。
 

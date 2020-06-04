@@ -1,4 +1,4 @@
-== LockSupport
+= LockSupport
 
 include::_attributes.adoc[]
 

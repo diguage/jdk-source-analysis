@@ -1,8 +1,8 @@
-== 并发库概述
+= 并发库概述
 
 image::images/java-concurrent-overview.png[]
 
-=== Happy-Before 原则
+== Happy-Before 原则
 
 . Single Thread Rule 单一线程原则
 . Monitor Lock Rule 管程锁定规则

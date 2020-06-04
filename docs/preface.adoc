@@ -1,5 +1,5 @@
 [preface]
-== 前言：JDK & STL 源码分析计划
+= 前言：JDK & STL 源码分析计划
 
 为了学好数据结构以及相关算法，同时也为了更好地理解 JDK 的底层实现，计划对 JDK 集合类的源码做一个系统的阅读分析。
 
@@ -9,7 +9,7 @@
 
 WARNING: 本文档基于 *OpenJDK 11.0.6 2020-01-14 LTS* 的代码开展分析，请 PR 的小伙伴使用相同的 JDK。谢谢！
 
-=== 友情支持
+== 友情支持
 
 如果您觉得这个笔记对您有所帮助，看在D瓜哥码字的辛苦上，请友情支持一下，D瓜哥感激不尽，😜
 
@@ -18,7 +18,7 @@ WARNING: 本文档基于 *OpenJDK 11.0.6 2020-01-14 LTS* 的代码开展分析�
 | image:images/alipay.png[title="支付宝", alt="支付宝", width="45%"] | image:images/wxpay.png[title="微信", alt="微信", width="45%"]
 |===
 
-=== 官网及版本库
+== 官网及版本库
 
 本文档的版本库托管在 Github 上，另外单独发布。
 
@@ -26,7 +26,7 @@ WARNING: 本文档基于 *OpenJDK 11.0.6 2020-01-14 LTS* 的代码开展分析�
 本文档官网:: https://diguage.github.io/jdk-source-analysis/[^] 。为了方便阅读，这里展示了处理好的文档。阅读请点击这个网址。
 本文档版本库::  https://github.com/diguage/jdk-source-analysis[^] 。欢迎大家发送 PR。
 
-=== 总体思路
+== 总体思路
 
 . 学习基本的数据结构认识。兵马未动粮草先行。先把基础理论搞清楚。
 .. 学Java的，可以从下面两本书中选一本：
@@ -56,7 +56,7 @@ TIP: 对比一下自己的实现和这些经典代码的实现，总结自己差
 .. https://www.eclipse.org/collections/[Eclipse Collections - Features you want with the collections you need.]
 ====
 
-=== JDK 集合类
+== JDK 集合类
 
 *Base + Iterator*::
 代码总行数： 103 + 135 + 302 + 195 + 838 + 127 + 734 + 480 = 2914 行，预计 5 个小时。

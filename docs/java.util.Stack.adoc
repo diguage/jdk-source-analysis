@@ -1,4 +1,4 @@
-== Stack
+= Stack
 include::_attributes.adoc[]
 
 

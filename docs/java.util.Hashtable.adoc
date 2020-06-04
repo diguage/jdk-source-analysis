@@ -1,7 +1,7 @@
-== Hashtable
+= Hashtable
 
 image::images/Hashtable-lock.png[]
 
-=== 参考资料
+== 参考资料
 
 * https://www.cnblogs.com/chengxiao/p/6842045.html[ConcurrentHashMap实现原理及源码分析 - dreamcatcher-cx - 博客园]

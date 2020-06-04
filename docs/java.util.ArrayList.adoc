@@ -1,10 +1,10 @@
-== `ArrayList`
+= `ArrayList`
 
 include::_attributes.adoc[]
 
 对于每种抽象数据类型并不存在什么法则来告诉我们必须要有哪些操作，这是一个设计决策。--《数据结构与算法分析》
 
-=== 类图
+== 类图
 
 先来看一下 `ArrayList` 的类图：
 
@@ -42,7 +42,7 @@ class ArrayList<E> extends AbstractList implements List, RandomAccess, Cloneable
 
 **抽象类实现接口，可以不真正实现所有方法（可以抽象实现）。**
 
-=== 初始化
+== 初始化
 
 首先，我们看一下 `ArrayList` 的初始化：
 
@@ -135,7 +135,7 @@ public ArrayList(Collection<? extends E> c) {
 . 指定容量大小进行初始化时，容量大于 `0` 则初始化为指定容量的数组；如果等于 `0` 则初始化为默认空数组 `EMPTY_ELEMENTDATA`。否则抛出异常。
 . 如果使用 `Collection` 实例来初始化，不为空则将调用 `toArray()` 方法来初始化 `elementData`；如果为空则初始化为默认空数组 `EMPTY_ELEMENTDATA`。
 
-=== 添加元素
+== 添加元素
 
 在进行正常测试前，先展示一下"透视" `ArrayList` 的工具类：
 
@@ -347,12 +347,12 @@ public boolean addAll(int index, Collection<? extends E> c) {
 向 `ArrayList` 中添加集合实例，则是集合示例转化成数组，然后利用数组拷贝的方式来高效完成添加工作。
 
 
-=== 删除元素
+== 删除元素
 
 
 
 
-=== 测试遍历速度
+== 测试遍历速度
 
 `ArrayList` 的遍历方式有如下几种：
 
@@ -1236,7 +1236,7 @@ image::images/compareListLoop.png[]
 每当执行Add等添加元素的方法，都会检查内部数组的容量是否不够了，如果是，它就会以当前容量 的 1.5 倍来重新构建一个数组，将旧元素Copy到新数组中，然后丢弃旧数组，在这个临界点的扩容操作，应该来说是比较影响效率的。 正确的预估可能的元素，是提高ArrayList使用效率的重要途径。
 
 
-=== 问题
+== 问题
 
 . Java 中有很多标识类的接口。这些表示类有什么意义？是否在 Java 虚拟机中对其进行了特殊处理？
 . 在实现 `java.io.Serializable` 时，如果不声明 `serialVersionUID` 变量时，是否会生成这个值？默认的值是什么？在序列化时，是如何保存这个值？在反序列化时，如何从对象的字节码中获取这个值？比较后，如果不同又怎么处理的？
@@ -1246,7 +1246,7 @@ image::images/compareListLoop.png[]
 . 《数据结构与算法分析》 中提到 `Iterator` 和 `ListIterator` 的区别以及 `ListIterator` 中一个特殊的使用。再次看书来确认一下。
 . 通过指令来对比 Iterat or 和 foreach 之间的性能差异。
 
-=== 参考资料
+== 参考资料
 
 . http://www.hollischuang.com/archives/1144[单例与序列化的那些事儿-HollisChuang's Blog]
 . http://www.hollischuang.com/archives/197[深度分析Java的枚举类型—-枚举的线程安全性及序列化问题-HollisChuang's Blog]

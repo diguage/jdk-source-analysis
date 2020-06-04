@@ -1,10 +1,10 @@
-== ArrayBlockingQueue
+= ArrayBlockingQueue
 
 include::_attributes.adoc[]
 
 image::images/BlockingQueue.png[align="center"]
 
-=== 方法组
+== 方法组
 
 [cols="8,45,34,13"]
 |===
@@ -145,6 +145,6 @@ include::{sourcedir}/concurrent/ArrayBlockingQueueTest.java[]
 `poll(long, java.util.concurrent.TimeUnit)` 方法，其实就是使用 `Condition notEmpty` 对象来调用 `ConditionObject.awaitNanos(long)` 方法，在其中再调用了 xref:java.util.concurrent.locks.LockSupport.adoc[`LockSupport.parkNanos(java.lang.Object, long)`] 方法来实现"休眠等待"。
 
 
-=== 参考资料
+== 参考资料
 
 * https://www.pdai.tech/md/java/thread/java-thread-x-juc-collection-BlockingQueue.html[JUC集合: BlockingQueue详解 | Java 全栈知识体系]

@@ -1,4 +1,4 @@
-== CyclicBarrier
+= CyclicBarrier
 
 include::_attributes.adoc[]
 

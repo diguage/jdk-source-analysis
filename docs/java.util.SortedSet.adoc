@@ -1,6 +1,6 @@
-== SortedSet
+= SortedSet
 
-=== Redis 的 SkipList
+== Redis 的 SkipList
 
 跳跃表是一种有序数据结构，支持平均 O(logN)、最坏 O(N) 复杂度的节点查找；大部分情况效率可以和平衡树相媲美，实现却比平衡树简单。
 
@@ -103,7 +103,7 @@ Redis 中的有序集合（sorted set），是在 skiplist, dict 和 ziplist 基
 
 在 JDK 中，也有 SkipList 的实现，在 `ConcurrentSkipListMap` 中。不过，它不是作为一个独立的 Collection 来实现的，而是作为 `Map` 的一部分来实现的。
 
-=== 参考资料
+== 参考资料
 
 . ftp://ftp.cs.umd.edu/pub/skipLists/skiplists.pdf[William Pugh《Skip Lists: A Probabilistic Alternative to Balanced Trees》]
 . https://mp.weixin.qq.com/s?__biz=MzA4NTg1MjM0Mg==&mid=2657261425&idx=1&sn=d840079ea35875a8c8e02d9b3e44cf95&scene=21#wechat_redirect[Redis为什么用跳表而不用平衡树？- 张铁蕾]

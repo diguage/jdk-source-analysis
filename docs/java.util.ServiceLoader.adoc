@@ -1,4 +1,4 @@
-== `ServiceLoader`
+= `ServiceLoader`
 
 include::_attributes.adoc[]
 
@@ -28,6 +28,6 @@ include::{sourcedir}/ServiceLoaderTest.java[]
 . 只支持 `public` 的类。D瓜哥测试，这是因为内部需要创建对象，其他访问控制不能在 `ServiceLoader` 类中创建对象。
 . 不支持 `Outter.Inner` 这样的内部类 ，即使是 `public static class`。
 
-=== 参考资料
+== 参考资料
 
 . http://www.throwable.club/2018/11/30/java-service-loader/[浅析JDK中ServiceLoader的源码 - Throwable's Blog] -- 这里的代码是基于 JDK 8 的，和 JDK 11 的代码已经相差很大。

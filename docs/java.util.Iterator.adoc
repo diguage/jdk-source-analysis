@@ -1,8 +1,8 @@
-== 迭代器 Iterator、 Enumeration、 Spliterator 与 Iterable
+= 迭代器 Iterator、 Enumeration、 Spliterator 与 Iterable
 include::_attributes.adoc[]
 
 
-=== 涉及代码
+== 涉及代码
 
 . `java.util.Iterator`
 . `java.util.PrimitiveIterator`
@@ -11,7 +11,7 @@ include::_attributes.adoc[]
 . `java.util.Enumeration`
 . `java.lang.Iterable`
 
-=== 迭代器模式
+== 迭代器模式
 
 在进行代码分析之前，D瓜哥想先来讲解一下设计模式。然后结合 Java 中 `Iterator` 和 `Iteratable` ，具体分析一下迭代器在 Java 中的实现。
 
@@ -83,7 +83,7 @@ ConcreteIterator <.. ConcreteAggregate
 
 请问： Java 中是如何应用迭代器模式呢？
 
-=== `Iterator`
+== `Iterator`
 
 从上面的设计模式可以看出，迭代器模式就是为了遍历不同的聚集结构提供诸如开始、下一个、是否结束、当前元素等常见操作的统一接口。来看看 Java 集合类是如何提炼接口的。
 
@@ -137,7 +137,7 @@ public interface Enumeration<E> {
 
 请问：既然有迭代器接口定义了，那么 Java 又是如何生成迭代器实例呢？
 
-=== `Iterable`
+== `Iterable`
 
 既然迭代器可以抽象成一个公共的接口，那么生成迭代器实例的这个操作，也可以抽象成一个接口。 Java 也确实是这样做的：
 
@@ -173,7 +173,7 @@ public interface Iterable<T> {
 
 在思考实现原理的过程中，D瓜哥突然想到，`java.lang.Iterable` 就是一个工厂方法模式的应用。来分析一下：
 
-=== 工厂方法模式
+== 工厂方法模式
 
 先来看看工厂方法模式的定义：
 
@@ -225,10 +225,10 @@ ConcreteFactory -right-> ConcreteProduct
 
 细心的童鞋，可能发现还有个类似迭代器的类 `Spliterator`。这是个什么类？为啥要增加相关的接口呢？
 
-=== `Spliterator`
+== `Spliterator`
 
 [#ListIterator]
-=== `ListIterator`
+== `ListIterator`
 
 `java.util.Iterator` 是针对整个集合类抽象出来的通用迭代器。但是，可以思考一下，对于 `java.util.List` 是不是可以有更契合的迭代器？
 
@@ -267,7 +267,7 @@ public interface ListIterator<E> extends Iterator<E> {
 因为增加了 `hasPrevious()` 和 `previous()`，那么 `ListIterator` 就有了双向遍历的能力：既可以像传统迭代器那样，从前向后遍历；又可以逆向，从后想前遍历。这样在某些场景下就会特别方便。
 
 
-=== 参考资料
+== 参考资料
 
 * https://www.journaldev.com/13457/java-listiterator[Java ListIterator - ListIterator in Java - JournalDev]
 

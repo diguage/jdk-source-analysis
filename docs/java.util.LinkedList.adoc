@@ -1,9 +1,9 @@
-== LinkedList
+= LinkedList
 include::_attributes.adoc[]
 
 `LinkedList` 底层使用的是 双向链表 数据结构（JDK1.6 之前为循环链表，JDK1.7 取消了循环。注意双向链表和双向循环链表的区别。）
 
-=== 类图
+== 类图
 
 先来看一下 `LinkedList` 的类图：
 
@@ -35,7 +35,7 @@ class LinkedList<E> extends AbstractSequentialList implements Deque, Cloneable, 
 @enduml
 ....
 
-=== 初始化
+== 初始化
 
 先看看 `LinkedList` 中内部属性和构造函数：
 
@@ -97,7 +97,7 @@ private static class Node<E> {
 
 NOTE: D瓜哥觉得使用初始化的头尾节点更方便代码书写，少了很多繁琐的判断。
 
-=== 分析工具
+== 分析工具
 
 使用反射来获取内部属性，然后做进一步分析。
 
@@ -106,7 +106,7 @@ NOTE: D瓜哥觉得使用初始化的头尾节点更方便代码书写，少了�
 include::{sourcedir}/LinkedListBaseTest.java[]
 ----
 
-=== 添加元素
+== 添加元素
 
 测试代码：
 
@@ -187,7 +187,7 @@ public void addFirst(E e) {
 从这里就能看出，`LinkedList` 在 `add(e)`、`addLast(e)` 或者 `addFirst(e)` 时，都是对链表的首尾进行操作，会比较高效。
 
 
-=== Redis 的 List
+== Redis 的 List
 
 Redis 底层也有很多地方使用到链表，并且也是双向链表。
 
@@ -222,7 +222,7 @@ Redis 的链表实现特点是：
 . 链表保存了首尾指针；
 . 多态：可以保存不同类型的值，这里成为泛型也许更符合 Java 中的语义。
 
-=== Redis 的 ziplist
+== Redis 的 ziplist
 
 Redis 官方在 ziplist.c 文件的注释中对 ziplist 进行了定义：
 
@@ -344,7 +344,7 @@ Redis 在下面这个几个地方使用了 ziplist：
 . 列表键值包含少了的列表项，并且列表项只是整数或者短小的字符串时。（在最新版 Redis 中测试，使用的是 quicklist）
 . 在哈希键值包含少量键值对，并且每个键值对只包含整数或短小字符串时。
 
-=== Redis 中的 quicklist
+== Redis 中的 quicklist
 
 Redis 对外暴露的 list 数据类型，它底层实现所依赖的内部数据结构就是 quicklist。
 
@@ -502,7 +502,7 @@ list
 ----
 
 
-=== 参考资料
+== 参考资料
 
 . http://zhangtielei.com/posts/blog-redis-ziplist.html[Redis内部数据结构详解(4)——ziplist]
 . http://zhangtielei.com/posts/blog-redis-quicklist.html[Redis内部数据结构详解(5)——quicklist]
@@ -541,7 +541,7 @@ package java.util;
 import java.util.function.Consumer;
 ----
 
-=== 类的继承关系
+== 类的继承关系
 image::images/DiagramForLinkedList.png[]
 继承自AbstractSequentialList，一个LinkedList抽象的实现；
 重点关注实现了Deque接口。
@@ -553,7 +553,7 @@ public class LinkedList<E>
     implements List<E>, Deque<E>, Cloneable, java.io.Serializable
 {
 ----
-=== 类的属性
+== 类的属性
 [source,java]
 ----
     //存储元素个数
@@ -565,7 +565,7 @@ public class LinkedList<E>
     //存储尾结点
     transient Node<E> last;
 ----
-=== 类的构造器
+== 类的构造器
 [source,java]
 ----
     //无参构造器
@@ -580,7 +580,7 @@ public class LinkedList<E>
         addAll(c);
     }
 ----
-=== 类的方法
+== 类的方法
 主要的方法的基础是link和unlink方法组,Node<E> node(int index)定位方法（均不是public）
 
 image::images/linkedlist插入新结点.png[]

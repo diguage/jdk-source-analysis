@@ -1,4 +1,4 @@
-== Semaphore
+= Semaphore
 
 include::_attributes.adoc[]
 

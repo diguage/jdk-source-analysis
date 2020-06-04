@@ -1,11 +1,11 @@
-== `ConcurrentHashMap`
+= `ConcurrentHashMap`
 
 
 image::images/ConcurrentHashMap-segment-lock.png[]
 
 image::images/JDK1.8-ConcurrentHashMap-Structure.jpg[]
 
-=== 参考资料
+== 参考资料
 
 * http://note.youdao.com/share/?spm=5176.100239.blogcont36781.3.nHffVb&id=dde7a10b98aee57676408bc475ab0680&type=note#/[ConcurrentHashMap源码分析--Java8]
 * http://www.cnblogs.com/huaizuo/p/5413069.html[探索jdk8之ConcurrentHashMap 的实现机制 - 淮左 - 博客园] -- 参考资料非常棒，建议都看看！

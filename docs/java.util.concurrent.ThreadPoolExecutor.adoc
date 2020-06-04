@@ -1,4 +1,4 @@
-== ThreadPoolExecutor 源码分析
+= ThreadPoolExecutor 源码分析
 
 include::_attributes.adoc[]
 
@@ -134,7 +134,7 @@ image::images/ThreadPoolExecutor-runWorker.jpeg[]
 
 
 
-=== 大纲
+== 大纲
 
 . 基本使用
   . 使用 `Executors` 创建线程池
@@ -152,7 +152,7 @@ image::images/ThreadPoolExecutor-runWorker.jpeg[]
 . 线程池在jDK5、6、7中有哪些升级变化？
 . 拒绝策略
 
-=== 核心点
+== 核心点
 
 . 关键参数
 .. `corePoolSize`
@@ -171,7 +171,7 @@ image::images/ThreadPoolExecutor-runWorker.jpeg[]
 在生产环境，为了避免首次调用超时，可以调用 `executor.prestartAllCoreThreads()` 预创建所有 `core` 线程，避免来一个创一个带来首次调用慢的问题。
 
 
-=== 问题
+== 问题
 
 . 任务添加后，如何执行？
 . 一个任务执行完成后，如何在同一个线程执行下一个任务？
@@ -181,7 +181,7 @@ image::images/ThreadPoolExecutor-runWorker.jpeg[]
 . 这个线程池还有哪些可以改进的地方？比如 Guava 中提供了哪些线程池？
 . 如何改造成添加任务，如果没有达到 `maxPoolSize` 则先创建线程？
 
-==== Tomcat 改进
+=== Tomcat 改进
 
 可不可以自己封装一个Queue，在插入时增加以下逻辑呢？
 
@@ -215,7 +215,7 @@ public class TaskQueue extends LinkedBlockingQueue<Runnable> {
 
 如何判断当前有没有空闲的线程等待接客？Tomcat 则靠扩展 `Executor`，增加一个当前请求数的计数器，在 `execute()` 方法前加1，再重载 `afterExecute()` 方法减1，然后判断当前线程总数是否大于当前请求总数就知道有咩有围观群众。
 
-=== 需要注意的点
+== 需要注意的点
 
 . 线程池如何初始化？
 . 任务如何添加？
@@ -230,7 +230,7 @@ public class TaskQueue extends LinkedBlockingQueue<Runnable> {
 . 如何做到不断地一个一个执行下去？
 . 为什么 `Worker` 继承 `AbstractQueuedSynchronizer` ？AQS起什么作用？是否需要先研究一下？
 
-=== 收获
+== 收获
 
 . 可以继承 `ThreadPoolExecutor`，实现 `beforeExecute()` 和 `afterExecute()` 等方法，来加入执行时的回调。类似的回调，还有 `terminated()`
 . 添加任务时， `execute()` 方法的第二种情况，为什么还有再次检查？
@@ -240,12 +240,12 @@ public class TaskQueue extends LinkedBlockingQueue<Runnable> {
 include::{sourcedir}/concurrent/ThreadPoolExecutorTest.java[]
 ----
 
-=== 思考题
+== 思考题
 
 自己实现一个线程池。
 
 
-=== 参考资料
+== 参考资料
 
 . http://www.throwable.club/2019/07/15/java-concurrency-thread-pool-executor/[JUC线程池ThreadPoolExecutor源码分析 - Throwable's Blog]
 . https://www.cnblogs.com/leesf456/p/5585627.html[【JUC】JDK1.8源码分析之ThreadPoolExecutor（一） - leesf - 博客园]

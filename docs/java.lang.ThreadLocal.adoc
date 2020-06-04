@@ -1,4 +1,4 @@
-== ThreadLocal
+= ThreadLocal
 
 include::_attributes.adoc[]
 
@@ -111,7 +111,7 @@ JDK 的 `InheritableThreadLocal` 类可以完成父线程到子线程的值传�
 
 哈希冲突了怎么解决？
 
-=== 参考资料
+== 参考资料
 
 . https://snailclimb.gitee.io/javaguide/#/docs/java/Multithread/JavaConcurrencyAdvancedCommonInterviewQuestions?id=_33-threadlocal%e5%8e%9f%e7%90%86[JavaGuide
  之 ThreadLocal]

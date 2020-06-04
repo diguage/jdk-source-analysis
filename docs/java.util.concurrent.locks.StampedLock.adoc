@@ -1,4 +1,4 @@
-== StampedLock
+= StampedLock
 
 include::_attributes.adoc[]
 

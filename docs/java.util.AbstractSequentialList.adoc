@@ -1,7 +1,7 @@
-== AbstractSequentialList
+= AbstractSequentialList
 include::_attributes.adoc[]
 
-=== 类图
+== 类图
 
 先来看一下 `AbstractSequentialList` 的类图：
 
