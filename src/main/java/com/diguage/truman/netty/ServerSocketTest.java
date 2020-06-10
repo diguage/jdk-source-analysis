@@ -14,7 +14,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * @author D瓜哥, https://www.diguage.com/
  * @since 2020-04-21 14:31
  */
-public class Test02 {
+public class ServerSocketTest {
     public static final String HOST = "127.0.0.1";
     public static final int PORT = 11911;
 

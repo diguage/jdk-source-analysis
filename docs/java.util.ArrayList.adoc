@@ -46,7 +46,7 @@ class ArrayList<E> extends AbstractList implements List, RandomAccess, Cloneable
 
 首先，我们看一下 `ArrayList` 的初始化：
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 /**
  * Default initial capacity.
@@ -139,21 +139,21 @@ public ArrayList(Collection<? extends E> c) {
 
 在进行正常测试前，先展示一下"透视" `ArrayList` 的工具类：
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/ArrayListBaseTest.java[]
 ----
 
 正式测试：将初始化长度设置为 `8`，同时将添加元素的个数设置为 `8 * 2` 来方便观察数组增长情况。通过上述的工具方法，可以将 `ArrayList` 内部的数据进一步展示出来：
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/ArrayListAddTest.java[tag=testAddAtTail]
 ----
 
 JDK 相关源代码：
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 /**
  * Increases the capacity to ensure that it can hold at least the
@@ -233,12 +233,12 @@ public boolean add(E e) {
 
 之所以最大长度为 `Integer.MAX_VALUE` 减去 `8`，文档解释是因为某些 VM 保留数组头部用于存储一些 header words。但是在 `hugeCapacity(int minCapacity)` 方法中，在最小容量大于 `MAX_ARRAY_SIZE`，又可以返回 `Integer.MAX_VALUE`。
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/ArrayListAddTest.java[tag=testAddAtHeader]
 ----
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 /**
  * Inserts the specified element at the specified position in this
@@ -275,7 +275,7 @@ private void rangeCheckForAdd(int index) {
 从这里看出，在头部插入添加元素，实际就是将指定坐标位置以及右侧所有元素向后移动一位，腾出空间存放新元素。
 
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 /**
  * Appends all of the elements in the specified collection to the end of
@@ -363,7 +363,7 @@ public boolean addAll(int index, Collection<? extends E> c) {
 
 基准测试当然非 Java Microbenchmark Harness 莫属了。直接上代码：
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/ArrayListIteratorSpeedTest.java[]
 ----

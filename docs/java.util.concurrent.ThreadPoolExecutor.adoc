@@ -40,7 +40,7 @@ include::_attributes.adoc[]
 image::images/ThreadPoolExecutor-states.jpeg[]
 
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
     /**
      * Executes the given task sometime in the future.  The task
@@ -191,7 +191,7 @@ image::images/ThreadPoolExecutor-runWorker.jpeg[]
 * 如果缓冲队列也满了，抛出拒绝异常。
 
 .https://github.com/apache/tomcat/blob/master/java/org/apache/tomcat/util/threads/TaskQueue.java
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 public class TaskQueue extends LinkedBlockingQueue<Runnable> {
 
@@ -235,7 +235,7 @@ public class TaskQueue extends LinkedBlockingQueue<Runnable> {
 . 可以继承 `ThreadPoolExecutor`，实现 `beforeExecute()` 和 `afterExecute()` 等方法，来加入执行时的回调。类似的回调，还有 `terminated()`
 . 添加任务时， `execute()` 方法的第二种情况，为什么还有再次检查？
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/concurrent/ThreadPoolExecutorTest.java[]
 ----

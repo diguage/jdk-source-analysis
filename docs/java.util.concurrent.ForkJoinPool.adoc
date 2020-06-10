@@ -13,7 +13,7 @@ image::images/ForkJoinPool-data-structures.png[]
 
 image::images/ForkJoinPool-ctl.png[]
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/concurrent/ForkJoinPoolTest.java[]
 ----

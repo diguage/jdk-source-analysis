@@ -3,7 +3,7 @@
 include::_attributes.adoc[]
 
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/reflect/ProxyTest.java[]
 ----
@@ -21,7 +21,7 @@ image::images/Proxy-newProxyInstance-sequence-diagram.png[]
 调用时，通过 `InvocationHandler` 对象的 `Object invoke(Object proxy, Method method, Object[] args)` 方法来调起代理和目标对象的方法。其中，这里的 `Object proxy` 就是生成的类本身的对象；`Method method` 就是上述生成的静态 `Method` 对象；`Object[] args` 就是实际调用的参数。
 
 .反编译的示例类
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 package com.sun.proxy;
 
@@ -109,7 +109,7 @@ public final class $Proxy0 extends Proxy implements UserService {
 
 注解底层也是基于动态代理实现的。
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/reflect/ProxyAnnoTest.java[]
 ----

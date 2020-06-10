@@ -4,7 +4,7 @@ include::_attributes.adoc[]
 
 虽然对 `ClassLoader` 的双亲委派流程比较了解，但是一直没有仔细专研过代码实现。今天翻看代码，代码写的简单明了：
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 /**
  * Loads the class with the specified <a href="#binary-name">binary name</a>.  The
@@ -111,7 +111,7 @@ protected Class<?> findClass(String name) throws ClassNotFoundException {
 
 如果自定义 `ClassLoader`，最简单的办法就是重载 `Class<?> findClass(String name)` 方法就可以了。或者为了避免双亲委托机制，可以自己定义一个类加载器，然后重写 `loadClass()` 即可。
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/ClassLoaderTest.java[]
 ----

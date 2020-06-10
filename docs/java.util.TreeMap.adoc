@@ -4,7 +4,7 @@ include::_attributes.adoc[]
 
 先看一个问题：
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/TreeMapTest.java[tag=question]
 ----
@@ -13,26 +13,26 @@ include::{sourcedir}/TreeMapTest.java[tag=question]
 
 先定义一个测试实体类：
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/TreeMapTest.java[tag=classPerson]
 ----
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/TreeMapTest.java[tag=resort]
 ----
 
 修改排序字段，打印时，依然可以保持有序性。__这个实现是怎么回事？__
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/TreeMapTest.java[tag=duplicateSortFactor]
 ----
 
 由此看出，`TreeMap` 不能接受排序因子相同的值。如果存在，则后来者把前者的 `Value` 覆盖掉。
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/TreeMapTest.java[tag=commonCase]
 ----

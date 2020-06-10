@@ -39,7 +39,7 @@ class LinkedList<E> extends AbstractSequentialList implements Deque, Cloneable, 
 
 先看看 `LinkedList` 中内部属性和构造函数：
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 transient int size = 0;
 
@@ -101,7 +101,7 @@ NOTE: D瓜哥觉得使用初始化的头尾节点更方便代码书写，少了�
 
 使用反射来获取内部属性，然后做进一步分析。
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/LinkedListBaseTest.java[]
 ----
@@ -110,14 +110,14 @@ include::{sourcedir}/LinkedListBaseTest.java[]
 
 测试代码：
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/LinkedListTest.java[tag=testAddAtTail]
 ----
 
 JDK 源码：
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 /**
  * Links e as last element.
@@ -150,14 +150,14 @@ public boolean add(E e) {
 
 再来看看从头部插入元素：
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/LinkedListTest.java[tag=testAddAtHeader]
 ----
 
 JDK 源码：
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 /**
  * Links e as first element.

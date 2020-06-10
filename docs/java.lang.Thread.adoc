@@ -11,7 +11,7 @@ Java线程最终会映射为系统内核原生线程，所以Java线程调度最
 线程状态在 `Thread` 类已经通过一个枚举给出了所有可能：
 
 .Thread
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 public class Thread implements Runnable {
     // ……
@@ -134,14 +134,14 @@ Java 对象内存占用大小：
 
 HotSpot的对齐方式为8字节对齐： `（对象头 + 实例数据 + padding） % 8等于0且0 <= padding < 8`。
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/concurrent/JolTest.java[]
 ----
 
 `join()` 方法的本质是当前线程对象实例调用线程 `wait()` 方法。
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/concurrent/ThreadTest.java[]
 ----

@@ -3,7 +3,7 @@
 include::_attributes.adoc[]
 
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/concurrent/ReentrantReadWriteLockTest.java[]
 ----

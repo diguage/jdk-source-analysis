@@ -5,7 +5,7 @@ include::_attributes.adoc[]
 "Count Down" 在英语中意为倒计数，一个典型场景就是火箭🚀发射时的倒计时。它允许一个或多个线程等待其他线程完成操作。
 
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/concurrent/CountDownLatchTest.java[]
 ----
@@ -14,7 +14,7 @@ include::{sourcedir}/concurrent/CountDownLatchTest.java[]
 
 `CountDownLatch` 类中存在一个内部类 `Sync`，继承自 `AbstractQueuedSynchronizer`，代码如下：
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 /**
  * Synchronization control For CountDownLatch.
@@ -55,7 +55,7 @@ private final Sync sync;
 
 == `await()`
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 /**
  * Causes the current thread to wait until the latch has counted down to
@@ -92,7 +92,7 @@ public void await() throws InterruptedException {
 对 `await()` 的处理直接委托给了 `sync` 的 `acquireSharedInterruptibly(1)` 方法，当然这个方法是从 `AbstractQueuedSynchronizer` 继承而来的。来看一下这个方法：
 
 .AbstractQueuedSynchronizer
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
     /**
      * Acquires in shared mode, aborting if interrupted.  Implemented
@@ -125,7 +125,7 @@ image::images/CountDownLatch-await-unpark.png[]
 
 == `countDown()`
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 /**
  * Decrements the count of the latch, releasing all waiting threads if
@@ -145,7 +145,7 @@ public void countDown() {
 这里的 `releaseShared(1)` 方法是从 `AbstractQueuedSynchronizer` 继承过来的，来看一下这个方法的实现：
 
 .AbstractQueuedSynchronizer
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
     /**
      * Releases in shared mode.  Implemented by unblocking one or more

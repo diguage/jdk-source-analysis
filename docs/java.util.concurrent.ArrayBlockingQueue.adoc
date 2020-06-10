@@ -44,7 +44,7 @@ image::images/BlockingQueue.png[align="center"]
 
 `ArrayBlockingQueue` 默认情况下不能保证线程访问队列的公平性，所谓公平性是指严格按照线程等待的绝对时间顺序，即最先等待的线程能够最先访问到 `ArrayBlockingQueue`。而非公平性则是指访问 `ArrayBlockingQueue` 的顺序不是遵守严格的时间顺序，有可能存在，当 `ArrayBlockingQueue` 可以被访问时，长时间阻塞的线程依然无法访问到 `ArrayBlockingQueue`。如果保证公平性，通常会降低吞吐量。
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 /**
  * Inserts element at current put position, advances, and signals.
@@ -137,7 +137,7 @@ public E poll() {
 底层使用数组来实现，长度确定后就不再变化，通过下标循环往复地使用数组，类似与将数组组成了一个圆。
 
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/concurrent/ArrayBlockingQueueTest.java[]
 ----

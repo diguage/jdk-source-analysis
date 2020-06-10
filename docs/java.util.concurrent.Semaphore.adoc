@@ -4,7 +4,7 @@ include::_attributes.adoc[]
 
 信号量
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/concurrent/SemaphoreTest.java[]
 ----

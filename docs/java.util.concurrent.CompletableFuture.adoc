@@ -6,7 +6,7 @@ Java 中的 Promise。
 
 问题：在一大堆任务中，如何获取第一个完成的返回值？
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/concurrent/CompletableFutureTest.java[]
 ----

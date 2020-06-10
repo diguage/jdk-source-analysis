@@ -27,7 +27,7 @@ class FutureTask<V> implements RunnableFuture
 
 `V get()` 方法之所以能阻塞直到方法执行，拿到结果，是因为在 `get()` 方法通过 `awaitDone(boolean timed, long nanos)` 执行了一个无限循环。在循环过程中，不断获取任务执行的状态，进一步获取结果或者响应中断请求。
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 /**
  * @throws CancellationException {@inheritDoc}

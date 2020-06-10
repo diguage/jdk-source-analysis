@@ -6,7 +6,7 @@ include::_attributes.adoc[]
 
 image::images/simplex-half-duplex-full-duplex.jpg[]
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/net/SocketFullDuplexTest.java[]
 ----

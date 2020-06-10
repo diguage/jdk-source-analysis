@@ -31,14 +31,14 @@ _AQS 结合了自旋和睡眠/唤醒两种方法的优点。_ 这句话该如何
 
 基于 `AbstractQueuedSynchronizer`，我们实现一个互斥锁：
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/concurrent/Mutex.java[]
 ----
 
 互斥锁，也可以称为独占锁，顾名思义就是同一个时刻只能有一个线程获取到锁，而其他获取锁的线程只能在同步队列中等待，只有获取锁的线程释放了锁，后继的线程才能获取锁。
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/concurrent/AbstractQueuedSynchronizerTest.java[]
 ----
@@ -88,7 +88,7 @@ include::{sourcedir}/concurrent/AbstractQueuedSynchronizerTest.java[]
 
 独占模式的同步器的一个显著特点就是：头节点的第一个有效(非取消)的后继节点，总是尝试获取资源，一旦获取资源成功就会解除阻塞并且晋升为头节点，原来所在节点会移除出同步等待队列，原来的队列长度就会减少1，然后头结点的第一个有效的后继节点继续开始竞争资源。
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
     /**
      * Checks and updates status for a node that failed to acquire.

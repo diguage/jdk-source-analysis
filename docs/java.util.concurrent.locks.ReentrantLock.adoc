@@ -26,13 +26,13 @@ synchronized 是依赖于 JVM 实现的，前面我们也讲到了 虚拟机团�
 +
 . 性能已不是选择标准
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/concurrent/ReentrantLockTest.java[]
 ----
 
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
     /**
      * Acquires in exclusive mode, aborting if interrupted.

@@ -2,11 +2,13 @@
 
 include::_attributes.adoc[]
 
+Netty 和 `ServerSocketChannel` 可以互相操作吗？
+
 == JDK 原生 Socket 编程
 
 使用 JDK 原生的 Socket API 进行网络编程：
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/netty/ServerSocketTest.java[]
 ----
@@ -16,7 +18,7 @@ include::{sourcedir}/netty/ServerSocketTest.java[]
 
 == Server startup
 
-[source,java,{source_attr}]
+[{java_src_attr}]
 ----
 include::{sourcedir}/netty/Test03.java[]
 ----
