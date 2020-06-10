@@ -165,6 +165,7 @@
             <graphvizdot>/usr/local/bin/dot</graphvizdot>
             <source_attr>linenums,indent=0,subs="attributes,verbatim"</source_attr>
             <java_src_attr>source%nowrap,java,{source_attr}</java_src_attr>
+            <diagram_attr>format=svg,align="center",width=100%</diagram_attr>
           </attributes>
         </configuration>
         <executions>

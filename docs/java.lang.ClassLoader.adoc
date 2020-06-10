@@ -120,7 +120,7 @@ include::{sourcedir}/ClassLoaderTest.java[]
 . `jdk.internal.loader.ClassLoaders.AppClassLoader`
 
 .JDK 8 及以前的加载体系
-[graphviz,{puml_attr}]
+[graphviz,{diagram_attr}]
 ....
 digraph G {
   node [shape = box]
@@ -136,7 +136,7 @@ digraph G {
 image::images/load-class-process.png[]
 
 .JDK 9 之后的加载体系
-[graphviz,{puml_attr}]
+[graphviz,{diagram_attr}]
 ....
 digraph G {
   node [shape = box]

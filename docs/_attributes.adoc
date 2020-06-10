@@ -2,8 +2,8 @@ ifndef::sourcedir[]
 :sourcedir: ../src/main/java/com/diguage/truman
 endif::[]
 
-ifndef::puml_attr[]
-:puml_attr: format=svg,align="center",width=100%
+ifndef::diagram_attr[]
+:diagram_attr: format=svg,align="center",width=100%
 endif::[]
 
 ifndef::source_attr[]

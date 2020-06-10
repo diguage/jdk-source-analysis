@@ -7,7 +7,7 @@ include::_attributes.adoc[]
 
 先来看一下 `LinkedList` 的类图：
 
-[plantuml,{puml_attr}]
+[plantuml,{diagram_attr}]
 ....
 @startuml
 skinparam nodesep 100

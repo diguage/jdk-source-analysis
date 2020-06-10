@@ -4,7 +4,7 @@
 
 先来看一下 `ForkJoinTask` 的类图：
 
-[plantuml,{puml_attr}]
+[plantuml,{diagram_attr}]
 ....
 @startuml
 skinparam nodesep 100

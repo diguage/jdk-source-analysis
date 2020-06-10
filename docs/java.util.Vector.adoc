@@ -2,7 +2,7 @@
 include::_attributes.adoc[]
 
 
-[plantuml,{puml_attr}]
+[plantuml,{diagram_attr}]
 ....
 @startuml
 'skinparam nodesep 70
