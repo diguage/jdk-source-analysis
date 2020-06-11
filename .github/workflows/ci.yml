@@ -7,24 +7,26 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout 🛎️
         uses: actions/checkout@v2
         with:
           persist-credentials: false
 
-      - name: Set up JDK 11
+      - name: Set up JDK 11 ☕️
         uses: actions/setup-java@v1
         with:
           java-version: '11.0.7' # The JDK version to make available on the path.
           java-package: jdk
           architecture: x64
 
-      - name: Install Graphviz
-        run: sudo apt-get install graphviz
+      - name: Install Graphviz 🐰
+        run: |
+          sudo apt update -y -m
+          sudo apt install -y graphviz
+          sudo apt autoremove -y
 
       - name: Build 🔧
-        run: |
-          mvn clean package
+        run: mvn clean package
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@releases/v3
