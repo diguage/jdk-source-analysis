@@ -155,6 +155,74 @@ include::{sourcedir}/netty/Test03.java[]
 
 
 
+== Netty
+
+创建 bossGroup 和 workerGroup
+. 创建两个线程组 bossGroup 和 workerGroup
+. bossGroup 只是处理连接请求，真正的客户端业务处理，会交给 workerGroup 完成
+. 两个都是无限循环
+. bossGroup 和 workerGroup 含有的子线程(NioEventLoop)的个数。默认 `CPU 内核数 * 2`，在 `io.netty.channel.MultithreadEventLoopGroup.DEFAULT_EVENT_LOOP_THREADS` 常量中定义
+
+=== 异步任务
+
+比如这里我们有一个非常耗时长的业务-> 异步执行 -> 提交该 channel 对应的 NIOEventLoop 的 taskQueue 中, 从 ctx -> pipeline -> eventLoop -> taskQueue 可以看到提交的任务。
+
+.NettyServer
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/simple/NettyServer.java[]
+----
+
+
+.NettyServerHandler
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/simple/NettyServerHandler.java[]
+----
+
+.NettyClient
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/simple/NettyClient.java[]
+----
+
+.NettyClientHandler
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/simple/NettyClientHandler.java[]
+----
+
+Netty 的异步模型，就是基于 `ChannelFuture` 和 Listener 的监听回调模型。在入站、出站整个处理链上，可以注册各种各样的 Listener，以事件来驱动它们的调用。
+
+=== HTTP
+
+`io.netty.handler.codec.http.DefaultHttpRequest` 是 `io.netty.handler.codec.http.HttpObject` 的一个实现类。
+
+为什么刷新一次浏览器，会有两个请求？ 浏览器增加了一次访问 ico 图标的请求。
+
+HTTP 协议用完就关闭，所以，每次 pipeline 都不一样。跟 TCP 不太一样。
+
+
+.TestServer
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/http/TestServer.java[]
+----
+
+.TestServerInitializer
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/http/TestServerInitializer.java[]
+----
+
+.TestServerHandler
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/http/TestServerHandler.java[]
+----
+
+
+
 
 
 
