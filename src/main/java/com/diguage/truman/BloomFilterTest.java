@@ -2,7 +2,7 @@ package com.diguage.truman;
 
 import com.google.common.hash.BloomFilter;
 import com.google.common.hash.Funnels;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author D瓜哥, https://www.diguage.com/

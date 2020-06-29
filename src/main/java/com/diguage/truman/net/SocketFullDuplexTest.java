@@ -1,6 +1,6 @@
 package com.diguage.truman.net;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.net.ServerSocket;

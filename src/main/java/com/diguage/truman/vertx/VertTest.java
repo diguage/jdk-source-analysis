@@ -4,7 +4,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerRequest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author D瓜哥, https://www.diguage.com/
