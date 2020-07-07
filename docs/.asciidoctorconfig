@@ -1,7 +1,0 @@
-// this adds attributes to every preview being rendered in IntelliJ
-// for more information see:
-// https://github.com/asciidoctor/asciidoctor-intellij-plugin/wiki/Support-project-specific-configurations
-
-:pdf-fontsdir: {asciidoctorconfigdir}/../cfg/fonts
-:pdf-stylesdir: {asciidoctorconfigdir}/../cfg/theme
-:pdf-theme: Source

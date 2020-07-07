@@ -1,3 +1,0 @@
-= 集合类概述
-
-image::images/java-collections-overview.png[]
