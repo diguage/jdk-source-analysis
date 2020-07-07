@@ -1,0 +1,13 @@
+
+E
+java:S11488"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8¹Ş‡•.
+E
+java:S11480"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8òæ„•.
+c
+java:S2142/"FEither re-interrupt this method or rethrow the "InterruptedException".(ä ¹€8òæ„•.
+h
+java:S2184C"FCast one of the operands of this multiplication operation to a "long".(«ÍÑ±üÿÿÿÿ8ˆ‹•.
+U	java:S106"9Replace this use of System.out or System.err by a logger.(Ãï´î8à›•.
+Z	java:S106 "9Replace this use of System.out or System.err by a logger.(ÑûÎÅøÿÿÿÿ8Ëâ•.
+c
+java:S21427"FEither re-interrupt this method or rethrow the "InterruptedException".(ä ¹€8¹Ş‡•.

@@ -1,0 +1,12 @@
+
+U	java:S106"9Replace this use of System.out or System.err by a logger.(º²ã¯8ù÷.
+Z	java:S106""9Replace this use of System.out or System.err by a logger.(‘Şî½üÿÿÿÿ8¯¡Ó.
+E	java:S108")Either remove or fill this block of code.(¤òÏ¶8¯±Ù.
+T	java:S106"9Replace this use of System.out or System.err by a logger.(ûÃÈ8•õ.
+E
+java:S11482"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8Õêî.
+U	java:S106"9Replace this use of System.out or System.err by a logger.(Œşé‹8•õ.
+c
+java:S21421"FEither re-interrupt this method or rethrow the "InterruptedException".(ä ¹€8Õêî.
+Z	java:S106&"9Replace this use of System.out or System.err by a logger.(•°×¯øÿÿÿÿ8¾å.
+Z	java:S106%"9Replace this use of System.out or System.err by a logger.(™–Íæûÿÿÿÿ8ÚÚÀ.

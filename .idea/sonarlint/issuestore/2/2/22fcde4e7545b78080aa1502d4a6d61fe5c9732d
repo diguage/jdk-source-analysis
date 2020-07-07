@@ -1,0 +1,24 @@
+
+
+java:S1845_"kRename field "WAITSTATUS" to prevent any misunderstanding/clash with field "waitStatus" defined on line 45.(¤ŸÑéùÿÿÿÿ8â­ƒ–.
+
+java:S1845]"_Rename field "PREV" to prevent any misunderstanding/clash with field "prev" defined on line 47.(Íì±ûúÿÿÿÿ8â­ƒ–.
+[	java:S106ˆ"9Replace this use of System.out or System.err by a logger.(—çùøÿÿÿÿ8§òÅõ’.
+K	java:S108…")Either remove or fill this block of code.(æá’×ıÿÿÿÿ8§òÅõ’.
+…
+java:S1845^"cRename field "THREAD" to prevent any misunderstanding/clash with field "thread" defined on line 51.(¼¯²üÿÿÿÿ8â­ƒ–.
+t
+java:S30773"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(«ùä´8â­ƒ–.
+
+java:S1845\"_Rename field "NEXT" to prevent any misunderstanding/clash with field "next" defined on line 49.(›®Ó»ùÿÿÿÿ8â­ƒ–.
+T	java:S106w"9Replace this use of System.out or System.err by a logger.(à³’y8¸ŞÃõ’.
+c
+java:S2142|"FEither re-interrupt this method or rethrow the "InterruptedException".(ä ¹€8¸ŞÃõ’.
+y
+java:S30771"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(óÇ¾Òúÿÿÿÿ8â­ƒ–.
+y
+java:S3077/"WUse a thread-safe type; adding "volatile" is not enough to make this field thread-safe.(æ¹¢Œüÿÿÿÿ8â­ƒ–.
+E
+java:S1148}"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8¸ŞÃõ’.
+Z	java:S106z"9Replace this use of System.out or System.err by a logger.(”ÓŒ†úÿÿÿÿ8¸ŞÃõ’.
+Z	java:S106 "9Replace this use of System.out or System.err by a logger.(ê€äõùÿÿÿÿ8ø¹†–.

@@ -1,0 +1,793 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BspLocalSettings">
+    <option name="projectSyncType">
+      <map>
+        <entry key="$PROJECT_DIR$/../javaprojects/kafka" value="PREVIEW" />
+      </map>
+    </option>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="132b5fa9-bdf0-4bb2-973f-83cd5f9624e2" name="Default Changelist" comment="add">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/buf/NettyByteBuf.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/chats/GroupChatClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/chats/GroupChatClientHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/chats/GroupChatServer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/chats/GroupChatServerHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/dubbo/consumer/DubboClientBootstrap.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/dubbo/interfaces/HelloService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/dubbo/netty/NettyClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/dubbo/netty/NettyClientHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/dubbo/netty/NettyServer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/dubbo/netty/NettyServerHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/dubbo/provider/DubboServerBootstrap.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/dubbo/provider/HelloServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/hearts/MyServer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/hearts/MyServerHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/iobound/ByteToLongDecoder.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/iobound/ByteToLongDecoder2.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/iobound/IoClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/iobound/IoClientHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/iobound/IoClientInitializer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/iobound/IoServer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/iobound/IoServerHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/iobound/IoServerInitializer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/iobound/LongToByteEncoder.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/protobuf/ClientHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/protobuf/ProtobufClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/protobuf/ProtobufServer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/protobuf/ServerHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/protobuf/Student.proto" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/protobuf/StudentPOJO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/protobuf2/ClientHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/protobuf2/ProtobufClient2.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/protobuf2/ProtobufServer2.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/protobuf2/ServerHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/protobuf2/Student.proto" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/tcp/TcpClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/tcp/TcpClientHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/tcp/TcpClientInitializer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/tcp/TcpServer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/tcp/TcpServerHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/tcp/TcpServerInitializer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/tcprotocol/MessageDecoder.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/tcprotocol/MessageEncoder.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/tcprotocol/MessageProtocol.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/tcprotocol/TcpClientHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/tcprotocol/TcpClientInitializer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/tcprotocol/TcpServerHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/tcprotocol/TcpServerInitializer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/tcprotocol/TcprotocolClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/tcprotocol/TcprotocolServer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/ws/Server.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/ws/TextWebSocketFrameHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/ws/hello.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/io.netty.adoc" beforeDir="false" afterPath="$PROJECT_DIR$/docs/io.netty.adoc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/java.util.HashMap.adoc" beforeDir="false" afterPath="$PROJECT_DIR$/docs/java.util.HashMap.adoc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/java.util.LinkedList.adoc" beforeDir="false" afterPath="$PROJECT_DIR$/docs/java.util.LinkedList.adoc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/NettyTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/NettyTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/ServerSocketTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/ServerSocketTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/Test01.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/Test01.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/Test03.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/Test03.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/http/TestServerHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/http/TestServerHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/http/TestServerInitializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/http/TestServerInitializer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/nia/ch02/EchoTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/nia/ch02/EchoTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/simple/NettyClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/simple/NettyClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/simple/NettyClientHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/simple/NettyClientHandler.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CodeStyleSettingsInfer">
+    <option name="done" value="true" />
+  </component>
+  <component name="DefaultGradleProjectSettings">
+    <option name="testRunner" value="GRADLE" />
+    <option name="delegatedBuild" value="true" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="HTML File" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectCodeStyleSettingsMigration">
+    <option name="version" value="1" />
+  </component>
+  <component name="ProjectId" id="1YtTatjvBJpGP4RJowRWifbWTB2" />
+  <component name="ProjectViewState">
+    <option name="autoscrollFromSource" value="true" />
+    <option name="autoscrollToSource" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+    <option name="showMembers" value="true" />
+    <option name="showVisibilityIcons" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="DefaultHtmlFileTemplate" value="HTML File" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SONARLINT_PRECOMMIT_ANALYSIS" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="extract.method.default.visibility" value="private" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/tcprotocol" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="/usr/local/bin/node" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="project.structure.last.edited" value="Artifacts" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="settings.editor.selected.configurable" value="reference.projectsettings.compiler.javacompiler" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="com.diguage.truman.netty.tcp" />
+    </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="com.diguage.truman" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.diguage.truman.netty.tcp" />
+      <recent name="com.diguage.truman.netty.iobound" />
+      <recent name="com.diguage.truman.netty.protobuf" />
+      <recent name="com.diguage.truman.net" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/tcprotocol" />
+      <recent name="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/tcp" />
+      <recent name="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/protobuf2" />
+      <recent name="$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/protobuf" />
+      <recent name="$PROJECT_DIR$/docs" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.DubboClientBootstrap">
+    <configuration default="true" type="Applet">
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="DubboClientBootstrap" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.diguage.truman.netty.dubbo.consumer.DubboClientBootstrap" />
+      <module name="truman" />
+      <option name="VM_PARAMETERS" value="--add-opens java.base/jdk.internal.misc=ALL-UNNAMED -Dio.netty.tryReflectionSetAccessible=true " />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.diguage.truman.netty.dubbo.consumer.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="DubboServerBootstrap" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.diguage.truman.netty.dubbo.provider.DubboServerBootstrap" />
+      <module name="truman" />
+      <option name="VM_PARAMETERS" value="--add-opens java.base/jdk.internal.misc=ALL-UNNAMED -Dio.netty.tryReflectionSetAccessible=true " />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.diguage.truman.netty.dubbo.provider.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Server" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.diguage.truman.netty.ws.Server" />
+      <module name="truman" />
+      <option name="VM_PARAMETERS" value="--add-opens java.base/jdk.internal.misc=ALL-UNNAMED -Dio.netty.tryReflectionSetAccessible=true " />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.diguage.truman.netty.ws.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TcpClient" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.diguage.truman.netty.tcp.TcpClient" />
+      <module name="truman" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.diguage.truman.netty.tcp.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TcprotocolClient" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.diguage.truman.netty.tcprotocol.TcprotocolClient" />
+      <module name="truman" />
+      <option name="VM_PARAMETERS" value="--add-opens java.base/jdk.internal.misc=ALL-UNNAMED -Dio.netty.tryReflectionSetAccessible=true " />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.diguage.truman.netty.tcprotocol.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TcprotocolServer" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.diguage.truman.netty.tcprotocol.TcprotocolServer" />
+      <module name="truman" />
+      <option name="VM_PARAMETERS" value="--add-opens java.base/jdk.internal.misc=ALL-UNNAMED -Dio.netty.tryReflectionSetAccessible=true " />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.diguage.truman.netty.tcprotocol.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="Application" factoryName="Application">
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NettyServer.server" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="truman" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.diguage.truman.netty.simple.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.diguage.truman.netty.simple" />
+      <option name="MAIN_CLASS_NAME" value="com.diguage.truman.netty.simple.NettyServer" />
+      <option name="METHOD_NAME" value="server([Ljava.lang.String;)" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+        <option name="BSP.BeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="JUnit" factoryName="JUnit">
+      <option name="TEST_OBJECT" value="class" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+        <option name="BSP.BeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="TestNG">
+      <option name="TEST_OBJECT" value="CLASS" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <properties />
+      <listeners />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType">
+      <module name="" />
+      <option name="VM_PARAMETERS" value="-Xmx512m -Xms256m -XX:MaxPermSize=250m -ea" />
+      <option name="PROGRAM_PARAMETERS" />
+      <predefined_log_file enabled="true" id="idea.log" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.Server" />
+      <item itemvalue="Application.TcpClient" />
+      <item itemvalue="Application.TcprotocolServer" />
+      <item itemvalue="Application.TcprotocolClient" />
+      <item itemvalue="Application.DubboServerBootstrap" />
+      <item itemvalue="Application.DubboClientBootstrap" />
+      <item itemvalue="JUnit.NettyServer.server" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.DubboClientBootstrap" />
+        <item itemvalue="Application.DubboServerBootstrap" />
+        <item itemvalue="Application.TcprotocolClient" />
+        <item itemvalue="Application.TcprotocolServer" />
+        <item itemvalue="Application.TcpClient" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration>$USER_HOME$/.subversion</configuration>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="132b5fa9-bdf0-4bb2-973f-83cd5f9624e2" name="Default Changelist" comment="" />
+      <created>1583760957117</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1583760957117</updated>
+      <workItem from="1583760958478" duration="1922000" />
+      <workItem from="1583767957350" duration="44335000" />
+      <workItem from="1584502384590" duration="9043000" />
+      <workItem from="1584668664358" duration="4589000" />
+      <workItem from="1584874888508" duration="1179000" />
+      <workItem from="1585148540797" duration="3277000" />
+      <workItem from="1585187229555" duration="557000" />
+      <workItem from="1585208672486" duration="3000" />
+      <workItem from="1585209710398" duration="351000" />
+      <workItem from="1585400253454" duration="13337000" />
+      <workItem from="1585618963418" duration="40910000" />
+      <workItem from="1585842711785" duration="5207000" />
+      <workItem from="1586016368001" duration="18641000" />
+      <workItem from="1586235906164" duration="13153000" />
+      <workItem from="1586310969442" duration="7622000" />
+      <workItem from="1586334229216" duration="19243000" />
+      <workItem from="1586401180696" duration="19000000" />
+      <workItem from="1586486934408" duration="4113000" />
+      <workItem from="1586500931278" duration="5493000" />
+      <workItem from="1586744160450" duration="3105000" />
+      <workItem from="1586782613623" duration="2052000" />
+      <workItem from="1586830037741" duration="590000" />
+      <workItem from="1587390588607" duration="6927000" />
+      <workItem from="1587450670986" duration="58950000" />
+      <workItem from="1588212773616" duration="3808000" />
+      <workItem from="1588230204603" duration="45891000" />
+      <workItem from="1588818114663" duration="7507000" />
+      <workItem from="1589252172237" duration="7452000" />
+      <workItem from="1590931549614" duration="18182000" />
+      <workItem from="1591253524898" duration="590000" />
+      <workItem from="1591274301864" duration="14608000" />
+      <workItem from="1591773289463" duration="2945000" />
+      <workItem from="1591792061671" duration="2163000" />
+      <workItem from="1591864821059" duration="1203000" />
+      <workItem from="1592149254927" duration="1440000" />
+      <workItem from="1593225901181" duration="61244000" />
+      <workItem from="1593586411282" duration="189000" />
+      <workItem from="1593656200546" duration="4468000" />
+      <workItem from="1593838485023" duration="2000" />
+    </task>
+    <task id="LOCAL-00001" summary="add ClassLoader">
+      <created>1583835593260</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1583835593260</updated>
+    </task>
+    <task id="LOCAL-00002" summary="升级 JUnit">
+      <created>1593397263240</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1593397263240</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="2" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="add ClassLoader" />
+    <MESSAGE value="升级 JUnit" />
+    <option name="LAST_COMMIT_MESSAGE" value="升级 JUnit" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="2283" y="408" key="#JolTest" timestamp="1586344798589">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state x="2283" y="408" key="#JolTest/0.23.3440.1417@0.23.3440.1417" timestamp="1586344798589" />
+    <state x="2044" y="393" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1593424596920">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state x="2044" y="393" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.3440.1417@0.23.3440.1417" timestamp="1593424596920" />
+    <state x="2272" y="541" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1585209816639">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state x="2272" y="541" key="#com.intellij.fileTypes.FileTypeChooser/0.23.3440.1417/3440.23.1440.877@0.23.3440.1417" timestamp="1585209816639" />
+    <state x="1273" y="285" key="#com.intellij.ide.util.MemberChooser" timestamp="1593423344824">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state x="1273" y="285" key="#com.intellij.ide.util.MemberChooser/0.23.3440.1417@0.23.3440.1417" timestamp="1593423344824" />
+    <state x="2432" y="627" key="#com.intellij.ide.util.projectWizard.JdkChooserPanel.MyDialog" timestamp="1585148558419">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state x="2432" y="627" key="#com.intellij.ide.util.projectWizard.JdkChooserPanel.MyDialog/0.23.3440.1417@0.23.3440.1417" timestamp="1585148558419" />
+    <state x="1408" y="471" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1585712546049">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state x="2449" y="255" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.23.3440.1417/3440.23.1440.877@0.23.3440.1417" timestamp="1585708249275" />
+    <state x="1408" y="471" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.23.3440.1417@0.23.3440.1417" timestamp="1585712546049" />
+    <state x="2368" y="623" width="423" height="225" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes" timestamp="1586314654736">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state x="2368" y="623" width="423" height="225" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes/0.23.3440.1417@0.23.3440.1417" timestamp="1586314654736" />
+    <state x="2005" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1593421157566">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state x="2005" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.23.3440.1417@0.23.3440.1417" timestamp="1593421157566" />
+    <state x="2343" y="440" key="#xdebugger.evaluate" timestamp="1593415030328">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state x="2343" y="440" key="#xdebugger.evaluate/0.23.3440.1417@0.23.3440.1417" timestamp="1593415030328" />
+    <state x="640" y="94" key="CommitChangelistDialog2" timestamp="1593397262960">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state x="640" y="94" key="CommitChangelistDialog2/0.23.3440.1417@0.23.3440.1417" timestamp="1593397262960" />
+    <state width="953" height="466" key="DebuggerActiveHint" timestamp="1593416813744">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state width="953" height="466" key="DebuggerActiveHint/0.23.3440.1417@0.23.3440.1417" timestamp="1593416813744" />
+    <state x="344" y="146" key="DiffContextDialog" timestamp="1593397238555">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state x="344" y="146" key="DiffContextDialog/0.23.3440.1417@0.23.3440.1417" timestamp="1593397238555" />
+    <state width="1678" height="471" key="GridCell.Tab.0.bottom" timestamp="1593533686902">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state width="1678" height="367" key="GridCell.Tab.0.bottom/0.23.3440.1417/3440.23.1440.877@0.23.3440.1417" timestamp="1586183907889" />
+    <state width="1678" height="471" key="GridCell.Tab.0.bottom/0.23.3440.1417@0.23.3440.1417" timestamp="1593533686902" />
+    <state width="1678" height="471" key="GridCell.Tab.0.center" timestamp="1593533686901">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state width="1678" height="367" key="GridCell.Tab.0.center/0.23.3440.1417/3440.23.1440.877@0.23.3440.1417" timestamp="1586183907889" />
+    <state width="1678" height="471" key="GridCell.Tab.0.center/0.23.3440.1417@0.23.3440.1417" timestamp="1593533686901" />
+    <state width="1678" height="471" key="GridCell.Tab.0.left" timestamp="1593533686894">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state width="1678" height="367" key="GridCell.Tab.0.left/0.23.3440.1417/3440.23.1440.877@0.23.3440.1417" timestamp="1586183907888" />
+    <state width="1678" height="471" key="GridCell.Tab.0.left/0.23.3440.1417@0.23.3440.1417" timestamp="1593533686894" />
+    <state width="1678" height="471" key="GridCell.Tab.0.right" timestamp="1593533686902">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state width="1678" height="367" key="GridCell.Tab.0.right/0.23.3440.1417/3440.23.1440.877@0.23.3440.1417" timestamp="1586183907889" />
+    <state width="1678" height="471" key="GridCell.Tab.0.right/0.23.3440.1417@0.23.3440.1417" timestamp="1593533686902" />
+    <state width="1678" height="471" key="GridCell.Tab.1.bottom" timestamp="1593533686903">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state width="1678" height="367" key="GridCell.Tab.1.bottom/0.23.3440.1417/3440.23.1440.877@0.23.3440.1417" timestamp="1586183899395" />
+    <state width="1678" height="471" key="GridCell.Tab.1.bottom/0.23.3440.1417@0.23.3440.1417" timestamp="1593533686903" />
+    <state width="1678" height="471" key="GridCell.Tab.1.center" timestamp="1593533686902">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state width="1678" height="367" key="GridCell.Tab.1.center/0.23.3440.1417/3440.23.1440.877@0.23.3440.1417" timestamp="1586183899394" />
+    <state width="1678" height="471" key="GridCell.Tab.1.center/0.23.3440.1417@0.23.3440.1417" timestamp="1593533686902" />
+    <state width="1678" height="471" key="GridCell.Tab.1.left" timestamp="1593533686902">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state width="1678" height="367" key="GridCell.Tab.1.left/0.23.3440.1417/3440.23.1440.877@0.23.3440.1417" timestamp="1586183899392" />
+    <state width="1678" height="471" key="GridCell.Tab.1.left/0.23.3440.1417@0.23.3440.1417" timestamp="1593533686902" />
+    <state width="1678" height="471" key="GridCell.Tab.1.right" timestamp="1593533686903">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state width="1678" height="367" key="GridCell.Tab.1.right/0.23.3440.1417/3440.23.1440.877@0.23.3440.1417" timestamp="1586183899395" />
+    <state width="1678" height="471" key="GridCell.Tab.1.right/0.23.3440.1417@0.23.3440.1417" timestamp="1593533686903" />
+    <state x="2230" y="432" key="NewModule_or_Project.wizard" timestamp="1588860296895">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state x="2230" y="432" key="NewModule_or_Project.wizard/0.23.3440.1417@0.23.3440.1417" timestamp="1588860296895" />
+    <state x="2315" y="449" key="RollbackChangesDialog" timestamp="1593394452630">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state x="2315" y="449" key="RollbackChangesDialog/0.23.3440.1417@0.23.3440.1417" timestamp="1593394452630" />
+    <state x="1850" y="353" key="SettingsEditor" timestamp="1593332194179">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state x="1318" y="82" key="SettingsEditor/0.23.3440.1417/3440.23.1440.877@0.23.3440.1417" timestamp="1585708234224" />
+    <state x="1850" y="353" key="SettingsEditor/0.23.3440.1417@0.23.3440.1417" timestamp="1593332194179" />
+    <state x="1673" y="313" width="1290" height="839" key="StructurePopup" timestamp="1593416107205">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state x="1075" y="320" width="1290" height="839" key="StructurePopup/0.23.3440.1417/3440.23.1440.877@0.23.3440.1417" timestamp="1585639170140" />
+    <state x="1673" y="313" width="1290" height="839" key="StructurePopup/0.23.3440.1417@0.23.3440.1417" timestamp="1593416107205" />
+    <state width="596" height="536" key="SwitcherDM" timestamp="1593416951323">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state width="596" height="536" key="SwitcherDM/0.23.3440.1417@0.23.3440.1417" timestamp="1593416951323" />
+    <state x="948" y="467" key="com.intellij.ide.util.TipDialog" timestamp="1586401182031">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state x="948" y="467" key="com.intellij.ide.util.TipDialog/0.23.3440.1417/3440.23.1440.877@0.23.3440.1417" timestamp="1585209716415" />
+    <state x="948" y="467" key="com.intellij.ide.util.TipDialog/0.23.3440.1417@0.23.3440.1417" timestamp="1586401182031" />
+    <state x="2318" y="491" key="extract.method.dialog" timestamp="1586359980827">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state x="2318" y="491" key="extract.method.dialog/0.23.3440.1417@0.23.3440.1417" timestamp="1586359980827" />
+    <state x="1492" y="341" width="1649" height="766" key="find.popup" timestamp="1593658323452">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state x="1492" y="341" width="1649" height="766" key="find.popup/0.23.3440.1417@0.23.3440.1417" timestamp="1593658323452" />
+    <state width="2755" height="713" key="javadoc.popup.new" timestamp="1591614473299">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state width="2755" height="713" key="javadoc.popup.new/0.23.3440.1417@0.23.3440.1417" timestamp="1591614473299" />
+    <state x="1098" y="334" width="1601" height="1065" key="search.everywhere.popup" timestamp="1593416103786">
+      <screen x="0" y="23" width="3440" height="1417" />
+    </state>
+    <state x="920" y="332" width="1601" height="1065" key="search.everywhere.popup/0.23.3440.1417/3440.23.1440.877@0.23.3440.1417" timestamp="1586183865674" />
+    <state x="1098" y="334" width="1601" height="1065" key="search.everywhere.popup/0.23.3440.1417@0.23.3440.1417" timestamp="1593416103786" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$MAVEN_REPOSITORY$/com/google/guava/guava/28.2-jre/guava-28.2-jre-sources.jar!/com/google/common/hash/BloomFilter.java</url>
+          <line>138</line>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$USER_HOME$/.sdkman/candidates/java/11.0.6-amzn/lib/src.zip!/java.base/java/util/concurrent/ForkJoinPool.java</url>
+          <line>2445</line>
+          <option name="timeStamp" value="9" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/concurrent/ReentrantLockTest.java</url>
+          <line>98</line>
+          <option name="timeStamp" value="16" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/concurrent/SemaphoreTest.java</url>
+          <line>17</line>
+          <option name="timeStamp" value="17" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$USER_HOME$/.sdkman/candidates/java/11.0.6-amzn/lib/src.zip!/java.base/java/util/concurrent/CountDownLatch.java</url>
+          <line>231</line>
+          <option name="timeStamp" value="21" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/reflect/ProxyTest.java</url>
+          <line>61</line>
+          <option name="timeStamp" value="29" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/reflect/ProxyTest.java</url>
+          <line>69</line>
+          <option name="timeStamp" value="31" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$USER_HOME$/.sdkman/candidates/java/11.0.6-amzn/lib/src.zip!/java.base/java/util/ServiceLoader.java</url>
+          <line>1689</line>
+          <option name="timeStamp" value="40" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/reflect/ProxyAnnoTest.java</url>
+          <line>36</line>
+          <option name="timeStamp" value="48" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/reflect/ProxyAnnoTest.java</url>
+          <line>58</line>
+          <option name="timeStamp" value="49" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/concurrent/LongAdderTest.java</url>
+          <line>16</line>
+          <option name="timeStamp" value="50" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$USER_HOME$/.sdkman/candidates/java/11.0.6-amzn/lib/src.zip!/java.base/java/util/concurrent/atomic/LongAdder.java</url>
+          <line>91</line>
+          <option name="timeStamp" value="54" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$USER_HOME$/.sdkman/candidates/java/11.0.6-amzn/lib/src.zip!/java.base/java/util/concurrent/atomic/Striped64.java</url>
+          <line>244</line>
+          <option name="timeStamp" value="56" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$USER_HOME$/.sdkman/candidates/java/11.0.6-amzn/lib/src.zip!/java.base/java/util/concurrent/atomic/Striped64.java</url>
+          <line>229</line>
+          <option name="timeStamp" value="57" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/concurrent/AbstractQueuedSynchronizerTest.java</url>
+          <line>20</line>
+          <option name="timeStamp" value="58" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$USER_HOME$/.sdkman/candidates/java/current/lib/src.zip!/java.base/java/util/concurrent/ArrayBlockingQueue.java</url>
+          <line>424</line>
+          <option name="timeStamp" value="59" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/concurrent/DelayQueueTest.java</url>
+          <line>16</line>
+          <option name="timeStamp" value="62" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/TreeMapTest.java</url>
+          <line>21</line>
+          <option name="timeStamp" value="63" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$USER_HOME$/.sdkman/candidates/java/current/lib/src.zip!/java.base/java/util/TreeMap.java</url>
+          <line>999</line>
+          <option name="timeStamp" value="69" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/PriorityQueueTest.java</url>
+          <line>35</line>
+          <option name="timeStamp" value="70" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/TreeMapTest.java</url>
+          <line>152</line>
+          <option name="timeStamp" value="71" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/concurrent/ThreadTest.java</url>
+          <line>360</line>
+          <option name="timeStamp" value="73" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/concurrent/ThreadTest.java</url>
+          <line>361</line>
+          <option name="timeStamp" value="74" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/concurrent/SemaphoreTest.java</url>
+          <line>66</line>
+          <option name="timeStamp" value="82" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$USER_HOME$/.sdkman/candidates/java/current/lib/src.zip!/java.base/java/util/concurrent/Semaphore.java</url>
+          <line>317</line>
+          <option name="timeStamp" value="83" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/concurrent/ForkJoinPoolTest.java</url>
+          <line>20</line>
+          <option name="timeStamp" value="84" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$USER_HOME$/.sdkman/candidates/java/current/lib/src.zip!/java.base/java/util/concurrent/ForkJoinPool.java</url>
+          <line>2164</line>
+          <option name="timeStamp" value="85" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$USER_HOME$/.sdkman/candidates/java/current/lib/src.zip!/java.base/java/util/concurrent/ForkJoinPool.java</url>
+          <line>2466</line>
+          <option name="timeStamp" value="87" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$USER_HOME$/.sdkman/candidates/java/current/lib/src.zip!/java.base/java/util/concurrent/ForkJoinPool.java</url>
+          <line>1913</line>
+          <option name="timeStamp" value="88" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/concurrent/ForkJoinPoolTest.java</url>
+          <line>49</line>
+          <option name="timeStamp" value="89" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$USER_HOME$/.sdkman/candidates/java/current/lib/src.zip!/java.base/java/util/concurrent/ForkJoinWorkerThread.java</url>
+          <line>172</line>
+          <option name="timeStamp" value="90" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$USER_HOME$/.sdkman/candidates/java/current/lib/src.zip!/java.base/java/util/concurrent/ForkJoinPool.java</url>
+          <line>1589</line>
+          <option name="timeStamp" value="91" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/vertx/VertTest.java</url>
+          <line>18</line>
+          <option name="timeStamp" value="92" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/nia/ch02/EchoTest.java</url>
+          <line>47</line>
+          <option name="timeStamp" value="97" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/nia/ch02/EchoTest.java</url>
+          <line>37</line>
+          <option name="timeStamp" value="98" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/nia/ch02/EchoTest.java</url>
+          <line>103</line>
+          <option name="timeStamp" value="100" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/simple/NettyServer.java</url>
+          <line>28</line>
+          <option name="timeStamp" value="101" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/simple/NettyServerHandler.java</url>
+          <line>33</line>
+          <option name="timeStamp" value="102" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/http/TestServerInitializer.java</url>
+          <line>24</line>
+          <option name="timeStamp" value="104" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/http/TestServerHandler.java</url>
+          <line>36</line>
+          <option name="timeStamp" value="105" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/buf/NettyByteBuf.java</url>
+          <line>23</line>
+          <option name="timeStamp" value="106" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/iobound/ByteToLongDecoder.java</url>
+          <line>27</line>
+          <option name="timeStamp" value="110" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/iobound/IoServerInitializer.java</url>
+          <line>20</line>
+          <option name="timeStamp" value="112" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/tcprotocol/TcprotocolServer.java</url>
+          <line>16</line>
+          <option name="timeStamp" value="114" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/diguage/truman/netty/tcprotocol/TcprotocolServer.java</url>
+          <line>19</line>
+          <option name="timeStamp" value="116" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$MAVEN_REPOSITORY$/io/netty/netty-all/4.1.50.Final/netty-all-4.1.50.Final-sources.jar!/io/netty/bootstrap/ServerBootstrap.java</url>
+          <line>82</line>
+          <option name="timeStamp" value="117" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$MAVEN_REPOSITORY$/io/netty/netty-all/4.1.50.Final/netty-all-4.1.50.Final-sources.jar!/io/netty/bootstrap/AbstractBootstrap.java</url>
+          <line>271</line>
+          <option name="timeStamp" value="121" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$MAVEN_REPOSITORY$/io/netty/netty-all/4.1.50.Final/netty-all-4.1.50.Final-sources.jar!/io/netty/bootstrap/AbstractBootstrap.java</url>
+          <line>280</line>
+          <option name="timeStamp" value="122" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$MAVEN_REPOSITORY$/io/netty/netty-all/4.1.50.Final/netty-all-4.1.50.Final-sources.jar!/io/netty/channel/socket/nio/NioServerSocketChannel.java</url>
+          <line>132</line>
+          <option name="timeStamp" value="124" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$MAVEN_REPOSITORY$/io/netty/netty-all/4.1.50.Final/netty-all-4.1.50.Final-sources.jar!/io/netty/channel/nio/NioEventLoop.java</url>
+          <line>438</line>
+          <option name="timeStamp" value="125" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$MAVEN_REPOSITORY$/io/netty/netty-all/4.1.50.Final/netty-all-4.1.50.Final-sources.jar!/io/netty/channel/nio/AbstractNioMessageChannel.java</url>
+          <line>74</line>
+          <option name="timeStamp" value="129" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$MAVEN_REPOSITORY$/io/netty/netty-all/4.1.50.Final/netty-all-4.1.50.Final-sources.jar!/io/netty/channel/nio/AbstractNioMessageChannel.java</url>
+          <line>92</line>
+          <option name="timeStamp" value="130" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <pin-to-top-manager>
+      <pinned-members>
+        <PinnedItemInfo typeName="java.util.TreeMap$Entry" fieldName="key" />
+      </pinned-members>
+    </pin-to-top-manager>
+  </component>
+</project>

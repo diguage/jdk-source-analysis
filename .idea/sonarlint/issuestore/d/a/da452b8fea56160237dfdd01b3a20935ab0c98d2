@@ -1,0 +1,53 @@
+
+A
+java:S1148"#Use a logger to log this exception.(Óùóÿ8ÓŠÚ£“.
+C
+java:S1181Ÿ"%Catch Exception instead of Throwable.(ëß‹™8òÉŞ£“.
+N	java:S106U"9Replace this use of System.out or System.err by a logger.(ŸùñÌ
+N	java:S106"9Replace this use of System.out or System.err by a logger.(½ğÖ²
+\
+java:S2142|"FEither re-interrupt this method or rethrow the "InterruptedException".(ä ¹€
+E
+java:S1444"*Make this "public static lock" field final(ğõçãùÿÿÿÿ
+>
+java:S1148W"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ
+A
+java:S1148 "#Use a logger to log this exception.(Óùóÿ8òÉŞ£“.
+S	java:S106<"9Replace this use of System.out or System.err by a logger.(èëÑÆûÿÿÿÿ
+C
+java:S1181"%Catch Exception instead of Throwable.(ëß‹™8ÓŠÚ£“.
+L
+java:S2696("6Make the enclosing method "static" or remove this set.(Ì‚ˆÌ
+S	java:S1066"9Replace this use of System.out or System.err by a logger.(ëƒïûıÿÿÿÿ
+W
+java:S3078R"AUse an "AtomicInteger" for this field; its operations are atomic.(ÇãÂ‘
+L
+java:S2696R"6Make the enclosing method "static" or remove this set.(ÇãÂ‘
+c
+java:S1104J"MMake i a static final constant or non-public and provide accessors if needed.(Ùó  
+V	java:S106"9Replace this use of System.out or System.err by a logger.(Ãëªõ8êß£“.
+a
+java:S2184E"FCast one of the operands of this multiplication operation to a "long".(´Î”Úşÿÿÿÿ
+=
+java:S1444 "'Make this "public static i" field final(€ˆé˜
+S	java:S106V"9Replace this use of System.out or System.err by a logger.(Ğö¶üÿÿÿÿ
+=
+java:S1444J"'Make this "public static i" field final(Ùó  
+k
+java:S1104"PMake lock a static final constant or non-public and provide accessors if needed.(ğõçãùÿÿÿÿ
+S	java:S106F"9Replace this use of System.out or System.err by a logger.(èëÑÆûÿÿÿÿ
+S	java:S106Z"9Replace this use of System.out or System.err by a logger.(Ğö¶üÿÿÿÿ
+V	java:S106©"9Replace this use of System.out or System.err by a logger.(Ñõ¬–8ê¹î£“.
+S	java:S106{"9Replace this use of System.out or System.err by a logger.(úÙ”¿ÿÿÿÿÿ
+\
+java:S2142T"FEither re-interrupt this method or rethrow the "InterruptedException".(ä ¹€
+V
+java:S2274z";Remove this call to "await" or move it into a "while" loop.(×œªìşÿÿÿÿ
+k
+java:S1104K"PMake lock a static final constant or non-public and provide accessors if needed.(¼„óšıÿÿÿÿ
+>
+java:S1148}"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ
+[	java:S106Œ"9Replace this use of System.out or System.err by a logger.(á«úÂúÿÿÿÿ8ßºâ£“.
+V	java:S125C"<This block of commented-out lines of code should be removed.(Íô™ûüÿÿÿÿ
+c
+java:S1104 "MMake i a static final constant or non-public and provide accessors if needed.(€ˆé˜

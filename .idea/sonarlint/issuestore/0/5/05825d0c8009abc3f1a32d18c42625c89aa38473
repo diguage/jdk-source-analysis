@@ -1,0 +1,11 @@
+
+Z	java:S106H"9Replace this use of System.out or System.err by a logger.(õ·İÇşÿÿÿÿ8†ÇîÓ•.
+Z	java:S106K"9Replace this use of System.out or System.err by a logger.(ÂÊ¯ßüÿÿÿÿ8†ÇîÓ•.
+Z	java:S106"9Replace this use of System.out or System.err by a logger.(†Ë¨şÿÿÿÿ8§ãâÒ•.
+Z	java:S106@"9Replace this use of System.out or System.err by a logger.(õ·İÇşÿÿÿÿ8†ÇîÓ•.
+T	java:S106Q"9Replace this use of System.out or System.err by a logger.(Ñ±¡y8§ãâÒ•.
+Z	java:S106U"9Replace this use of System.out or System.err by a logger.(˜üÚûÿÿÿÿ8§ãâÒ•.
+Z	java:S106"9Replace this use of System.out or System.err by a logger.(»¸…Äúÿÿÿÿ8§ãâÒ•.
+]
+java:S2133S"@Remove this object instantiation and use "Object.class" instead.(ò€¯™8§ãâÒ•.
+Z	java:S106C"9Replace this use of System.out or System.err by a logger.(ÂÊ¯ßüÿÿÿÿ8†ÇîÓ•.

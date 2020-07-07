@@ -1,0 +1,27 @@
+
+@
+java:S1181:"%Catch Exception instead of Throwable.(‡˜ÚÚøÿÿÿÿ
+S	java:S106N"9Replace this use of System.out or System.err by a logger.(ñ—¸½úÿÿÿÿ
+>
+java:S1148b"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ
+e
+java:S2095"JUse try-with-resources or close this "ServerSocket" in a "finally" clause.(íîÁ¿ùÿÿÿÿ
+>
+java:S1148;"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ
+>
+java:S1148R"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ
+@
+java:S1181a"%Catch Exception instead of Throwable.(‡˜ÚÚøÿÿÿÿ
+S	java:S106\"9Replace this use of System.out or System.err by a logger.(óôƒÑûÿÿÿÿ
+_
+java:S2095E"DUse try-with-resources or close this "Socket" in a "finally" clause.(Ø»œóûÿÿÿÿ
+@
+java:S1181*"%Catch Exception instead of Throwable.(‡˜ÚÚøÿÿÿÿ
+S	java:S1065"9Replace this use of System.out or System.err by a logger.(óôƒÑûÿÿÿÿ
+>
+java:S1148+"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ
+@
+java:S1181Q"%Catch Exception instead of Throwable.(‡˜ÚÚøÿÿÿÿ
+S	java:S106'"9Replace this use of System.out or System.err by a logger.(ñ—¸½úÿÿÿÿ
+O
+java:S1135"2Complete the task associated to this TODO comment.(ÃÀ›8ûåöœ—.

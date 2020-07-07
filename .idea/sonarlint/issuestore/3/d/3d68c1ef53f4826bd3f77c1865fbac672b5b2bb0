@@ -1,0 +1,29 @@
+
+S	java:S106"9Replace this use of System.out or System.err by a logger.(ïïï’ÿÿÿÿÿ
+>	java:S108")Either remove or fill this block of code.(¤òÏ¶
+Z	java:S1064"9Replace this use of System.out or System.err by a logger.(ïïï’ÿÿÿÿÿ8áÇ‘›.
+E	java:S108J")Either remove or fill this block of code.(¤òÏ¶8áÇ‘›.
+Z	java:S106-"9Replace this use of System.out or System.err by a logger.(–ƒç—şÿÿÿÿ8áÇ‘›.
+~
+java:S41448"\Update this method so that its implementation is not identical to "testCallable" on line 31.(åŠ¦£ùÿÿÿÿ8áÇ‘›.
+Z	java:S106E"9Replace this use of System.out or System.err by a logger.(–ƒç—şÿÿÿÿ8áÇ‘›.
+Z	java:S106L"9Replace this use of System.out or System.err by a logger.(ïïï’ÿÿÿÿÿ8áÇ‘›.
+c
+java:S2142s"FEither re-interrupt this method or rethrow the "InterruptedException".(ä ¹€8áÇ‘›.
+E
+java:S1148t"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8áÇ‘›.
+E	java:S1082")Either remove or fill this block of code.(¤òÏ¶8áÇ‘›.
+E
+java:S1068P"(Remove this unused "name" private field.(Ú§×œ8áÇ‘›.
+U	java:S106l"9Replace this use of System.out or System.err by a logger.(ê¯î£8áÇ‘›.
+U	java:S106g"9Replace this use of System.out or System.err by a logger.(ê¯î£8áÇ‘›.
+c
+java:S2142."FEither re-interrupt this method or rethrow the "InterruptedException".(üŸ´Â8áÇ‘›.
+E
+java:S1148/"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8áÇ‘›.
+E
+java:S1148G"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8áÇ‘›.
+c
+java:S2142F"FEither re-interrupt this method or rethrow the "InterruptedException".(üŸ´Â8áÇ‘›.
+p
+java:S1192"UDefine a constant instead of duplicating this literal "Finish all thread..." 3 times.(ïïï’ÿÿÿÿÿ

@@ -1,0 +1,19 @@
+
+S	java:S106"9Replace this use of System.out or System.err by a logger.(Ó¹ª÷8ûæÉÇ•.
+X	java:S106"9Replace this use of System.out or System.err by a logger.(Óè¬µüÿÿÿÿ8Ü©İÇ•.
+S	java:S106"9Replace this use of System.out or System.err by a logger.(’ªà¾8À™öÆ•.
+G
+java:S1068"'Remove this unused "age" private field.(‰†¸ûÿÿÿÿ8³ÿßÇ•.
+S	java:S106"9Replace this use of System.out or System.err by a logger.(›­èà8³ÿßÇ•.
+X	java:S106"9Replace this use of System.out or System.err by a logger.(ö‰æŸùÿÿÿÿ8Æ¨Ç•.
+X	java:S106"9Replace this use of System.out or System.err by a logger.(æ¸ó¨ùÿÿÿÿ8òşÜÇ•.
+S	java:S106"9Replace this use of System.out or System.err by a logger.(òÆ°ü8›ÂÿÆ•.
+X	java:S106"9Replace this use of System.out or System.err by a logger.(Ì™ìÈøÿÿÿÿ8Æ¨Ç•.
+H
+java:S1068"(Remove this unused "name" private field.(–™¬õùÿÿÿÿ8³ÿßÇ•.
+S	java:S106"9Replace this use of System.out or System.err by a logger.(š³ä‚8Õ«àÇ•.
+X	java:S106"9Replace this use of System.out or System.err by a logger.(ş¬üÊıÿÿÿÿ8Æ¨Ç•.
+R	java:S106"9Replace this use of System.out or System.err by a logger.(‘úëM8¸½›Ç•.
+X	java:S106"9Replace this use of System.out or System.err by a logger.(Úì»Ğøÿÿÿÿ8ª¹öÆ•.
+X	java:S106"9Replace this use of System.out or System.err by a logger.(ß½‚±üÿÿÿÿ8ûæÉÇ•.
+R	java:S106"9Replace this use of System.out or System.err by a logger.(æÆ88Æ¨Ç•.

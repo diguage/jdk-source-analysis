@@ -1,0 +1,79 @@
+
+C
+java:S1148"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8ÃÂ”È•.
+g
+java:S1104"MMake i a static final constant or non-public and provide accessors if needed.(¿©Ş,8İòÈ•.
+S	java:S106"9Replace this use of System.out or System.err by a logger.(‰“²8ÖÜ—È•.
+S	java:S106"9Replace this use of System.out or System.err by a logger.(Ùôèæ8÷Ë¢È•.
+a
+java:S2142"FEither re-interrupt this method or rethrow the "InterruptedException".(ä ¹€8”é±¾•.
+S	java:S106"9Replace this use of System.out or System.err by a logger.(ÃùÔ8”é±¾•.
+X	java:S106"9Replace this use of System.out or System.err by a logger.(®İöúøÿÿÿÿ8ÃÂ”È•.
+|
+java:S1192"\Define a constant instead of duplicating this literal "thread2 got monitor lock..." 3 times.(®İöúøÿÿÿÿ8‹•È•.
+Z
+java:S2274":Remove this call to "wait" or move it into a "while" loop.(˜Ç£ıÿÿÿÿÿ8ÖÜ—È•.
+_
+java:S1124"EReorder the modifiers to comply with the Java Language Specification.(¿©Ş,8İòÈ•.
+[	java:S125"<This block of commented-out lines of code should be removed.(ñ¥ùšøÿÿÿÿ8İòÈ•.
+a
+java:S3078"AUse an "AtomicInteger" for this field; its operations are atomic.(«¡µÓûÿÿÿÿ8İòÈ•.
+S	java:S106"9Replace this use of System.out or System.err by a logger.(ÃùÔ8”é±¾•.
+^
+java:S2276"CReplace the call to "Thread.sleep(...)" with a call to "wait(...)".(×ş¼È8ëøÈ•.
+S	java:S106"9Replace this use of System.out or System.err by a logger.(ÃùÔ8È§¶¾•.
+S	java:S106"9Replace this use of System.out or System.err by a logger.(Ùôèæ8ãÀ™È•.
+B
+java:S2189""Add an end condition to this loop.(˜ïˆÿÿÿÿÿ8İòÈ•.
+C
+java:S1148"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8İòÈ•.
+X	java:S106"9Replace this use of System.out or System.err by a logger.(®Ô¨şÿÿÿÿ8İòÈ•.
+^
+java:S2276"CReplace the call to "Thread.sleep(...)" with a call to "wait(...)".(¯ú™ú8† £È•.
+C
+java:S1148"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8ëøÈ•.
+a
+java:S2142"FEither re-interrupt this method or rethrow the "InterruptedException".(ä ¹€8ÃÂ”È•.
+C
+java:S1148"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8‹•È•.
+a
+java:S2142"FEither re-interrupt this method or rethrow the "InterruptedException".(ä ¹€8‹•È•.
+f
+java:S2184"FCast one of the operands of this multiplication operation to a "long".(´Î”Úşÿÿÿÿ8”é±¾•.
+S	java:S106"9Replace this use of System.out or System.err by a logger.(ÃùÔ8”é±¾•.
+a
+java:S2142"FEither re-interrupt this method or rethrow the "InterruptedException".(ä ¹€8ëøÈ•.
+R	java:S106"9Replace this use of System.out or System.err by a logger.(»Õ®I8”é±¾•.
+_
+java:S2184"FCast one of the operands of this multiplication operation to a "long".(´Î”Úşÿÿÿÿ
+J
+java:S1481"*Remove this unused "child" local variable.(”Ä‹¾ÿÿÿÿÿ8İòÈ•.
+a
+java:S2142"FEither re-interrupt this method or rethrow the "InterruptedException".(ä ¹€8İòÈ•.
+V
+java:S2696"6Make the enclosing method "static" or remove this set.(«¡µÓûÿÿÿÿ8”é±¾•.
+X	java:S106"9Replace this use of System.out or System.err by a logger.(®İöúøÿÿÿÿ8‹•È•.
+H	java:S108")Either remove or fill this block of code.(«¡µÓûÿÿÿÿ8İòÈ•.
+C
+java:S1148"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8”é±¾•.
+Q	java:S106"9Replace this use of System.out or System.err by a logger.(ı¬Ìùÿÿÿÿ
+S	java:S106"9Replace this use of System.out or System.err by a logger.(ÃùÔ8İòÈ•.
+R	java:S106"9Replace this use of System.out or System.err by a logger.(ı½´F8Çº‘È•.
+X	java:S106"9Replace this use of System.out or System.err by a logger.(•Ïõôıÿÿÿÿ8”é±¾•.
+S	java:S106"9Replace this use of System.out or System.err by a logger.(‰“²8÷Ë¢È•.
+S	java:S106"9Replace this use of System.out or System.err by a logger.(ÃùÔ8”é±¾•.
+A
+java:S1444"'Make this "public static i" field final(¿©Ş,8İòÈ•.
+V
+java:S2696"6Make the enclosing method "static" or remove this set.(«¡µÓûÿÿÿÿ8İòÈ•.
+X	java:S106"9Replace this use of System.out or System.err by a logger.(’¯¥Óûÿÿÿÿ8İòÈ•.
+K
+java:S1481"0Remove this unused "threadLocal" local variable.(¯Õ­“8İòÈ•.
+f
+java:S2184"FCast one of the operands of this multiplication operation to a "long".(«ÍÑ±üÿÿÿÿ8İòÈ•.
+R
+java:S1135"2Complete the task associated to this TODO comment.(Âòç¤øÿÿÿÿ8İòÈ•.
+X	java:S106"9Replace this use of System.out or System.err by a logger.(®İöúøÿÿÿÿ8ëøÈ•.
+U
+java:S1118":Add a private constructor to hide the implicit public one.(±¬ÏŞ8İòÈ•.
+X	java:S106"9Replace this use of System.out or System.err by a logger.(¿Ç²²şÿÿÿÿ8İòÈ•.

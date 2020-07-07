@@ -1,0 +1,10 @@
+
+E	java:S108")Either remove or fill this block of code.(¤òÏ¶8ÜÄâš.
+U	java:S106"9Replace this use of System.out or System.err by a logger.(Œä¸Æ8ĞßÑš.
+h
+java:S2142/"FEither re-interrupt this method or rethrow the "InterruptedException".(ÿÑ¨çıÿÿÿÿ8§Ôš.
+Z	java:S106"9Replace this use of System.out or System.err by a logger.(÷ØôÁøÿÿÿÿ8ÜÄâš.
+U	java:S106*"9Replace this use of System.out or System.err by a logger.(ÒÜÜì8»ÔØš.
+E
+java:S11480"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8§Ôš.
+Z	java:S106-"9Replace this use of System.out or System.err by a logger.(È‰İóøÿÿÿÿ8»ÔØš.

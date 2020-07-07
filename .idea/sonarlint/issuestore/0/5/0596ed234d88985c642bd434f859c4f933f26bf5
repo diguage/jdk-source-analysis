@@ -1,0 +1,13 @@
+
+j
+java:S3027"JPut single-quotes around '/' to use the faster "lastIndexOf(char)" method.(œùÚıúÿÿÿÿ8İ÷ÖĞ•.
+I
+java:S1128")Remove this unused import 'java.net.URL'.(ñìÁ„üÿÿÿÿ8„ÃéÑ•.
+Q	java:S106"9Replace this use of System.out or System.err by a logger.(ìã™òûÿÿÿÿ
+C
+java:S1148"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8¹¸ÊĞ•.
+j
+java:S3027"JPut single-quotes around '.' to use the faster "lastIndexOf(char)" method.(ŠÏÒÅúÿÿÿÿ8Â‡åĞ•.
+L	java:S106"9Replace this use of System.out or System.err by a logger.(ñ×ç’
+L	java:S106"9Replace this use of System.out or System.err by a logger.(ú¼¯ó
+X	java:S106"9Replace this use of System.out or System.err by a logger.(ôÜå¨øÿÿÿÿ8ò„óĞ•.

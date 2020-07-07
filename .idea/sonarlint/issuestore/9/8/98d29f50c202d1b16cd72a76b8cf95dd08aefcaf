@@ -1,0 +1,17 @@
+
+U	java:S1061"9Replace this use of System.out or System.err by a logger.(Ã„ëÂ8¿Ø·Ó•.
+U	java:S1060"9Replace this use of System.out or System.err by a logger.(´†µÁ8¿Ø·Ó•.
+Z	java:S1066"9Replace this use of System.out or System.err by a logger.(ôàÔçøÿÿÿÿ8¿Ø·Ó•.
+U	java:S106("9Replace this use of System.out or System.err by a logger.(Ÿ°ÊÌ8¿Ø·Ó•.
+Z	java:S106&"9Replace this use of System.out or System.err by a logger.(ŸêÿÉùÿÿÿÿ8¿Ø·Ó•.
+Z	java:S106'"9Replace this use of System.out or System.err by a logger.(¸ššÕüÿÿÿÿ8¿Ø·Ó•.
+Z	java:S106-"9Replace this use of System.out or System.err by a logger.(ú€­ßûÿÿÿÿ8¿Ø·Ó•.
+U	java:S1067"9Replace this use of System.out or System.err by a logger.(ìºã§8¿Ø·Ó•.
+U	java:S106:"9Replace this use of System.out or System.err by a logger.(÷øÿÕ8¿Ø·Ó•.
+Z	java:S1064"9Replace this use of System.out or System.err by a logger.(„ŽÜàþÿÿÿÿ8¿Ø·Ó•.
+Z	java:S106<"9Replace this use of System.out or System.err by a logger.(™¾™ýÿÿÿÿ8¿Ø·Ó•.
+j
+java:S53618"HReplace this call to "replaceAll()" by a call to the "replace()" method.(…Ýð½ûÿÿÿÿ8¿Ø·Ó•.
+Z	java:S1063"9Replace this use of System.out or System.err by a logger.(€©¡ýÿÿÿÿ8¿Ø·Ó•.
+P
+java:S1481.".Remove this unused "className" local variable.(Ç¦¨¾ÿÿÿÿÿ8¿Ø·Ó•.
