@@ -1,6 +1,6 @@
 package com.diguage.truman.netty;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author D瓜哥, https://www.diguage.com/
