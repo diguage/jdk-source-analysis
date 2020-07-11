@@ -161,7 +161,7 @@
           <attributes>
             <sourcedir>${project.build.sourceDirectory}/com/diguage/truman</sourcedir>
             <basedir>${project.basedir}</basedir>
-            <sourceHighlighter>rouge</sourceHighlighter>
+            <source-highlighter>rouge</source-highlighter>
             <rouge-linenums-mode>table</rouge-linenums-mode>
             <rouge-style>monokai</rouge-style>
             <imagesdir>.</imagesdir>
@@ -173,8 +173,7 @@
             <sectnumlevels>3</sectnumlevels>
             <sectanchors>true</sectanchors>
             <graphvizdot>/usr/local/bin/dot</graphvizdot>
-            <source_attr>linenums,indent=0,subs="attributes,verbatim"</source_attr>
-            <java_src_attr>source%nowrap,java,{source_attr}</java_src_attr>
+            <source_attr>linenums,indent=0,subs="attributes,verbatim,quotes"</source_attr>
             <diagram_attr>format=svg,align="center",width=100%</diagram_attr>
           </attributes>
         </configuration>
