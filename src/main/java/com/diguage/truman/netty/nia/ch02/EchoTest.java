@@ -119,15 +119,6 @@ public class EchoTest {
     }
   }
 
-  public static class EchoServer {
-    private final int port;
-
-    public EchoServer(int port) {
-      this.port = port;
-    }
-
-  }
-
   public static class EchoClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {

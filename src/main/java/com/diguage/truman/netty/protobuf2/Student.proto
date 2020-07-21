@@ -1,0 +1,40 @@
+syntax = "proto3"; // 版本号
+option optimize_for = SPEED;
+option java_package = "com.diguage.truman.netty.protobuf2";
+
+option java_outer_classname = "MyDataInfo"; // 生成的外部类名，同时也是文件名
+
+// protobuf 使用 message 管理数据
+// protobuf 可以使用 message 管理其他的 message
+
+message MyMessage {
+    // 定义一个枚举
+    enum DataType {
+        StudentType = 0; // 在 proto3 中，要求 enum 的编号从 0 开始
+        WorkerType = 1;
+    }
+
+    // 用 data_type 来标识传的是哪一个枚举类型？
+    DataType data_type = 1;
+
+    // 表示每次枚举类型最多只能出现其中的一个，节省空间
+    oneof dataBody {
+        Student student = 2;
+        Worker worker = 3;
+    }
+}
+
+// 会在 StudentPOJO 外部类生成一个内部类 Student，
+message Student {
+    int32 id = 1; // 在 Student 类中有一个属性名称为 id 类型为 int32，1表示属性序号，不是值
+    string name = 2;
+}
+
+message Worker {
+    string name = 1;
+    int32 age = 2;
+}
+
+// 在这个文件所在目录执行如下命令，生成Java类：
+// protoc --java_out=. Student.proto
+// WARNING: 需要给生成的类，加上 package 名。

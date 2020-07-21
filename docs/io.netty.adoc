@@ -221,6 +221,553 @@ include::{sourcedir}/netty/http/TestServerInitializer.java[]
 include::{sourcedir}/netty/http/TestServerHandler.java[]
 ----
 
+[{java_src_attr}]
+----
+
+ServerBootstrap bootstrap = new ServerBootstrap();
+bootstrap.group(bossGroup, workerGroup)
+  .handler(null) // 添加到 bossGroup
+  .childHandler(null); // 添加到 workerGroup
+----
+
+核心 API
+
+. `Bootstrap`
+. `ServerBootstrap`
+. `Channel`
+. `ChannelFuture`
+. `ChannelHandler`
+. `ChannelHandlerContext` -- `ChannelHandler` 中包含了一个 `ChannelHandlerContext`。
+. `ChannelInboundHandler` 用于处理入站 I/O 事件
+. `ChannelOutboundHandler` 用于处理出站 I/O 事件
+//. `ChannelDuplexHandler` 用于处理入站和出站事件
+. `ChannelPipeline` -- 一个重点。`ChannelPipeline` 是一个 Handler 的集合，它负责处理和拦截 inbound 或 outbound 的事件和操作，相当于一个贯穿 Netty 的链。
+
+
+[plantuml,{diagram_attr}]
+....
+@startuml
+skinparam nodesep 100
+'skinparam ranksep 60
+
+title <b>ChannelHandler 继承体系</b>
+
+interface ChannelInboundHandler extends ChannelHandler
+interface ChannelOutboundHandler extends ChannelHandler
+
+abstract class ChannelHandlerAdapter implements ChannelHandler
+
+class ChannelInboundHandlerAdapter extends ChannelHandlerAdapter implements ChannelInboundHandler
+class ChannelOutboundHandlerAdapter extends ChannelHandlerAdapter implements ChannelOutboundHandler
+
+@enduml
+....
+
+`ChannelHandler` 是一个很庞大的体系，也是 Netty 中非常核心的知识点。
+
+在 Netty 中，每个 Channel 都有且仅有一个 `ChannelPipeline` 与之对应。
+
+=== `ChannelHandlerContext`
+
+`ChannelHandlerContext` 和 `ChannelHandler` 属于一对一关系。
+
+=== `ChannelOption`
+
+. `ChannelOption.SO_BACKLOG` -- 对应 TCP/IP 协议 `listen` 函数中的 `backlog` 参数，用于初始化服务器可连接队列大小。服务端处理客户端连接请求是顺序处理的，所以同一时间只能处理一个客户端连接。多个客户端来的时候，服务端将不能处理的客户端连接请求放在队列中等待处理，`backlog` 参数指定了队列大小。
+. `ChannelOption.SO_KEEPALIVE` -- 一直保持连接活动状态。
+
+
+可以从下面三个方面来学习网络编程
+
+. 结合 epoll 源码，来说说 Java NIO 的实现。
+. 了解 Linux 网络编程接口
+. Java JDK 中对 Linux 网络编程接口的封装
+
+
+`Unpooled` 操作缓冲区的。
+
+
+
+`HttpObjectAggregator` 这个 Handler 可以实现报文聚合。怎么实现的？
+
+在自定义 Handler 之前，经历过哪些 Handler？
+
+`io.netty.handler.codec.ByteToMessageDecoder.decode` 这个方法会被反复调用，直到确定没有新的元素被添加到list，或者 `ByteBuf` 没有更多的可读字节为止。__这是怎么实现的？__
+
+
+.`io.netty.handler.codec.MessageToByteEncoder.write`
+[{java_src_attr},highlight=5..24]
+----
+@Override
+public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+    ByteBuf buf = null;
+    try {
+        if (acceptOutboundMessage(msg)) {
+            @SuppressWarnings("unchecked")
+            I cast = (I) msg;
+            buf = allocateBuffer(ctx, cast, preferDirect);
+            try {
+                encode(ctx, cast, buf);
+            } finally {
+                ReferenceCountUtil.release(cast);
+            }
+
+            if (buf.isReadable()) {
+                ctx.write(buf, promise);
+            } else {
+                buf.release();
+                ctx.write(Unpooled.EMPTY_BUFFER, promise);
+            }
+            buf = null;
+        } else {
+            ctx.write(msg, promise);
+        }
+    } catch (EncoderException e) {
+        throw e;
+    } catch (Throwable e) {
+        throw new EncoderException(e);
+    } finally {
+        if (buf != null) {
+            buf.release();
+        }
+    }
+}
+----
+
+在 `ReplayingDecoder` 不需要判断数据是否足够读取，内部会进行处理判断。它是怎么实现的？
+
+`ReplayingDecoder` 有如下问题：
+
+. 并不是所有的 `ByteBuf` 操作都支持，如果调用了一个不支持的方法，就会抛出 `UnsupportedOperationException`
+. 在某些情况下可能稍慢于 `ByteToMessageDecoder`，例如网络缓慢并且消息格式复杂时，消息会被拆成多个碎片，速度变慢。
+
+有很多编解码器
+
+. `LineBasedFrameDecoder`
+. `DelimiterBasedFrameDecoder`
+. `HttpObjectDecoder`
+. `LengthFieldBasedFrameDecoder`
+
+=== TCP 粘包和拆包
+
+遇到异常就关闭连接，这样做合适吗？工程化的做法应该是怎么样的？如何重连或者重试？
+
+粘包好奇怪，为什么第一次全部接受？后面的确开始不规则接受呢？
+
+解决粘包问题的关键是解决服务器端每次读取数据长度的问题，这个问题解决，就不会出现服务器多读或者少读数据的问题，从而避免 TCP 粘包、拆包的问题。
+
+
+== 源码分析
+
+. `doBind` 方法
+. `NioEventLoop` 中的 `run`
+
+
+`io.netty.bootstrap.AbstractBootstrap.doBind` 建立 NIO 和 Netty 之间的联系。
+
+`io.netty.channel.socket.nio.NioServerSocketChannel.doBind` 是一个重要的点。
+
+执行到 `io.netty.channel.AbstractChannel.AbstractUnsafe.safeSetSuccess` 方法，就说明 promise 任务成功了。
+
+
+`new NioEventLoopGroup()` 如果不指定参数，则默认创建的个数是内核数*2。
+
+`io.netty.bootstrap.AbstractBootstrap.initAndRegister` 是源码分析的一个关键方法。
+
+在 `io.netty.bootstrap.ServerBootstrap.init` 方法中完成了，`Channel` 和 `ChannelPipeline` 的关联。
+
+`ChannelPipeline` 是一个双向链表，但是 `head` 和 `tail` 节点是空节点，添加和删除 Handler 都是在这两个节点之间进行。
+
+调用 `ChannelPipeline` 的 `addLast` 方法增加 `ChannelHandler`，最后是在 `io.netty.channel.DefaultChannelPipeline.addLast(EventExecutorGroup, String, ChannelHandler)` 方法中，将 `ChannelHandler` 封装成了 `ChannelHandlerContext`，然后添加到 `ChannelPipeline` 链上的。
+
+`io.netty.channel.nio.NioEventLoop.run` 方法中封装了事件轮询。
+
+`io.netty.channel.socket.nio.NioServerSocketChannel.doReadMessages` 方法中，把 NIO 的 `SocketChannel` 封装成了 Netty 的 `NioSocketChannel` 对象。
+
+
+== 自定义 Dubbo
+
+[{java_src_attr}]
+----
+include::{sourcedir}/bytebuddy/ByteBuddyTest.java[]
+----
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/buf/NettyByteBuf.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/chats/GroupChatClient.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/chats/GroupChatClientHandler.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/chats/GroupChatServer.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/chats/GroupChatServerHandler.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/dubbo/consumer/DubboClientBootstrap.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/dubbo/interfaces/HelloService.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/dubbo/netty/NettyClient.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/dubbo/netty/NettyClientHandler.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/dubbo/netty/NettyServer.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/dubbo/netty/NettyServerHandler.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/dubbo/provider/DubboServerBootstrap.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/dubbo/provider/HelloServiceImpl.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/hearts/MyServer.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/hearts/MyServerHandler.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/iobound/ByteToLongDecoder.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/iobound/ByteToLongDecoder2.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/iobound/IoClient.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/iobound/IoClientHandler.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/iobound/IoClientInitializer.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/iobound/IoServer.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/iobound/IoServerHandler.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/iobound/IoServerInitializer.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/iobound/LongToByteEncoder.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/protobuf/ClientHandler.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/protobuf/ProtobufClient.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/protobuf/ProtobufServer.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/protobuf/ServerHandler.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/protobuf/Student.proto[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/protobuf/StudentPOJO.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/protobuf2/ClientHandler.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/protobuf2/MyDataInfo.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/protobuf2/ProtobufClient2.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/protobuf2/ProtobufServer2.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/protobuf2/ServerHandler.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/protobuf2/Student.proto[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/tcp/TcpClient.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/tcp/TcpClientHandler.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/tcp/TcpClientInitializer.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/tcp/TcpServer.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/tcp/TcpServerHandler.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/tcp/TcpServerInitializer.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/tcprotocol/MessageDecoder.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/tcprotocol/MessageEncoder.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/tcprotocol/MessageProtocol.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/tcprotocol/TcpClientHandler.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/tcprotocol/TcpClientInitializer.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/tcprotocol/TcpServerHandler.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/tcprotocol/TcpServerInitializer.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/tcprotocol/TcprotocolClient.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/tcprotocol/TcprotocolServer.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/ws/Server.java[]
+----
+
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/netty/ws/TextWebSocketFrameHandler.java[]
+----
+
+
+
+[{html_src_attr}]
+----
+include::{sourcedir}/netty/ws/hello.html[]
+----
+
 
 
 

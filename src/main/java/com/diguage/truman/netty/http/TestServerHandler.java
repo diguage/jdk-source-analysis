@@ -34,6 +34,8 @@ public class TestServerHandler extends SimpleChannelInboundHandler<HttpObject> {
     // 判断 msg 是不是一个 HttpRequest 请求
     if (msg instanceof HttpRequest) {
 
+      System.out.println("ctx 类型 " + ctx.getClass().getName());
+
       System.out.println("pipeline hashcode=" + ctx.pipeline().hashCode()
         + " TestServerHandler hash=" + this.hashCode());
 

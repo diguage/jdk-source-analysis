@@ -1,4 +1,4 @@
-package com.diguage.truman.netty.simple;
+package com.diguage.truman.netty.protobuf;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -11,14 +11,21 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * @author D瓜哥, https://www.diguage.com/
  * @since 2020-06-27 19:41
  */
-public class NettyClientHandler extends ChannelInboundHandlerAdapter {
+public class ClientHandler extends ChannelInboundHandlerAdapter {
   /**
    * 当通道就绪就会触发该方法
    */
   @Override
   public void channelActive(ChannelHandlerContext ctx) throws Exception {
     System.out.println("client " + ctx);
-    ctx.writeAndFlush(Unpooled.copiedBuffer("Hello, D瓜哥，ping -> \\(^o^)/", UTF_8));
+
+    StudentPOJO.Student student = StudentPOJO.Student
+      .newBuilder()
+      .setId(119)
+      .setName("D瓜哥")
+      .build();
+
+    ctx.writeAndFlush(student);
   }
 
   /**

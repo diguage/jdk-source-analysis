@@ -1,17 +1,19 @@
-package com.diguage.truman.netty.simple;
+package com.diguage.truman.netty.protobuf2;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.protobuf.ProtobufEncoder;
 
 /**
  * @author D瓜哥, https://www.diguage.com/
  * @since 2020-06-27 19:35
  */
-public class NettyClient {
+public class ProtobufClient2 {
   public static void main(String[] args) throws InterruptedException {
     // 客户端只需要一个事件循环组即可
     NioEventLoopGroup group = new NioEventLoopGroup();
@@ -25,7 +27,10 @@ public class NettyClient {
         .handler(new ChannelInitializer<SocketChannel>() {
           @Override
           protected void initChannel(SocketChannel ch) throws Exception {
-            ch.pipeline().addLast(new NettyClientHandler()); // 加入自己的处理器
+            ChannelPipeline pipeline = ch.pipeline();
+            // 加入 protobuf handler
+            pipeline.addLast("encoder", new ProtobufEncoder());
+            pipeline.addLast(new ClientHandler()); // 加入自己的处理器
           }
         });
       System.out.println("....客户端 OK ...");
