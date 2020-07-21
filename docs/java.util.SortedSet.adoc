@@ -6,9 +6,9 @@
 
 跳跃表就是 Redis 中有序集合键的底层实现之一。
 
-****
-还有其他什么实现？
-****
+// ****
+// 还有其他什么实现？
+// ****
 
 .server.h
 [source,c,{source_attr}]
@@ -37,7 +37,7 @@ typedef struct zset {
 
 skiplist，顾名思义，首先它是一个list。实际上，它是在有序链表的基础上发展起来的。
 
-image::images/skiplist.png[]
+image::images/redis/skiplist.png[{image_attr}]
 
 当我们想查找数据的时候，可以先沿着跨度大的链进行查找。当碰到比待查数据大的节点时，再回到跨度小的链表中进行查找。
 
@@ -45,7 +45,7 @@ skiplist正是受这种多层链表的想法的启发而设计出来的。按照
 
 skiplist为了避免这一问题，它不要求上下相邻两层链表之间的节点个数有严格的对应关系，而是为每个节点随机出一个层数(level)。
 
-image::images/redis-skiplist-insertions.png[]
+image::images/redis/redis-skiplist-insertions.png[{image_attr}]
 
 插入操作只需要修改插入节点前后的指针，而不需要对很多节点都进行调整。这就降低了插入操作的复杂度。实际上，这是 skiplist 的一个很重要的特性，这让它在插入性能上明显优于平衡树的方案。
 
@@ -56,7 +56,7 @@ skiplist，翻译成中文，可以翻译成“跳表”或“跳跃表”，指
 . 在平衡树种，如何做范围查找？先确定边界，然后其他节点怎么查找？
 ****
 
-image::images/redis_skiplist_example.png[]
+image::images/redis/redis_skiplist_example.png[{image_attr}]
 
 . skiplist 中 key 允许重复。
 . 在比较时，不仅比较分数（即key），还要比较数据自身。
@@ -77,33 +77,73 @@ Redis 中的有序集合（sorted set），是在 skiplist, dict 和 ziplist 基
 
 [source,bash,{source_attr}]
 ----
-127.0.0.1:6379> ZADD myzset 1 "one"
-(integer) 1
-127.0.0.1:6379> ZADD myzset 1 "uno"
-(integer) 1
-127.0.0.1:6379> ZADD myzset 2 "two" 3 "three"
-(integer) 2
-127.0.0.1:6379> ZRANGE myzset 0 -1 WITHSCORES
-1) "one"
-2) "1"
-3) "uno"
-4) "1"
-5) "two"
-6) "2"
-7) "three"
-8) "3"
-127.0.0.1:6379> OBJECT encoding myzset
-"ziplist"
+$ redis-cli --raw
 
-127.0.0.1:6379> ZADD myzset 4 "1234567890123456789012345678901234567890123456789012345678901234S"
-(integer) 1
-127.0.0.1:6379> OBJECT encoding myzset
-"skiplist"
+127.0.0.1:6379> ZADD NameRanking 1 "D瓜哥"
+1
+
+127.0.0.1:6379> ZADD NameRanking 2 "https://www.diguage.com"
+1
+
+127.0.0.1:6379> ZADD NameRanking 3 "https://github.com/diguage"
+1
+
+127.0.0.1:6379> ZRANGE NameRanking 0 -1 WITHSCORES
+D瓜哥
+1
+https://www.diguage.com
+2
+https://github.com/diguage
+3
+
+127.0.0.1:6379> TYPE NameRanking
+zset
+
+127.0.0.1:6379> OBJECT encoding NameRanking
+ziplist
+
+127.0.0.1:6379> ZADD NameRanking 4 "1234567890123456789012345678901234567890123456789012345678901234"
+1
+
+127.0.0.1:6379> ZRANGE NameRanking 0 -1 WITHSCORES
+D瓜哥
+1
+https://www.diguage.com
+2
+https://github.com/diguage
+3
+1234567890123456789012345678901234567890123456789012345678901234
+4
+
+127.0.0.1:6379> OBJECT encoding NameRanking
+ziplist
+
+127.0.0.1:6379> ZADD NameRanking 5 "12345678901234567890123456789012345678901234567890123456789012345"
+1
+
+127.0.0.1:6379> ZRANGE NameRanking 0 -1 WITHSCORES
+D瓜哥
+1
+https://www.diguage.com
+2
+https://github.com/diguage
+3
+1234567890123456789012345678901234567890123456789012345678901234
+4
+12345678901234567890123456789012345678901234567890123456789012345
+5
+
+127.0.0.1:6379> OBJECT encoding NameRanking
+skiplist
+
+127.0.0.1:6379> TYPE NameRanking
+zset
 ----
 
-在 JDK 中，也有 SkipList 的实现，在 `ConcurrentSkipListMap` 中。不过，它不是作为一个独立的 Collection 来实现的，而是作为 `Map` 的一部分来实现的。
+在 JDK 中，也有 skiplist 的实现，在 `ConcurrentSkipListMap` 中。不过，它不是作为一个独立的 `Collection` 来实现的，而是作为 `Map` 的一部分来实现的。
 
 == 参考资料
 
+. https://www.diguage.com/post/redis-core-data-structure-2/[Redis 核心数据结构（二） - "地瓜哥"博客网^] -- 本文中的 Redis 内容是这篇文章的一个拷贝。请以原文为准备，本文尽量同步更新。
 . ftp://ftp.cs.umd.edu/pub/skipLists/skiplists.pdf[William Pugh《Skip Lists: A Probabilistic Alternative to Balanced Trees》]
 . https://mp.weixin.qq.com/s?__biz=MzA4NTg1MjM0Mg==&mid=2657261425&idx=1&sn=d840079ea35875a8c8e02d9b3e44cf95&scene=21#wechat_redirect[Redis为什么用跳表而不用平衡树？- 张铁蕾]

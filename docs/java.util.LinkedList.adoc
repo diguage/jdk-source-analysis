@@ -187,9 +187,9 @@ public void addFirst(E e) {
 从这里就能看出，`LinkedList` 在 `add(e)`、`addLast(e)` 或者 `addFirst(e)` 时，都是对链表的首尾进行操作，会比较高效。
 
 
-== Redis 的 List
+== Redis 的 linkedlist
 
-Redis 底层也有很多地方使用到链表，并且也是双向链表。
+Redis 底层也有很多地方使用到 linkedlist，并且也是双向链表。
 
 .adlist.h
 [source,c,{source_attr}]
@@ -215,18 +215,20 @@ typedef struct list {
 } list;
 ----
 
-Redis 的链表实现特点是：
+Redis 的 linkedlist 实现特点是：
 
 . 双向：节点带有前后指针；
 . 无环：首尾没有相连，所以没有构成环状；
 . 链表保存了首尾指针；
 . 多态：可以保存不同类型的值，这里成为泛型也许更符合 Java 中的语义。
 
+Redis 在 2014 年实现了 <<quicklist>>，并使用 quicklist 代替了 linkedlist。所以，现在 linkedlist 几乎已经是废弃状态。
+
 == Redis 的 ziplist
 
 Redis 官方在 ziplist.c 文件的注释中对 ziplist 进行了定义：
 
-[quote, redis/ziplist.c]
+[quote, ziplist.c]
 ____
 The ziplist is a specially encoded dually linked list that is designed
 to be very memory efficient. It stores both strings and integer values,
@@ -247,14 +249,17 @@ The general layout of the ziplist is as follows:
 
 NOTE: all fields are stored in little endian, if not specified otherwise.
 ----
-<1> `<zlbytes>`: 32bit，表示ziplist占用的字节总数（也包括<zlbytes>本身占用的4个字节）。
-<2> `<zltail>`: 32bit，表示ziplist表中最后一项（entry）在ziplist中的偏移字节数。
+
+image::images/redis/redis-ziplist-structure.jpg[]
+
+. `<zlbytes>`: 32bit，表示ziplist占用的字节总数（也包括<zlbytes>本身占用的4个字节）。
+. `<zltail>`: 32bit，表示ziplist表中最后一项（entry）在ziplist中的偏移字节数。
 +
 `<zltail>` 的存在，使得我们可以很方便地找到最后一项（不用遍历整个ziplist），从而可以在ziplist尾端快速地执行push或pop操作。
 +
-<3> `<zllen>`: 16bit， 表示ziplist中数据项（entry）的个数。zllen字段因为只有16bit，所以可以表达的最大值为2^16-1。`<zllen>` 等于16bit全为1的情况，那么 `<zllen>` 就不表示数据项个数了，这时要想知道 ziplist 中数据项总数，那么必须对ziplist从头到尾遍历各个数据项，才能计数出来。
-<4> `<entry>`: 表示真正存放数据的数据项，长度不定。一个数据项（entry）也有它自己的内部结构，这个稍后再解释。
-<5> `<zlend>`: ziplist 最后 1 个字节，是一个结束标记，值固定等于 255。
+. `<zllen>`: 16bit， 表示ziplist中数据项（entry）的个数。zllen字段因为只有16bit，所以可以表达的最大值为2^16^-1。`<zllen>` 等于16bit全为1的情况，那么 `<zllen>` 就不表示数据项个数了，这时要想知道 ziplist 中数据项总数，那么必须对ziplist从头到尾遍历各个数据项，才能计数出来。
+. `<entry>`: 表示真正存放数据的数据项，长度不定。一个数据项（entry）也有它自己的内部结构，这个稍后再解释。
+. `<zlend>`: ziplist 最后 1 个字节，是一个结束标记，值固定等于 255。
 
 ziplist 将表中每一项存放在前后连续的地址空间内，一个ziplist整体占用一大块内存。它是一个表（list），但其实不是一个链表（linked list）。
 
@@ -264,7 +269,7 @@ ziplist 为了在细节上节省内存，对于值的存储采用了变长的编
 
 [source,{source_attr}]
 ----
-<prevlen> <encoding> <entry-data>
+<prevlen> <encoding> <entry-data> // <1>
 ----
 <1> `<prevlen>`: 表示前一个数据项占用的总字节数。
 +
@@ -273,7 +278,7 @@ ziplist 为了在细节上节省内存，对于值的存储采用了变长的编
 +
 [source]
 ----
-0xFE <4 bytes unsigned little endian prevlen> <encoding> <entry>
+0xFE <4 bytes unsigned little endian prevlen> <encoding> <entry> // <2> <3>
 ----
 +
 <2> `<encoding>`: 表示当前数据项的类型，整型或者字符串。
@@ -281,16 +286,17 @@ ziplist 为了在细节上节省内存，对于值的存储采用了变长的编
 
 关于 `<encoding> <entry-data>` 的编码，直接引用官方文档：
 
-----
- The encoding field of the entry depends on the content of the
- entry. When the entry is a string, the first 2 bits of the encoding first
- byte will hold the type of encoding used to store the length of the string,
- followed by the actual length of the string. When the entry is an integer
- the first 2 bits are both set to 1. The following 2 bits are used to specify
- what kind of integer will be stored after this header. An overview of the
- different types and encodings is as follows. The first byte is always enough
- to determine the kind of entry.
- 
+[quote,ziplist.c]
+____
+The encoding field of the entry depends on the content of the
+entry. When the entry is a string, the first 2 bits of the encoding first
+byte will hold the type of encoding used to store the length of the string,
+followed by the actual length of the string. When the entry is an integer
+the first 2 bits are both set to 1. The following 2 bits are used to specify
+what kind of integer will be stored after this header. An overview of the
+different types and encodings is as follows. The first byte is always enough
+to determine the kind of entry.
+
  |00pppppp| - 1 byte
       String value with length less than or equal to 63 bytes (6 bits).
       "pppppp" represents the unsigned 6 bit length.
@@ -318,14 +324,14 @@ ziplist 为了在细节上节省内存，对于值的存储采用了变长的编
       1 to 13 because 0000 and 1111 can not be used, so 1 should be
       subtracted from the encoded 4 bit value to obtain the right value.
  |11111111| - End of ziplist special entry.
-----
+____
 
 引用在网上找的例子，来做个说明：
 
-image::images/redis-ziplist-sample.png[]
+image::images/redis/redis-ziplist-sample.png[]
 
 . 这个ziplist一共包含 33 个字节。字节编号从 `byte[0]` 到 `byte[32]`。图中每个字节的值使用 16 进制表示。
-. 头 4 个字节（`0x21000000`）是按小端（little endian）模式存储的 `<zlbytes>` 字段。什么是小端呢？就是指数据的低字节保存在内存的低地址中（参见维基百科词条 https://en.wikipedia.org/wiki/Endianness[Endianness]）。因此，这里 `<zlbytes>` 的值应该解析成 `0x00000021`，用十进制表示正好就是33。
+. 头 4 个字节（`0x21000000`）是按小端（little endian）模式存储的 `<zlbytes>` 字段。什么是小端呢？就是指数据的低字节保存在内存的低地址中（参见维基百科词条 https://en.wikipedia.org/wiki/Endianness[Endianness^]）。因此，这里 `<zlbytes>` 的值应该解析成 `0x00000021`，用十进制表示正好就是33。
 . 接下来 4 个字节（`byte[4..7]`）是 `<zltail>`，用小端存储模式来解释，它的值是 `0x0000001D`（值为29），表示最后一个数据项在 `byte[29]` 的位置（那个数据项为 `0x05FE14`）。
 . 再接下来 2 个字节（`byte[8..9]`），值为 `0x0004`，表示这个 ziplist 里一共存有4项数据。
 . 接下来 6 个字节（`byte[10..15]`）是第 1 个数据项。其中，`prevlen=0`，因为它前面没有数据项；`len=4`，相当于前面定义的9种情况中的第1种，表示后面4个字节按字符串存储数据，数据的值为：`name`。
@@ -334,17 +340,48 @@ image::images/redis-ziplist-sample.png[]
 . 接下来3个字节（`byte[29..31]`）是最后一个数据项，它的格式与前面的数据项存储格式不太一样。其中，第 1 个字节 `prevlen=5`，表示前一个数据项占用 5 个字节；第 2 个字节 = `FE`，相当于前面定义的9种情况中的第8种，所以后面还有1个字节用来表示真正的数据，并且以整数表示。它的值是20（0x14）。
 . 最后1个字节（`byte[32]`）表示 `<zlend>`，是固定的值255（0xFF）。
 
-****
-. 如何反向访问 ziplist ？
-. 如何从 ziplist 中删除数据？删除数据后，对应位置的 Bits 位怎么处理？
-****
+有两个问题需要注意：
+
+[qanda]
+如何反向遍历 ziplist ？::
+`<prevlen>`: 表示前一个数据项占用的总字节数。那么就能找到前一个元素的起始位置，就能实现反向遍历。
+
+如何从 ziplist 中添加/删除数据？删除数据后，对应位置的 Bits 位怎么处理？::
+在某个/某些节点的前面添加新节点之后， 程序必须沿着路径挨个检查后续的节点，是否满足新长度的编码要求， 直到遇到一个能满足要求的节点（如果有一个能满足，则这个节点之后的其他节点也满足）， 或者到达 ziplist 的末端 zlend 为止， 这种检查操作的复杂度为 O(N^2^) 。
++
+因为只有在新添加节点的后面有连续多个长度接近 254 的节点时， 这种连锁更新才会发生， 所以可以普遍地认为， 这种连锁更新发生的概率非常小， 在一般情况下， 将添加操作看成是 O(N) 复杂度也是可以的。
++
+删除元素就进行内存移位，覆盖 target 原本的数据，然后通过内存重分配，收缩多余空间。
+
+//
 
 Redis 在下面这个几个地方使用了 ziplist：
 
-. 列表键值包含少了的列表项，并且列表项只是整数或者短小的字符串时。（在最新版 Redis 中测试，使用的是 quicklist）
+. 列表包含少量的列表项，并且列表项只是整数或者短小的字符串时。（在下面 <<quicklist>> 小节中，在最新版 Redis 中测试，显示的是 quicklist，而 quicklist 内部使用的是 ziplist 来存储数据，只是外面被 quicklist 包裹着。）
 . 在哈希键值包含少量键值对，并且每个键值对只包含整数或短小字符串时。
++
+[source,bash,{source_attr}]
+----
+$ redis-cli --raw
 
-== Redis 中的 quicklist
+127.0.0.1:6379> HMSET site domain "https://www.diguage.com" owner "D瓜哥"
+OK
+
+127.0.0.1:6379> HGET site domain
+https://www.diguage.com
+
+127.0.0.1:6379> HGET site owner
+D瓜哥
+
+127.0.0.1:6379> TYPE site
+hash
+
+127.0.0.1:6379> OBJECT encoding site
+ziplist
+----
+
+[#quicklist]
+== quicklist
 
 Redis 对外暴露的 list 数据类型，它底层实现所依赖的内部数据结构就是 quicklist。
 
@@ -359,7 +396,7 @@ ____
 Redis 在 `quicklist.c` 就说明了，quicklist 是一个双向链表，而且是一个 ziplist 的双向链表。quicklist 的每个节点都是一个 ziplist。这样设计大概又是一个空间和时间的折中：
 
 . 双向链表便于在表的两端进行 `push` 和 `pop` 操作，但是它的内存开销比较大。首先，它在每个节点上除了要保存数据之外，还要额外保存两个指针；其次，双向链表的各个节点是单独的内存块，地址不连续，节点多了容易产生内存碎片。
-. ziplist 由于是一整块连续内存，所以存储效率很高。但是，它不利于修改操作，每次数据变动都会引发一次内存的`realloc`。特别是当 ziplist 长度很长的时候，一次 realloc 可能会导致大批量的数据拷贝，进一步降低性能。
+. ziplist 由于是一整块连续内存，所以存储效率很高。但是，它不利于修改操作，每次数据变动都会引发一次内存的 `realloc` 。特别是当 ziplist 长度很长的时候，一次 `realloc` 可能会导致大批量的数据拷贝，进一步降低性能。
 
 于是，结合了双向链表和 ziplist 的优点，quicklist 就应运而生了。
 
@@ -394,7 +431,7 @@ list-compress-depth 0 // 0 是特殊值，表示都不压缩，默认值。
 
 这个参数表示一个quicklist两端不被压缩的节点个数。注：这里的节点个数是指quicklist双向链表的节点个数，而不是指ziplist里面的数据项个数。一个 quicklist 节点上的 ziplist，如果被压缩，就是整体被压缩的。
 
-Redis 对于 quicklist 内部节点的压缩算法，采用的 https://en.wikipedia.org/wiki/LZ4_(compression_algorithm)[LZF] ——一种无损压缩算法。
+Redis 对于 quicklist 内部节点的压缩算法，采用的 link:++https://en.wikipedia.org/wiki/LZ4_(compression_algorithm)++[LZF^] ——一种无损压缩算法。
 
 ****
 . 添加过程中，如何处理中间位置的压缩工作？
@@ -489,23 +526,33 @@ typedef struct quicklistEntry {
 } quicklistEntry;
 ----
 
-image::images/redis-quicklist-structure.png[]
+image::images/redis/redis-quicklist-structure.png[]
 
 [source,bash,{source_attr}]
 ----
-127.0.0.1:6379> rpush numbers 1 3 5
-(integer) 3
-127.0.0.1:6379> type numbers
+$ redis-cli --raw
+
+127.0.0.1:6379> RPUSH names diguage "D瓜哥" "https://www.diguage.com/"
+2
+
+127.0.0.1:6379> LRANGE names 0 -1
+diguage
+D瓜哥
+https://www.diguage.com/
+
+127.0.0.1:6379> TYPE names
 list
-127.0.0.1:6379> OBJECT encoding numbers
-"quicklist"
+
+127.0.0.1:6379> OBJECT encoding names
+quicklist
 ----
 
 
 == 参考资料
 
-. http://zhangtielei.com/posts/blog-redis-ziplist.html[Redis内部数据结构详解(4)——ziplist]
-. http://zhangtielei.com/posts/blog-redis-quicklist.html[Redis内部数据结构详解(5)——quicklist]
+. https://www.diguage.com/post/redis-core-data-structure-1/[Redis 核心数据结构（一） - "地瓜哥"博客网^] -- 本文中的 Redis 内容是这篇文章的一个拷贝。请以原文为准备，本文尽量同步更新。
+. http://zhangtielei.com/posts/blog-redis-ziplist.html[Redis内部数据结构详解(4)——ziplist^]
+. http://zhangtielei.com/posts/blog-redis-quicklist.html[Redis内部数据结构详解(5)——quicklist^]
 
 
 
@@ -583,7 +630,8 @@ public class LinkedList<E>
 == 类的方法
 主要的方法的基础是link和unlink方法组,Node<E> node(int index)定位方法（均不是public）
 
-image::images/linkedlist插入新结点.png[]
+image::images/linkedlist-insert-node.png[]
+
 [source,java]
 ----
     //在指定节点前插入节点，节点succ不能为空
@@ -634,7 +682,9 @@ image::images/linkedlist插入新结点.png[]
     }
 
 ----
-image::images/linkedlist删除指定的结点.png[]
+
+image::images/linkedlist-remove-node.png[]
+
 [source,java]
 ----
       //删除指定节点并返回被删除的元素值
