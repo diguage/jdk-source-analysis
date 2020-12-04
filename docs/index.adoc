@@ -179,6 +179,11 @@ include::java.net.ServerSocket.adoc[leveloffset=+1]
 include::java.util.ServiceLoader.adoc[leveloffset=+1]
 
 
+include::java.lang.String.adoc[leveloffset=+1]
+
+include::java.util.Date.adoc[leveloffset=+1]
+
+include::java.io.Serializable.adoc[leveloffset=+1]
 
 
 include::io.netty.adoc[leveloffset=+1]

@@ -1,0 +1,14 @@
+= `String`
+
+include::_attributes.adoc[]
+
+[{java_src_attr}]
+----
+include::{sourcedir}/StringUtils.java[]
+----
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/StringUtilTest.java[]
+----
