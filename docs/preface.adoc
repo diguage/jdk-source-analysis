@@ -18,6 +18,8 @@ WARNING: 本文档基于 *OpenJDK 11.0.6 2020-01-14 LTS* 的代码开展分析�
 | image:images/alipay.png[title="支付宝", alt="支付宝", width="45%"] | image:images/wxpay.png[title="微信", alt="微信", width="45%"]
 |===
 
+TIP: 想要联系方式的小伙伴，欢迎提交 Issue 留言。D瓜哥还建了一个 Gitter 聊天室，点击图标加入： https://gitter.im/source-analysis/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge[image:https://badges.gitter.im/source-analysis/community.svg[]]，加入即可留言。（PS：留言不保证回复的时效性）
+
 == 官网及版本库
 
 本文档的版本库托管在 Github 上，另外单独发布。
