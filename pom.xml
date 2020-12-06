@@ -238,7 +238,8 @@
             <source_attr>linenums,indent=0,subs="attributes,verbatim,quotes"</source_attr>
             <java_src_attr>source%nowrap,java,{source_attr}</java_src_attr>
             <html_src_attr>source%nowrap,html,{source_attr}</html_src_attr>
-            <diagram_attr>format=svg,align="center",width=100%</diagram_attr>
+            <image_attr>align="center",width=90%</image_attr>
+            <diagram_attr>format=svg,align="center",width=90%</diagram_attr>
           </attributes>
         </configuration>
         <executions>
