@@ -1,7 +1,5 @@
 = ClassLoader
 
-include::_attributes.adoc[]
-
 虽然对 `ClassLoader` 的双亲委派流程比较了解，但是一直没有仔细专研过代码实现。今天翻看代码，代码写的简单明了：
 
 [{java_src_attr}]

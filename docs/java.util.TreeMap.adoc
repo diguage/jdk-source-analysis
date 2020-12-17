@@ -1,7 +1,5 @@
 = TreeMap
 
-include::_attributes.adoc[]
-
 先看一个问题：
 
 [{java_src_attr}]

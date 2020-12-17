@@ -1,7 +1,5 @@
 = CompletableFuture
 
-include::_attributes.adoc[]
-
 Java 中的 Promise。
 
 问题：在一大堆任务中，如何获取第一个完成的返回值？

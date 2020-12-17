@@ -1,8 +1,5 @@
 = `Serializable`
 
-include::_attributes.adoc[]
-
-
 [{java_src_attr}]
 ----
 include::{sourcedir}/OuterClass.java[]

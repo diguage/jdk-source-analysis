@@ -1,6 +1,4 @@
 = Stack
-include::_attributes.adoc[]
-
 
 [plantuml,{diagram_attr}]
 ....

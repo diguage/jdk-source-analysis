@@ -1,8 +1,5 @@
 = `Date`
 
-include::_attributes.adoc[]
-
-
 [{java_src_attr}]
 ----
 include::{sourcedir}/DateFormatTest.java[]

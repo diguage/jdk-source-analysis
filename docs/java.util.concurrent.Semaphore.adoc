@@ -1,7 +1,5 @@
 = Semaphore
 
-include::_attributes.adoc[]
-
 信号量
 
 [{java_src_attr}]

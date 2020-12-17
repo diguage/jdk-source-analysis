@@ -1,8 +1,5 @@
 = ThreadPoolExecutor 源码分析
 
-include::_attributes.adoc[]
-
-
 [cols="9,33,9,38",options="header"]
 |===
 |状态名称 |比特位 |十进制 |描述

@@ -1,7 +1,5 @@
 = Thread
 
-include::_attributes.adoc[]
-
 在JDK1.2之后，Java线程模型已经确定了基于操作系统原生线程模型实现。
 
 image::images/jvm-thread-to-os-thread.jpeg[]

@@ -1,7 +1,5 @@
 = ThreadLocal
 
-include::_attributes.adoc[]
-
 原以为神秘兮兮的 `ThreadLocal` 是何方神圣？没想到，点开代码，竟然如此简单明了，直接上代码：
 
 .Thread

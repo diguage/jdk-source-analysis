@@ -1,8 +1,5 @@
 = `ServiceLoader`
 
-include::_attributes.adoc[]
-
-
 [{java_src_attr}]
 ----
 include::{sourcedir}/ServiceLoaderSay.java[]

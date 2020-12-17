@@ -1,7 +1,5 @@
 = ArrayBlockingQueue
 
-include::_attributes.adoc[]
-
 image::images/BlockingQueue.png[align="center"]
 
 == 方法组
