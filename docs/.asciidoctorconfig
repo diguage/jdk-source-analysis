@@ -1,7 +1,12 @@
 // this adds attributes to every preview being rendered in IntelliJ
 // for more information see:
-// https://github.com/asciidoctor/asciidoctor-intellij-plugin/wiki/Support-project-specific-configurations
+// https://intellij-asciidoc-plugin.ahus1.de/docs/users-guide/features/advanced/asciidoctorconfig-file.html
 
 :pdf-fontsdir: {asciidoctorconfigdir}/../cfg/fonts
 :pdf-stylesdir: {asciidoctorconfigdir}/../cfg/theme
 :pdf-theme: Source
+:sourcedir: {asciidoctorconfigdir}/../src/main/java/com/diguage/truman
+:java_src_attr: source%nowrap,java,{source_attr}
+:source_attr: linenums,indent=0,subs="attributes,verbatim"
+:diagram_attr: format=svg,align="center",width=100%
+:icons: font

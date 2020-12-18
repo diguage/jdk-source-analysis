@@ -1,5 +1,4 @@
 = AbstractSequentialList
-include::_attributes.adoc[]
 
 == 类图
 

@@ -1,7 +1,5 @@
 = Field
 
-include::_attributes.adoc[]
-
 属性操作方法 `Field#set(Object obj, Object value)` 和 `Field#get(Object obj)` 底层都是委托到 `jdk.internal.reflect.FieldAccessor` 实现。
 
 `FieldAccessor` 接口有很多的实现，`FieldAccessor` 接口实例是通过 `jdk.internal.reflect.ReflectionFactory` 这个工厂构造的：

@@ -1,8 +1,5 @@
 = ReentrantReadWriteLock
 
-include::_attributes.adoc[]
-
-
 [{java_src_attr}]
 ----
 include::{sourcedir}/concurrent/ReentrantReadWriteLockTest.java[]

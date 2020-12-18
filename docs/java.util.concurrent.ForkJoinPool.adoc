@@ -1,8 +1,5 @@
 = ForkJoinPool
 
-include::_attributes.adoc[]
-
-
 image::images/ForkJoinPool-fork-join.webp[]
 
 image::images/ForkJoinPool-work-stealing.webp[]

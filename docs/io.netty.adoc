@@ -1,7 +1,5 @@
 = Netty
 
-include::_attributes.adoc[]
-
 Netty 和 `ServerSocketChannel` 可以互相操作吗？
 
 == JDK 原生 Socket 编程
