@@ -5,8 +5,11 @@
 :pdf-fontsdir: {asciidoctorconfigdir}/../cfg/fonts
 :pdf-stylesdir: {asciidoctorconfigdir}/../cfg/theme
 :pdf-theme: Source
-:sourcedir: {asciidoctorconfigdir}/../src/main/java/com/diguage/truman
-:java_src_attr: source%nowrap,java,{source_attr}
-:source_attr: linenums,indent=0,subs="attributes,verbatim"
-:diagram_attr: format=svg,align="center",width=100%
+
 :icons: font
+
+:diagram_attr: format=svg,align="center",width=100%
+
+:sourcedir: {asciidoctorconfigdir}/../src/main/java/com/diguage/truman
+:source_attr: linenums,indent=0,subs="attributes,verbatim"
+:java_src_attr: source%nowrap,java,{source_attr}
