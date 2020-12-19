@@ -31,6 +31,8 @@ public interface Delayed extends Comparable<Delayed> {
 }
 ----
 
+加入延迟队列的元素都必须实现 `Delayed` 接口。延迟队列内部是利用 `PriorityQueue` 实现的，所以还是利用优先队列！`Delayed` 接口继承了 `Comparable`。因此优先队列是通过 `delay` 来排序的。
+
 示例如下：
 
 [{java_src_attr}]

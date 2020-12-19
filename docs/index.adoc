@@ -165,6 +165,8 @@ include::java.util.concurrent.PriorityBlockingQueue.adoc[leveloffset=+1]
 
 include::java.util.concurrent.DelayQueue.adoc[leveloffset=+1]
 
+include::java.util.concurrent.ScheduledThreadPoolExecutor.adoc[leveloffset=+1]
+
 
 
 

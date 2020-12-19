@@ -383,6 +383,22 @@ public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise)
 `io.netty.channel.socket.nio.NioServerSocketChannel.doReadMessages` 方法中，把 NIO 的 `SocketChannel` 封装成了 Netty 的 `NioSocketChannel` 对象。
 
 
+== 时间轮
+
+image::./images/time-wheel.png[]
+
+从图中可以看到此时指针指向的是第一个槽，一共有八个槽 0~7，假设槽的时间单位为 1 秒，现在要加入一个延时 5 秒的任务，计算方式就是 `5 % 8 + 1 = 6`，即放在槽位为 6，下标为 5 的那个槽中。更具体的就是拼到槽的双向链表的尾部。
+
+然后每秒指针顺时针移动一格，这样就扫到了下一格，遍历这格中的双向链表执行任务。然后再循环继续。
+
+可以看到插入任务从计算槽位到插入链表，时间复杂度都是O(1)。那假设现在要加入一个50秒后执行的任务怎么办？这槽好像不够啊？难道要加槽嘛？和HashMap一样扩容？
+
+不是的，常见有两种方式，一种是通过增加轮次的概念。`50 % 8 + 1 = 3`，即应该放在槽位是 3，下标是 2 的位置。然后 `(50 - 1) / 8 = 6`，即轮数记为 6。也就是说当循环 6 轮之后扫到下标的 2 的这个槽位会触发这个任务。Netty 中的 `HashedWheelTimer` 使用的就是这种方式。
+
+== 参考资料
+
+. https://mp.weixin.qq.com/s/xBB72hJGn8geZ7SkM0FqJw[面试官：知道时间轮算法吗？在Netty和Kafka中如何应用的？^]
+
 == 自定义 Dubbo
 
 [{java_src_attr}]

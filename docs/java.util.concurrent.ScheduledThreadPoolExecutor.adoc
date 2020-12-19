@@ -1,0 +1,10 @@
+= `ScheduledThreadPoolExecutor`
+
+`Timer`、`ScheduledThreadPool` 和 `DelayQueue`，总结的说下它们都是通过优先队列来获取最早需要执行的任务，因此插入和删除任务的时间复杂度都为 O(logn)，并且 `Timer` 、`ScheduledThreadPool` 的周期性任务是通过重置任务的下一次执行时间来完成的。
+
+问题就出在时间复杂度上，插入删除时间复杂度是O(logn)，那么假设频繁插入删除次数为 `m`，总的时间复杂度就是 O(mlogn)，这种时间复杂度满足不了 Kafka 这类中间件对性能的要求，而时间轮算法的插入删除时间复杂度是 O(1)。我们来看看时间轮算法是如何实现的。
+
+
+== 参考资料
+
+. https://mp.weixin.qq.com/s/xBB72hJGn8geZ7SkM0FqJw[面试官：知道时间轮算法吗？在Netty和Kafka中如何应用的？^]
