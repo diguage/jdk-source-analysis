@@ -9,6 +9,10 @@ image::images/simplex-half-duplex-full-duplex.jpg[]
 include::{sourcedir}/net/SocketFullDuplexTest.java[]
 ----
 
+image::image-2022-02-15-17-56-18-693.png[]
+
+image::image-2022-02-15-17-57-07-482.png[]
+
 == 参考资料
 
 . http://hafizahabdullah.blogspot.com/2013/08/fp303-cn-simplex-half-duplex-and-full.html[P2E for Students: FP303 CN: Simplex, Half-Duplex and Full-Duplex]

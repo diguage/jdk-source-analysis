@@ -14,24 +14,29 @@
 
   <properties>
     <jol.version>0.16</jol.version>
-    <jmh.version>1.32</jmh.version>
-    <junit.version>5.7.2</junit.version>
-    <assertj.version>3.19.0</assertj.version>
-    <vertx.version>4.1.0</vertx.version>
+    <jmh.version>1.34</jmh.version>
+    <junit.version>5.8.2</junit.version>
+    <assertj.version>3.22.0</assertj.version>
+    <vertx.version>4.2.4</vertx.version>
 
-    <asciidoctorj.version>2.5.1</asciidoctorj.version>
-    <asciidoctorj-pdf.version>1.6.0</asciidoctorj-pdf.version>
+    <asciidoctorj.version>2.5.3</asciidoctorj.version>
+    <asciidoctorj-pdf.version>1.6.2</asciidoctorj-pdf.version>
     <asciidoctorj-epub3.version>1.5.1</asciidoctorj-epub3.version>
-    <asciidoctorj-diagram.version>2.1.2</asciidoctorj-diagram.version>
-    <asciidoctor-maven-plugin.version>2.1.0</asciidoctor-maven-plugin.version>
-    <jruby.version>9.2.17.0</jruby.version>
+    <asciidoctorj-diagram.version>2.2.1</asciidoctorj-diagram.version>
+    <asciidoctor-maven-plugin.version>2.2.2</asciidoctor-maven-plugin.version>
+    <jruby.version>9.3.3.0</jruby.version>
 
-    <maven.compiler.source>11</maven.compiler.source>
-    <maven.compiler.target>11</maven.compiler.target>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.8.9</version>
+    </dependency>
     <dependency>
       <groupId>joda-time</groupId>
       <artifactId>joda-time</artifactId>
@@ -41,29 +46,29 @@
     <dependency>
       <groupId>org.apache.curator</groupId>
       <artifactId>curator-framework</artifactId>
-      <version>5.1.0</version>
+      <version>5.2.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.curator</groupId>
       <artifactId>curator-recipes</artifactId>
-      <version>5.1.0</version>
+      <version>5.2.0</version>
     </dependency>
 
     <dependency>
       <groupId>net.bytebuddy</groupId>
       <artifactId>byte-buddy</artifactId>
-      <version>1.11.1</version>
+      <version>1.12.8</version>
     </dependency>
 
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-all</artifactId>
-      <version>4.1.65.Final</version>
+      <version>4.1.74.Final</version>
     </dependency>
     <dependency>
       <groupId>com.google.protobuf</groupId>
       <artifactId>protobuf-java</artifactId>
-      <version>3.17.2</version>
+      <version>3.19.4</version>
     </dependency>
 
     <dependency>
@@ -156,7 +161,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>30.1.1-jre</version>
+      <version>31.0.1-jre</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
@@ -166,7 +171,7 @@
     <dependency>
       <groupId>org.eclipse.collections</groupId>
       <artifactId>eclipse-collections</artifactId>
-      <version>10.4.0</version>
+      <version>11.0.0</version>
     </dependency>
 
     <dependency>
@@ -194,13 +199,13 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.30</version>
+      <version>1.7.36</version>
     </dependency>
 
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.2.3</version>
+      <version>1.2.10</version>
     </dependency>
 
     <dependency>
@@ -270,67 +275,67 @@
               </attributes>
             </configuration>
           </execution>
-          <!--                    <execution>-->
-          <!--                        <id>generate-epub</id>-->
-          <!--                        <phase>package</phase>-->
-          <!--                        <goals>-->
-          <!--                            <goal>process-asciidoc</goal>-->
-          <!--                        </goals>-->
-          <!--                        <configuration>-->
-          <!--                            <backend>epub3</backend>-->
-          <!--                            <sourceDocumentName>index.adoc</sourceDocumentName>-->
-          <!--                            <outputDirectory>${project.build.directory}/docs/epub</outputDirectory>-->
-          <!--                            <attributes>-->
-          <!--                                <source-highlighter>coderay</source-highlighter>-->
-          <!--                            </attributes>-->
-          <!--                        </configuration>-->
-          <!--                    </execution>-->
-          <!--                    <execution>-->
-          <!--                        <id>generate-kf8</id>-->
-          <!--                        <phase>package</phase>-->
-          <!--                        <goals>-->
-          <!--                            <goal>process-asciidoc</goal>-->
-          <!--                        </goals>-->
-          <!--                        <configuration>-->
-          <!--                            <backend>epub3</backend>-->
-          <!--                            <sourceDocumentName>index.adoc</sourceDocumentName>-->
-          <!--                            <outputDirectory>${project.build.directory}/docs/kf8</outputDirectory>-->
-          <!--                            <attributes>-->
-          <!--                                <ebook-format>kf8</ebook-format>-->
-          <!--                            </attributes>-->
-          <!--                        </configuration>-->
-          <!--                    </execution>-->
-          <!--                    <execution>-->
-          <!--                        <id>generate-pdf</id>-->
-          <!--                        <phase>package</phase>-->
-          <!--                        <goals>-->
-          <!--                            <goal>process-asciidoc</goal>-->
-          <!--                        </goals>-->
-          <!--                        <configuration>-->
-          <!--                            <backend>pdf</backend>-->
-          <!--                            <outputDirectory>${project.build.directory}/docs/pdf</outputDirectory>-->
-          <!--                            <attributes>-->
-          <!--                                <allow-uri-read/>-->
-          <!--                                <plantumlconfig>${project.basedir}/cfg/plantuml.cfg</plantumlconfig>-->
-          <!--                                <pdf-fontsdir>${project.basedir}/cfg/fonts</pdf-fontsdir>-->
-          <!--                                <pdf-themesdir>${project.basedir}/cfg/theme</pdf-themesdir>-->
-          <!--                                &lt;!&ndash; Set Source theme &ndash;&gt;-->
-          <!--                                <pdf-theme>Source</pdf-theme>-->
-          <!--                                <pagenums/>-->
-          <!--                                <toc/>-->
-          <!--                                <idprefix/>-->
-          <!--                                <idseparator>-</idseparator>-->
-          <!--                                &lt;!&ndash; Fixes line wraps formatting inserting zero-width spaces (ZWSP) before CJ characters &ndash;&gt;-->
-          <!--                                <scripts>cjk</scripts>-->
-          <!--                                <pdf-version>1.7</pdf-version>-->
-          <!--                                <rouge-style>github</rouge-style>-->
-          <!--                                &lt;!&ndash;<media>screen</media>&ndash;&gt;-->
-          <!--                                &lt;!&ndash;<optimize>screen</optimize>&ndash;&gt;-->
-          <!--                                &lt;!&ndash;<media>prepress</media>&ndash;&gt;-->
-          <!--                                &lt;!&ndash;<optimize>prepress</optimize>&ndash;&gt;-->
-          <!--                            </attributes>-->
-          <!--                        </configuration>-->
-          <!--                    </execution>-->
+          <!-- <execution>-->
+          <!--     <id>generate-epub</id>-->
+          <!--     <phase>package</phase>-->
+          <!--     <goals>-->
+          <!--         <goal>process-asciidoc</goal>-->
+          <!--     </goals>-->
+          <!--     <configuration>-->
+          <!--         <backend>epub3</backend>-->
+          <!--         <sourceDocumentName>index.adoc</sourceDocumentName>-->
+          <!--         <outputDirectory>${project.build.directory}/docs/epub</outputDirectory>-->
+          <!--         <attributes>-->
+          <!--             <source-highlighter>coderay</source-highlighter>-->
+          <!--         </attributes>-->
+          <!--     </configuration>-->
+          <!-- </execution>-->
+          <!-- <execution>-->
+          <!--     <id>generate-kf8</id>-->
+          <!--     <phase>package</phase>-->
+          <!--     <goals>-->
+          <!--         <goal>process-asciidoc</goal>-->
+          <!--     </goals>-->
+          <!--     <configuration>-->
+          <!--         <backend>epub3</backend>-->
+          <!--         <sourceDocumentName>index.adoc</sourceDocumentName>-->
+          <!--         <outputDirectory>${project.build.directory}/docs/kf8</outputDirectory>-->
+          <!--         <attributes>-->
+          <!--             <ebook-format>kf8</ebook-format>-->
+          <!--         </attributes>-->
+          <!--     </configuration>-->
+          <!-- </execution>-->
+          <!-- <execution>-->
+          <!--     <id>generate-pdf</id>-->
+          <!--     <phase>package</phase>-->
+          <!--     <goals>-->
+          <!--         <goal>process-asciidoc</goal>-->
+          <!--     </goals>-->
+          <!--     <configuration>-->
+          <!--         <backend>pdf</backend>-->
+          <!--         <outputDirectory>${project.build.directory}/docs/pdf</outputDirectory>-->
+          <!--         <attributes>-->
+          <!--             <allow-uri-read/>-->
+          <!--             <plantumlconfig>${project.basedir}/cfg/plantuml.cfg</plantumlconfig>-->
+          <!--             <pdf-fontsdir>${project.basedir}/cfg/fonts</pdf-fontsdir>-->
+          <!--             <pdf-themesdir>${project.basedir}/cfg/theme</pdf-themesdir>-->
+          <!--             &lt;!&ndash; Set Source theme &ndash;&gt;-->
+          <!--             <pdf-theme>Source</pdf-theme>-->
+          <!--             <pagenums/>-->
+          <!--             <toc/>-->
+          <!--             <idprefix/>-->
+          <!--             <idseparator>-</idseparator>-->
+          <!--             &lt;!&ndash; Fixes line wraps formatting inserting zero-width spaces (ZWSP) before CJ characters &ndash;&gt;-->
+          <!--             <scripts>cjk</scripts>-->
+          <!--             <pdf-version>1.7</pdf-version>-->
+          <!--             <rouge-style>github</rouge-style>-->
+          <!--             &lt;!&ndash;<media>screen</media>&ndash;&gt;-->
+          <!--             &lt;!&ndash;<optimize>screen</optimize>&ndash;&gt;-->
+          <!--             &lt;!&ndash;<media>prepress</media>&ndash;&gt;-->
+          <!--             &lt;!&ndash;<optimize>prepress</optimize>&ndash;&gt;-->
+          <!--         </attributes>-->
+          <!--     </configuration>-->
+          <!-- </execution>-->
         </executions>
         <dependencies>
           <dependency>
@@ -363,7 +368,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
+        <version>3.10.0</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

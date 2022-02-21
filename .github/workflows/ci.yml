@@ -12,11 +12,11 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set up JDK 11 ☕️
+      - name: Set up JDK 17 ☕️
         uses: actions/setup-java@v2
         with:
-          java-version: '11'
-          distribution: 'adopt'
+          java-version: '17'
+          distribution: 'temurin'
 
       - name: Install Graphviz 🐰
         run: |
@@ -27,7 +27,7 @@ jobs:
         run: mvn clean package
 
       - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@4.1.4
+        uses: JamesIves/github-pages-deploy-action@4.2.3
         with:
           branch: gh-pages # The branch the action should deploy to.
           folder: target/docs/html # The folder the action should deploy.
