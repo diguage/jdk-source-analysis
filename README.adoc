@@ -14,7 +14,7 @@ endif::[]
 
 浏览请点击： https://diguage.github.io/jdk-source-analysis/[JDK 源码分析]。
 
-WARNING: 本文档基于 *OpenJDK 11.0.6 2020-01-14 LTS* 的代码开展分析，请 PR 的小伙伴使用相同的 JDK。谢谢！
+WARNING: 本文档基于 *OpenJDK 17* 的代码开展分析，请 PR 的小伙伴使用相同版本的 JDK。谢谢！
 
 === 友情支持
 

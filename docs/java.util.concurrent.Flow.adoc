@@ -1,0 +1,17 @@
+= `Flow`
+
+
+早在 2013年，一些知名的有影响力的网络公司提出 http://www.reactive-streams.org/[Reactive Streams^] 提案，旨在标准版软件组件之间的异步数据交换。
+
+为了减少重复和不兼容性，Java 9 引入了 `java.util.concurrent.Flow` 类，统一并规范了 Reactive Streams 的接口。但是， `Flow` 只定义了接口，并没有给出具体实现。下面是一个简单实现：
+
+[{java_src_attr}]
+----
+include::{sourcedir}/concurrent/FlowTest.java[]
+----
+
+
+
+== 参考资料
+
+. https://dzone.com/articles/reactive-streams-in-java-9[Reactive Streams in Java 9^]
