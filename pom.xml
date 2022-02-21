@@ -13,18 +13,18 @@
   <url>https://www.diguage.com/</url>
 
   <properties>
-    <jol.version>0.10</jol.version>
-    <jmh.version>1.24</jmh.version>
-    <junit.version>5.6.2</junit.version>
-    <assertj.version>3.15.0</assertj.version>
-    <vertx.version>3.9.1</vertx.version>
+    <jol.version>0.16</jol.version>
+    <jmh.version>1.32</jmh.version>
+    <junit.version>5.7.2</junit.version>
+    <assertj.version>3.19.0</assertj.version>
+    <vertx.version>4.1.0</vertx.version>
 
-    <asciidoctorj.version>2.4.2</asciidoctorj.version>
-    <asciidoctorj-pdf.version>1.5.3</asciidoctorj-pdf.version>
-    <asciidoctorj-epub3.version>1.5.0-alpha.19</asciidoctorj-epub3.version>
-    <asciidoctorj-diagram.version>2.0.5</asciidoctorj-diagram.version>
+    <asciidoctorj.version>2.5.1</asciidoctorj.version>
+    <asciidoctorj-pdf.version>1.6.0</asciidoctorj-pdf.version>
+    <asciidoctorj-epub3.version>1.5.1</asciidoctorj-epub3.version>
+    <asciidoctorj-diagram.version>2.1.2</asciidoctorj-diagram.version>
     <asciidoctor-maven-plugin.version>2.1.0</asciidoctor-maven-plugin.version>
-    <jruby.version>9.2.13.0</jruby.version>
+    <jruby.version>9.2.17.0</jruby.version>
 
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
@@ -52,18 +52,18 @@
     <dependency>
       <groupId>net.bytebuddy</groupId>
       <artifactId>byte-buddy</artifactId>
-      <version>1.10.13</version>
+      <version>1.11.1</version>
     </dependency>
 
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-all</artifactId>
-      <version>4.1.50.Final</version>
+      <version>4.1.65.Final</version>
     </dependency>
     <dependency>
       <groupId>com.google.protobuf</groupId>
       <artifactId>protobuf-java</artifactId>
-      <version>3.12.2</version>
+      <version>3.17.2</version>
     </dependency>
 
     <dependency>
@@ -156,7 +156,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>28.2-jre</version>
+      <version>30.1.1-jre</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
@@ -166,7 +166,7 @@
     <dependency>
       <groupId>org.eclipse.collections</groupId>
       <artifactId>eclipse-collections</artifactId>
-      <version>10.2.0</version>
+      <version>10.4.0</version>
     </dependency>
 
     <dependency>
@@ -249,7 +249,7 @@
             <source_attr>linenums,indent=0,subs="attributes,verbatim,quotes"</source_attr>
             <java_src_attr>source%nowrap,java,{source_attr}</java_src_attr>
             <html_src_attr>source%nowrap,html,{source_attr}</html_src_attr>
-            <image_attr>align="center",width=90%</image_attr>
+            <image_attr>align="center",width=100%</image_attr>
             <diagram_attr>format=svg,align="center",width=90%</diagram_attr>
           </attributes>
         </configuration>
@@ -363,10 +363,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>11</source>
-          <target>11</target>
-        </configuration>
+        <version>3.8.1</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
