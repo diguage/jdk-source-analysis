@@ -305,37 +305,37 @@
           <!--         </attributes>-->
           <!--     </configuration>-->
           <!-- </execution>-->
-          <!-- <execution>-->
-          <!--     <id>generate-pdf</id>-->
-          <!--     <phase>package</phase>-->
-          <!--     <goals>-->
-          <!--         <goal>process-asciidoc</goal>-->
-          <!--     </goals>-->
-          <!--     <configuration>-->
-          <!--         <backend>pdf</backend>-->
-          <!--         <outputDirectory>${project.build.directory}/docs/pdf</outputDirectory>-->
-          <!--         <attributes>-->
-          <!--             <allow-uri-read/>-->
-          <!--             <plantumlconfig>${project.basedir}/cfg/plantuml.cfg</plantumlconfig>-->
-          <!--             <pdf-fontsdir>${project.basedir}/cfg/fonts</pdf-fontsdir>-->
-          <!--             <pdf-themesdir>${project.basedir}/cfg/theme</pdf-themesdir>-->
-          <!--             &lt;!&ndash; Set Source theme &ndash;&gt;-->
-          <!--             <pdf-theme>Source</pdf-theme>-->
-          <!--             <pagenums/>-->
-          <!--             <toc/>-->
-          <!--             <idprefix/>-->
-          <!--             <idseparator>-</idseparator>-->
-          <!--             &lt;!&ndash; Fixes line wraps formatting inserting zero-width spaces (ZWSP) before CJ characters &ndash;&gt;-->
-          <!--             <scripts>cjk</scripts>-->
-          <!--             <pdf-version>1.7</pdf-version>-->
-          <!--             <rouge-style>github</rouge-style>-->
-          <!--             &lt;!&ndash;<media>screen</media>&ndash;&gt;-->
-          <!--             &lt;!&ndash;<optimize>screen</optimize>&ndash;&gt;-->
-          <!--             &lt;!&ndash;<media>prepress</media>&ndash;&gt;-->
-          <!--             &lt;!&ndash;<optimize>prepress</optimize>&ndash;&gt;-->
-          <!--         </attributes>-->
-          <!--     </configuration>-->
-          <!-- </execution>-->
+          <execution>
+              <id>generate-pdf</id>
+              <phase>package</phase>
+              <goals>
+                  <goal>process-asciidoc</goal>
+              </goals>
+              <configuration>
+                  <backend>pdf</backend>
+                  <outputDirectory>${project.build.directory}/docs/pdf</outputDirectory>
+                  <attributes>
+                      <allow-uri-read/>
+                      <plantumlconfig>${project.basedir}/cfg/plantuml.cfg</plantumlconfig>
+                      <pdf-fontsdir>${project.basedir}/cfg/fonts</pdf-fontsdir>
+                      <pdf-themesdir>${project.basedir}/cfg/theme</pdf-themesdir>
+                      <!-- Set Source theme -->
+                      <pdf-theme>Source</pdf-theme>
+                      <pagenums/>
+                      <toc/>
+                      <idprefix/>
+                      <idseparator>-</idseparator>
+                      <!-- Fixes line wraps formatting inserting zero-width spaces (ZWSP) before CJ characters -->
+                      <scripts>cjk</scripts>
+                      <pdf-version>1.7</pdf-version>
+                      <rouge-style>github</rouge-style>
+                      <!--<media>screen</media>-->
+                      <!--<optimize>screen</optimize>-->
+                      <!--<media>prepress</media>-->
+                      <!--<optimize>prepress</optimize>-->
+                  </attributes>
+              </configuration>
+          </execution>
         </executions>
         <dependencies>
           <dependency>

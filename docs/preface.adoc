@@ -20,7 +20,7 @@ WARNING: 本文档基于 *OpenJDK 17* 的代码开展分析，请 PR 的小伙�
 
 有些打赏的朋友希望可以加个好友，欢迎关注D瓜哥的微信公众号，这样就可以通过公众号的回复直接给我发信息。
 
-image:images/wx-jike-log.png[{image_attr}]
+image::images/wx-jikerizhi.png[{image_attr}]
 
 == 官网及版本库
 
