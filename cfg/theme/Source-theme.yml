@@ -1,5 +1,6 @@
 font:
   catalog:
+    merge: true
     Source Han Serif SC:
       normal: SourceHanSerifSC-Regular.ttf
       bold: SourceHanSerifSC-Bold.ttf
@@ -13,6 +14,7 @@ font:
       bold: SourceCodePro-Semibold.ttf
       italic: SourceCodePro-It.ttf
       bold_italic: SourceCodePro-BoldIt.ttf
+    Emoji: Symbola.ttf
 #SourceCodePro-Black.ttf
 #SourceCodePro-BlackIt.ttf
 #SourceCodePro-ExtraLight.ttf
@@ -26,6 +28,7 @@ font:
 #SourceCodePro-SemiboldIt.ttf
   fallbacks:
     - Source Han Serif SC
+    - Emoji
 page:
   background-color: ffffff
   layout: portrait
