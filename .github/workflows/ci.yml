@@ -22,6 +22,7 @@ jobs:
         run: |
           sudo apt update -y -m
           sudo apt install -y graphviz
+          cd 
 
       - name: Build 🔧
         run: mvn clean package
