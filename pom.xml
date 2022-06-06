@@ -14,29 +14,27 @@
 
   <properties>
     <jol.version>0.16</jol.version>
-    <jmh.version>1.34</jmh.version>
-    <vertx.version>4.2.4</vertx.version>
+    <jmh.version>1.35</jmh.version>
     <gson.version>2.8.9</gson.version>
     <joda.version>2.10.13</joda.version>
-    <curator.version>5.2.0</curator.version>
-    <byte-buddy.version>1.12.8</byte-buddy.version>
-    <netty.version>4.1.74.Final</netty.version>
-    <protobuf.version>3.19.4</protobuf.version>
-    <guava.version>31.0.1-jre</guava.version>
+    <byte-buddy.version>1.12.10</byte-buddy.version>
+    <netty.version>4.1.77.Final</netty.version>
+    <protobuf.version>3.21.1</protobuf.version>
+    <guava.version>31.1-jre</guava.version>
     <commons-collections4.version>4.4</commons-collections4.version>
     <eclipse-collections.version>11.0.0</eclipse-collections.version>
     <slf4j.version>1.7.36</slf4j.version>
-    <logback.version>1.2.10</logback.version>
+    <logback.version>1.2.11</logback.version>
 
     <junit.version>5.8.2</junit.version>
-    <assertj.version>3.22.0</assertj.version>
+    <assertj.version>3.23.1</assertj.version>
 
-    <asciidoctorj.version>2.5.3</asciidoctorj.version>
-    <asciidoctorj-pdf.version>1.6.2</asciidoctorj-pdf.version>
+    <asciidoctorj.version>2.5.4</asciidoctorj.version>
+    <asciidoctorj-pdf.version>2.0.6</asciidoctorj-pdf.version>
     <asciidoctorj-epub3.version>1.5.1</asciidoctorj-epub3.version>
-    <asciidoctorj-diagram.version>2.2.1</asciidoctorj-diagram.version>
+    <asciidoctorj-diagram.version>2.2.3</asciidoctorj-diagram.version>
     <asciidoctor-maven-plugin.version>2.2.2</asciidoctor-maven-plugin.version>
-    <jruby.version>9.3.3.0</jruby.version>
+    <jruby.version>9.3.4.0</jruby.version>
 
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
@@ -53,17 +51,6 @@
       <groupId>joda-time</groupId>
       <artifactId>joda-time</artifactId>
       <version>${joda.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.curator</groupId>
-      <artifactId>curator-framework</artifactId>
-      <version>${curator.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.curator</groupId>
-      <artifactId>curator-recipes</artifactId>
-      <version>${curator.version}</version>
     </dependency>
 
     <dependency>
@@ -84,93 +71,6 @@
     </dependency>
 
     <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-core</artifactId>
-      <version>${vertx.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>netty-buffer</artifactId>
-          <groupId>io.netty</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>netty-codec</artifactId>
-          <groupId>io.netty</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>netty-codec-dns</artifactId>
-          <groupId>io.netty</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>netty-codec-http</artifactId>
-          <groupId>io.netty</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>netty-codec-http2</artifactId>
-          <groupId>io.netty</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>netty-codec-socks</artifactId>
-          <groupId>io.netty</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>netty-common</artifactId>
-          <groupId>io.netty</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>netty-handler</artifactId>
-          <groupId>io.netty</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>netty-handler-proxy</artifactId>
-          <groupId>io.netty</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>netty-resolver</artifactId>
-          <groupId>io.netty</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>netty-resolver-dns</artifactId>
-          <groupId>io.netty</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>netty-transport</artifactId>
-          <groupId>io.netty</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-web</artifactId>
-      <version>${vertx.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-web-api-contract</artifactId>
-      <version>${vertx.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-web-client</artifactId>
-      <version>${vertx.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-codegen</artifactId>
-      <version>${vertx.version}</version>
-      <classifier>processor</classifier>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-web-api-service</artifactId>
-      <version>${vertx.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-redis-client</artifactId>
-      <version>${vertx.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>${guava.version}</version>
@@ -184,6 +84,11 @@
       <groupId>org.eclipse.collections</groupId>
       <artifactId>eclipse-collections</artifactId>
       <version>${eclipse-collections.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.12.0</version>
     </dependency>
 
     <dependency>
