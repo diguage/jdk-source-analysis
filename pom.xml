@@ -150,6 +150,7 @@
         <version>${asciidoctor-maven-plugin.version}</version>
         <configuration>
           <sourceDirectory>docs</sourceDirectory>
+          <sourceDocumentName>index.adoc</sourceDocumentName>
           <requires>
             <require>asciidoctor-diagram</require>
           </requires>
