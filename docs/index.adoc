@@ -189,6 +189,8 @@ include::java.util.Date.adoc[leveloffset=+1]
 
 include::java.io.Serializable.adoc[leveloffset=+1]
 
+include::java.util.regex.Pattern.adoc[leveloffset=+1]
+
 
 include::io.netty.adoc[leveloffset=+1]
 

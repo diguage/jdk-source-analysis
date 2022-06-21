@@ -1,0 +1,6 @@
+= `Pattern`
+
+[{java_src_attr}]
+----
+include::{sourcedir}/regex/PatternTest.java[]
+----
