@@ -157,12 +157,11 @@
             <sourcedir>${project.build.sourceDirectory}/com/diguage/truman</sourcedir>
             <basedir>${project.basedir}</basedir>
             <source-highlighter>rouge</source-highlighter>
-            <rouge-linenums-mode>table</rouge-linenums-mode>
-            <rouge-style>monokai</rouge-style>
+            <rouge-style>github</rouge-style>
             <imagesdir>.</imagesdir>
             <icons>font</icons>
             <linkcss>true</linkcss>
-            <stylesdir>assets/css</stylesdir>
+            <stylesdir>assets/styles</stylesdir>
             <toclevels>1</toclevels>
             <sectnums>true</sectnums>
             <sectnumlevels>3</sectnumlevels>
