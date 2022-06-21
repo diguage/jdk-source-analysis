@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.17">
+<title>FutureTask</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="assets/styles/asciidoctor.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="assets/styles/rouge-github.css">
+<style>a{text-decoration:none;}.img_bk{text-align:center;}strong>code,p>code{color: #d14 !important;background-color: #f5f5f5 !important;border: 1px solid #e1e1e8;white-space: nowrap;border-radius: 3px;}</style>
+</head>
+<body class="book toc2 toc-left">
+<div id="header">
+<h1>FutureTask</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_类图">1. 类图</a></li>
+<li><a href="#_参考资料">2. 参考资料</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_类图"><a class="anchor" href="#_类图"></a>1. 类图</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>先来看一下 <code>ArrayList</code> 的类图：</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="./diag-cadbe24dc7871bade7fa15b1dbddb3ba.svg" alt="Diagram" width="90%" height="318">
+</div>
+</div>
+<div class="paragraph">
+<p>实现了 <code>Runnable</code> 的 <code>run()</code>，在方法结束时，获取返回值。</p>
+</div>
+<div class="paragraph">
+<p><code>V get()</code> 方法之所以能阻塞直到方法执行，拿到结果，是因为在 <code>get()</code> 方法通过 <code>awaitDone(boolean timed, long nanos)</code> 执行了一个无限循环。在循环过程中，不断获取任务执行的状态，进一步获取结果或者响应中断请求。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+</pre></td><td class="code"><pre><span class="cm">/**
+ * @throws CancellationException {@inheritDoc}
+ */</span>
+<span class="kd">public</span> <span class="no">V</span> <span class="nf">get</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">InterruptedException</span><span class="o">,</span> <span class="nc">ExecutionException</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="n">s</span> <span class="o">=</span> <span class="n">state</span><span class="o">;</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">s</span> <span class="o">&lt;=</span> <span class="no">COMPLETING</span><span class="o">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">awaitDone</span><span class="o">(</span><span class="kc">false</span><span class="o">,</span> <span class="mi">0L</span><span class="o">);</span>
+    <span class="k">return</span> <span class="nf">report</span><span class="o">(</span><span class="n">s</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+ * Awaits completion or aborts on interrupt or timeout.
+ *
+ * @param timed true if use timed waits
+ * @param nanos time to wait, if timed
+ * @return state upon completion or at timeout
+ */</span>
+<span class="kd">private</span> <span class="kt">int</span> <span class="nf">awaitDone</span><span class="o">(</span><span class="kt">boolean</span> <span class="n">timed</span><span class="o">,</span> <span class="kt">long</span> <span class="n">nanos</span><span class="o">)</span>
+    <span class="kd">throws</span> <span class="nc">InterruptedException</span> <span class="o">{</span>
+    <span class="c1">// The code below is very delicate, to achieve these goals:</span>
+    <span class="c1">// - call nanoTime exactly once for each call to park</span>
+    <span class="c1">// - if nanos &lt;= 0L, return promptly without allocation or nanoTime</span>
+    <span class="c1">// - if nanos == Long.MIN_VALUE, don't underflow</span>
+    <span class="c1">// - if nanos == Long.MAX_VALUE, and nanoTime is non-monotonic</span>
+    <span class="c1">//   and we suffer a spurious wakeup, we will do no worse than</span>
+    <span class="c1">//   to park-spin for a while</span>
+    <span class="kt">long</span> <span class="n">startTime</span> <span class="o">=</span> <span class="mi">0L</span><span class="o">;</span>    <span class="c1">// Special value 0L means not yet parked</span>
+    <span class="nc">WaitNode</span> <span class="n">q</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="kt">boolean</span> <span class="n">queued</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+    <span class="k">for</span> <span class="o">(;;)</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">s</span> <span class="o">=</span> <span class="n">state</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">s</span> <span class="o">&gt;</span> <span class="no">COMPLETING</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">q</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+                <span class="n">q</span><span class="o">.</span><span class="na">thread</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+            <span class="k">return</span> <span class="n">s</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">s</span> <span class="o">==</span> <span class="no">COMPLETING</span><span class="o">)</span>
+            <span class="c1">// We may have already promised (via isDone) that we are done</span>
+            <span class="c1">// so never return empty-handed or throw InterruptedException</span>
+            <span class="nc">Thread</span><span class="o">.</span><span class="na">yield</span><span class="o">();</span>
+        <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="nc">Thread</span><span class="o">.</span><span class="na">interrupted</span><span class="o">())</span> <span class="o">{</span>
+            <span class="n">removeWaiter</span><span class="o">(</span><span class="n">q</span><span class="o">);</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">InterruptedException</span><span class="o">();</span>
+        <span class="o">}</span>
+        <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">q</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">timed</span> <span class="o">&amp;&amp;</span> <span class="n">nanos</span> <span class="o">&lt;=</span> <span class="mi">0L</span><span class="o">)</span>
+                <span class="k">return</span> <span class="n">s</span><span class="o">;</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">WaitNode</span><span class="o">();</span>
+        <span class="o">}</span>
+        <span class="k">else</span> <span class="nf">if</span> <span class="o">(!</span><span class="n">queued</span><span class="o">)</span>
+            <span class="n">queued</span> <span class="o">=</span> <span class="no">WAITERS</span><span class="o">.</span><span class="na">weakCompareAndSet</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">q</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">waiters</span><span class="o">,</span> <span class="n">q</span><span class="o">);</span>
+        <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">timed</span><span class="o">)</span> <span class="o">{</span>
+            <span class="kd">final</span> <span class="kt">long</span> <span class="n">parkNanos</span><span class="o">;</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">startTime</span> <span class="o">==</span> <span class="mi">0L</span><span class="o">)</span> <span class="o">{</span> <span class="c1">// first time</span>
+                <span class="n">startTime</span> <span class="o">=</span> <span class="nc">System</span><span class="o">.</span><span class="na">nanoTime</span><span class="o">();</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">startTime</span> <span class="o">==</span> <span class="mi">0L</span><span class="o">)</span>
+                    <span class="n">startTime</span> <span class="o">=</span> <span class="mi">1L</span><span class="o">;</span>
+                <span class="n">parkNanos</span> <span class="o">=</span> <span class="n">nanos</span><span class="o">;</span>
+            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                <span class="kt">long</span> <span class="n">elapsed</span> <span class="o">=</span> <span class="nc">System</span><span class="o">.</span><span class="na">nanoTime</span><span class="o">()</span> <span class="o">-</span> <span class="n">startTime</span><span class="o">;</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">elapsed</span> <span class="o">&gt;=</span> <span class="n">nanos</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">removeWaiter</span><span class="o">(</span><span class="n">q</span><span class="o">);</span>
+                    <span class="k">return</span> <span class="n">state</span><span class="o">;</span>
+                <span class="o">}</span>
+                <span class="n">parkNanos</span> <span class="o">=</span> <span class="n">nanos</span> <span class="o">-</span> <span class="n">elapsed</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="c1">// nanoTime may be slow; recheck before parking</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">state</span> <span class="o">&lt;</span> <span class="no">COMPLETING</span><span class="o">)</span>
+                <span class="nc">LockSupport</span><span class="o">.</span><span class="na">parkNanos</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">parkNanos</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">else</span>
+            <span class="nc">LockSupport</span><span class="o">.</span><span class="na">park</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_参考资料"><a class="anchor" href="#_参考资料"></a>2. 参考资料</h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><a href="http://www.throwable.club/2019/07/02/java-concurrency-listenable-future/">JUC线程池扩展可回调的Future - Throwable&#8217;s Blog</a></p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2022-06-21 15:32:25 UTC
+</div>
+</div>
+</body>
+</html>

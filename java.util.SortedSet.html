@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.17">
+<title>SortedSet</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="assets/styles/asciidoctor.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="assets/styles/rouge-github.css">
+<style>a{text-decoration:none;}.img_bk{text-align:center;}strong>code,p>code{color: #d14 !important;background-color: #f5f5f5 !important;border: 1px solid #e1e1e8;white-space: nowrap;border-radius: 3px;}</style>
+</head>
+<body class="book toc2 toc-left">
+<div id="header">
+<h1>SortedSet</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_redis_的_skiplist">1. Redis 的 SkipList</a></li>
+<li><a href="#_参考资料">2. 参考资料</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_redis_的_skiplist"><a class="anchor" href="#_redis_的_skiplist"></a>1. Redis 的 SkipList</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>跳跃表是一种有序数据结构，支持平均 O(logN)、最坏 O(N) 复杂度的节点查找；大部分情况效率可以和平衡树相媲美，实现却比平衡树简单。</p>
+</div>
+<div class="paragraph">
+<p>跳跃表就是 Redis 中有序集合键的底层实现之一。</p>
+</div>
+<div class="listingblock">
+<div class="title">server.h</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre></td><td class="code"><pre><span class="k">typedef</span> <span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="p">{</span>
+    <span class="n">sds</span> <span class="n">ele</span><span class="p">;</span>
+    <span class="kt">double</span> <span class="n">score</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="o"><strong></span><span class="n">backward</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">zskiplistLevel</span> <span class="p">{</span>
+        <span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="o"></strong></span><span class="n">forward</span><span class="p">;</span>
+        <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">span</span><span class="p">;</span>
+    <span class="p">}</span> <span class="n">level</span><span class="p">[];</span>
+<span class="p">}</span> <span class="n">zskiplistNode</span><span class="p">;</span>
+
+<span class="k">typedef</span> <span class="k">struct</span> <span class="n">zskiplist</span> <span class="p">{</span>
+    <span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="o"><strong></span><span class="n">header</span><span class="p">,</span> <span class="o"></strong></span><span class="n">tail</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">length</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">level</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">zskiplist</span><span class="p">;</span>
+
+<span class="k">typedef</span> <span class="k">struct</span> <span class="n">zset</span> <span class="p">{</span>
+    <span class="n">dict</span> <span class="o"><strong></span><span class="n">dict</span><span class="p">;</span>
+    <span class="n">zskiplist</span> <span class="o"></strong></span><span class="n">zsl</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">zset</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>skiplist，顾名思义，首先它是一个list。实际上，它是在有序链表的基础上发展起来的。</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="./images/redis/skiplist.png" alt="skiplist" width="100%">
+</div>
+</div>
+<div class="paragraph">
+<p>当我们想查找数据的时候，可以先沿着跨度大的链进行查找。当碰到比待查数据大的节点时，再回到跨度小的链表中进行查找。</p>
+</div>
+<div class="paragraph">
+<p>skiplist正是受这种多层链表的想法的启发而设计出来的。按照上面生成链表的方式，上面每一层链表的节点个数，是下面一层的节点个数的一半，这样查找过程就非常类似于一个二分查找，使得查找的时间复杂度可以降低到 O(logN)。但是，存在的一个问题是：如果插入新节点后就会打乱上下相邻两层节点是 2:1 的对应关系。如果要维持，则需要调整后面所有的节点。</p>
+</div>
+<div class="paragraph">
+<p>skiplist为了避免这一问题，它不要求上下相邻两层链表之间的节点个数有严格的对应关系，而是为每个节点随机出一个层数(level)。</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="./images/redis/redis-skiplist-insertions.png" alt="redis skiplist insertions" width="100%">
+</div>
+</div>
+<div class="paragraph">
+<p>插入操作只需要修改插入节点前后的指针，而不需要对很多节点都进行调整。这就降低了插入操作的复杂度。实际上，这是 skiplist 的一个很重要的特性，这让它在插入性能上明显优于平衡树的方案。</p>
+</div>
+<div class="paragraph">
+<p>skiplist，翻译成中文，可以翻译成“跳表”或“跳跃表”，指的就是除了最下面第1层链表之外，它会产生若干层稀疏的链表，这些链表里面的指针故意跳过了一些节点（而且越高层的链表跳过的节点越多）。这就使得我们在查找数据的时候能够先在高层的链表中进行查找，然后逐层降低，最终降到第1层链表来精确地确定数据位置。在这个过程中，我们跳过了一些节点，从而也就加快了查找速度。</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>在中间插入一个有比较高 Level 的节点，如何维护前面节点到这个节点的这些链接？</p>
+</li>
+<li>
+<p>在平衡树种，如何做范围查找？先确定边界，然后其他节点怎么查找？</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="./images/redis/redis_skiplist_example.png" alt="redis skiplist example" width="100%">
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>skiplist 中 key 允许重复。</p>
+</li>
+<li>
+<p>在比较时，不仅比较分数（即key），还要比较数据自身。</p>
+</li>
+<li>
+<p>第一层链表是双向链表，并且反向指针只有一个。</p>
+</li>
+<li>
+<p>在 skiplist 中可以很方便计算每个元素的排名。</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Redis 中的有序集合（sorted set），是在 skiplist, dict 和 ziplist 基础上构建起来的:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>当数据较少时，sorted set是由一个 ziplist 来实现的。其中集合元素按照分值从小到大排序。</p>
+</li>
+<li>
+<p>当数据多的时候，sorted set 是由一个叫 zset 的数据结构来实现的，这个 zset 包含一个 dict + 一个 skiplist。dict 用来查询数据到分数(score)的对应关系，而 skiplist 用来根据分数查询数据（可能是范围查找）。</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>转换的条件是：</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>有序集合保存的元素数量小于 128 个；（通过参数 <code>zset-max-ziplist-entries</code> 来调节，默认为 128。）</p>
+</li>
+<li>
+<p>有序集合保存的所有元素成员的长度都要小于 64 个字节；（通过参数 <code>zset-max-ziplist-value</code> 来调节，默认为 64。）</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>在 <code>t_zset.c/zsetConvert</code> 中执行转换操作。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="bash"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+</pre></td><td class="code"><pre><span class="nv">$ </span>redis-cli <span class="nt">--raw</span>
+
+127.0.0.1:6379&gt; ZADD NameRanking 1 <span class="s2">"D瓜哥"</span>
+1
+
+127.0.0.1:6379&gt; ZADD NameRanking 2 <span class="s2">"https://www.diguage.com"</span>
+1
+
+127.0.0.1:6379&gt; ZADD NameRanking 3 <span class="s2">"https://github.com/diguage"</span>
+1
+
+127.0.0.1:6379&gt; ZRANGE NameRanking 0 <span class="nt">-1</span> WITHSCORES
+D瓜哥
+1
+https://www.diguage.com
+2
+https://github.com/diguage
+3
+
+127.0.0.1:6379&gt; TYPE NameRanking
+zset
+
+127.0.0.1:6379&gt; OBJECT encoding NameRanking
+ziplist
+
+127.0.0.1:6379&gt; ZADD NameRanking 4 <span class="s2">"1234567890123456789012345678901234567890123456789012345678901234"</span>
+1
+
+127.0.0.1:6379&gt; ZRANGE NameRanking 0 <span class="nt">-1</span> WITHSCORES
+D瓜哥
+1
+https://www.diguage.com
+2
+https://github.com/diguage
+3
+1234567890123456789012345678901234567890123456789012345678901234
+4
+
+127.0.0.1:6379&gt; OBJECT encoding NameRanking
+ziplist
+
+127.0.0.1:6379&gt; ZADD NameRanking 5 <span class="s2">"12345678901234567890123456789012345678901234567890123456789012345"</span>
+1
+
+127.0.0.1:6379&gt; ZRANGE NameRanking 0 <span class="nt">-1</span> WITHSCORES
+D瓜哥
+1
+https://www.diguage.com
+2
+https://github.com/diguage
+3
+1234567890123456789012345678901234567890123456789012345678901234
+4
+12345678901234567890123456789012345678901234567890123456789012345
+5
+
+127.0.0.1:6379&gt; OBJECT encoding NameRanking
+skiplist
+
+127.0.0.1:6379&gt; TYPE NameRanking
+zset
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>在 JDK 中，也有 skiplist 的实现，在 <code>ConcurrentSkipListMap</code> 中。不过，它不是作为一个独立的 <code>Collection</code> 来实现的，而是作为 <code>Map</code> 的一部分来实现的。</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_参考资料"><a class="anchor" href="#_参考资料"></a>2. 参考资料</h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><a href="https://www.diguage.com/post/redis-core-data-structure-2/" target="_blank" rel="noopener">Redis 核心数据结构（二） - "地瓜哥"博客网</a>&#8201;&#8212;&#8201;本文中的 Redis 内容是这篇文章的一个拷贝。请以原文为准备，本文尽量同步更新。</p>
+</li>
+<li>
+<p><a href="ftp://ftp.cs.umd.edu/pub/skipLists/skiplists.pdf">William Pugh《Skip Lists: A Probabilistic Alternative to Balanced Trees》</a></p>
+</li>
+<li>
+<p><a href="https://mp.weixin.qq.com/s?__biz=MzA4NTg1MjM0Mg==&amp;mid=2657261425&amp;idx=1&amp;sn=d840079ea35875a8c8e02d9b3e44cf95&amp;scene=21#wechat_redirect">Redis为什么用跳表而不用平衡树？- 张铁蕾</a></p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2022-06-21 15:32:25 UTC
+</div>
+</div>
+</body>
+</html>

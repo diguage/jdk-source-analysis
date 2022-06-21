@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.17">
+<title>StampedLock</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="assets/styles/asciidoctor.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="assets/styles/rouge-github.css">
+<style>a{text-decoration:none;}.img_bk{text-align:center;}strong>code,p>code{color: #d14 !important;background-color: #f5f5f5 !important;border: 1px solid #e1e1e8;white-space: nowrap;border-radius: 3px;}</style>
+</head>
+<body class="book">
+<div id="header">
+<h1>StampedLock</h1>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+</pre></td><td class="code"><pre><span class="kn">package</span> <span class="nn">com.diguage.truman.concurrent</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">org.junit.jupiter.api.Test</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.concurrent.ExecutorService</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.concurrent.Executors</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.concurrent.ThreadLocalRandom</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.concurrent.locks.StampedLock</span><span class="o">;</span>
+
+<span class="cm">/**
+ * @author D瓜哥, https://www.diguage.com/
+ * @since 2020-03-16 23:15
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">StampedLockTest</span> <span class="o">{</span>
+    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">StampedLock</span> <span class="n">lock</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">StampedLock</span><span class="o">();</span>
+        <span class="nc">Point</span> <span class="n">point</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Point</span><span class="o">(</span><span class="n">lock</span><span class="o">);</span>
+        <span class="nc">ExecutorService</span> <span class="n">executorService</span> <span class="o">=</span> <span class="nc">Executors</span><span class="o">.</span><span class="na">newFixedThreadPool</span><span class="o">(</span><span class="mi">10</span><span class="o">);</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">1000</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+            <span class="n">executorService</span><span class="o">.</span><span class="na">execute</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+                <span class="nc">ThreadLocalRandom</span> <span class="n">random</span> <span class="o">=</span> <span class="nc">ThreadLocalRandom</span><span class="o">.</span><span class="na">current</span><span class="o">();</span>
+                <span class="n">point</span><span class="o">.</span><span class="na">move</span><span class="o">(</span><span class="n">random</span><span class="o">.</span><span class="na">nextDouble</span><span class="o">(</span><span class="mi">100</span><span class="o">),</span> <span class="n">random</span><span class="o">.</span><span class="na">nextDouble</span><span class="o">(</span><span class="mi">100</span><span class="o">));</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"move point..."</span><span class="o">);</span>
+            <span class="o">});</span>
+
+            <span class="n">executorService</span><span class="o">.</span><span class="na">execute</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+                <span class="kt">double</span> <span class="n">distance</span> <span class="o">=</span> <span class="n">point</span><span class="o">.</span><span class="na">distanceFromOrigin</span><span class="o">();</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"current distance = "</span> <span class="o">+</span> <span class="n">distance</span><span class="o">);</span>
+            <span class="o">});</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">static</span> <span class="kd">class</span> <span class="nc">Point</span> <span class="o">{</span>
+        <span class="kd">private</span> <span class="kd">volatile</span> <span class="kt">double</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">;</span>
+        <span class="kd">private</span> <span class="kd">final</span> <span class="nc">StampedLock</span> <span class="n">lock</span><span class="o">;</span>
+
+        <span class="kd">public</span> <span class="nf">Point</span><span class="o">(</span><span class="nc">StampedLock</span> <span class="n">lock</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">lock</span> <span class="o">=</span> <span class="n">lock</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kt">void</span> <span class="nf">move</span><span class="o">(</span><span class="kt">double</span> <span class="n">deltaX</span><span class="o">,</span> <span class="kt">double</span> <span class="n">deltaxY</span><span class="o">)</span> <span class="o">{</span>
+            <span class="kt">long</span> <span class="n">stamp</span> <span class="o">=</span> <span class="n">lock</span><span class="o">.</span><span class="na">writeLock</span><span class="o">();</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="n">x</span> <span class="o">+=</span> <span class="n">deltaX</span><span class="o">;</span>
+                <span class="n">y</span> <span class="o">+=</span> <span class="n">deltaxY</span><span class="o">;</span>
+            <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+                <span class="n">lock</span><span class="o">.</span><span class="na">unlock</span><span class="o">(</span><span class="n">stamp</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        <span class="kt">double</span> <span class="nf">distanceFromOrigin</span><span class="o">()</span> <span class="o">{</span>
+            <span class="kt">long</span> <span class="n">stamp</span> <span class="o">=</span> <span class="n">lock</span><span class="o">.</span><span class="na">tryOptimisticRead</span><span class="o">();</span>
+            <span class="kt">double</span> <span class="n">currentX</span> <span class="o">=</span> <span class="n">x</span><span class="o">,</span> <span class="n">currentY</span> <span class="o">=</span> <span class="n">y</span><span class="o">;</span>
+            <span class="k">if</span> <span class="o">(!</span><span class="n">lock</span><span class="o">.</span><span class="na">validate</span><span class="o">(</span><span class="n">stamp</span><span class="o">))</span> <span class="o">{</span>
+                <span class="n">stamp</span> <span class="o">=</span> <span class="n">lock</span><span class="o">.</span><span class="na">readLock</span><span class="o">();</span>
+                <span class="k">try</span> <span class="o">{</span>
+                    <span class="n">currentX</span> <span class="o">=</span> <span class="n">x</span><span class="o">;</span>
+                    <span class="n">currentY</span> <span class="o">=</span> <span class="n">y</span><span class="o">;</span>
+                <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+                    <span class="n">lock</span><span class="o">.</span><span class="na">unlock</span><span class="o">(</span><span class="n">stamp</span><span class="o">);</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+            <span class="k">return</span> <span class="nc">Math</span><span class="o">.</span><span class="na">sqrt</span><span class="o">(</span><span class="n">currentX</span> <span class="o">*</span> <span class="n">currentX</span> <span class="o">+</span> <span class="n">currentY</span> <span class="o">*</span> <span class="n">currentY</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2022-06-21 15:32:25 UTC
+</div>
+</div>
+</body>
+</html>

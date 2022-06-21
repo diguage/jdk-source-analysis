@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg height='188pt' preserveAspectRatio='xMidYMid meet' viewBox='0.00 0.00 183.00 188.00' width='183pt' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns='http://www.w3.org/2000/svg'>
+<g class='graph' id='graph0' transform='scale(1 1) rotate(0) translate(4 184)'>
+<title>G</title>
+<polygon fill='white' points='-4,4 -4,-184 179,-184 179,4 -4,4' stroke='transparent'/>
+
+<g class='node' id='node1'>
+<title>BootstrapClassLoader</title>
+<polygon fill='none' points='175,-180 0,-180 0,-144 175,-144 175,-180' stroke='black'/>
+<text font-family='Times,serif' font-size='14.00' text-anchor='middle' x='87.5' y='-158.3'>BootstrapClassLoader</text>
+</g>
+
+<g class='node' id='node2'>
+<title>ExtClassLoader</title>
+<polygon fill='none' points='152,-108 23,-108 23,-72 152,-72 152,-108' stroke='black'/>
+<text font-family='Times,serif' font-size='14.00' text-anchor='middle' x='87.5' y='-86.3'>ExtClassLoader</text>
+</g>
+
+<g class='edge' id='edge1'>
+<title>BootstrapClassLoader&#45;&gt;ExtClassLoader</title>
+<path d='M87.5,-133.67C87.5,-125.05 87.5,-115.79 87.5,-108.1' fill='none' stroke='black'/>
+<polygon fill='black' points='84,-133.7 87.5,-143.7 91,-133.7 84,-133.7' stroke='black'/>
+</g>
+
+<g class='node' id='node3'>
+<title>AppClassLoader</title>
+<polygon fill='none' points='153.5,-36 21.5,-36 21.5,0 153.5,0 153.5,-36' stroke='black'/>
+<text font-family='Times,serif' font-size='14.00' text-anchor='middle' x='87.5' y='-14.3'>AppClassLoader</text>
+</g>
+
+<g class='edge' id='edge2'>
+<title>ExtClassLoader&#45;&gt;AppClassLoader</title>
+<path d='M87.5,-61.67C87.5,-53.05 87.5,-43.79 87.5,-36.1' fill='none' stroke='black'/>
+<polygon fill='black' points='84,-61.7 87.5,-71.7 91,-61.7 84,-61.7' stroke='black'/>
+</g>
+</g>
+</svg>

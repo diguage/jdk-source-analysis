@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.17">
+<meta name="author" content="== 涉及代码">
+<title>迭代器 Iterator、 Enumeration、 Spliterator 与 Iterable</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="assets/styles/asciidoctor.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="assets/styles/rouge-github.css">
+<style>a{text-decoration:none;}.img_bk{text-align:center;}strong>code,p>code{color: #d14 !important;background-color: #f5f5f5 !important;border: 1px solid #e1e1e8;white-space: nowrap;border-radius: 3px;}</style>
+</head>
+<body class="book toc2 toc-left">
+<div id="header">
+<h1>迭代器 Iterator、 Enumeration、 Spliterator 与 Iterable</h1>
+<div class="details">
+<span id="author" class="author">== 涉及代码</span><br>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_迭代器模式">1. 迭代器模式</a></li>
+<li><a href="#_iterator">2. <code>Iterator</code></a></li>
+<li><a href="#_iterable">3. <code>Iterable</code></a></li>
+<li><a href="#_工厂方法模式">4. 工厂方法模式</a></li>
+<li><a href="#_spliterator">5. <code>Spliterator</code></a></li>
+<li><a href="#ListIterator">6. <code>ListIterator</code></a></li>
+<li><a href="#_参考资料">7. 参考资料</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>java.util.Iterator</code></p>
+</li>
+<li>
+<p><code>java.util.PrimitiveIterator</code></p>
+</li>
+<li>
+<p><code>java.util.ListIterator</code></p>
+</li>
+<li>
+<p><code>java.util.Spliterator</code></p>
+</li>
+<li>
+<p><code>java.util.Enumeration</code></p>
+</li>
+<li>
+<p><code>java.lang.Iterable</code></p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_迭代器模式"><a class="anchor" href="#_迭代器模式"></a>1. 迭代器模式</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>在进行代码分析之前，D瓜哥想先来讲解一下设计模式。然后结合 Java 中 <code>Iterator</code> 和 <code>Iteratable</code> ，具体分析一下迭代器在 Java 中的实现。</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">迭代器模式（Iterator）</dt>
+<dd>
+<p>提供一种方法顺序访问一个聚合对象中各个元素，而不是暴露该对象的内部表示。</p>
+</dd>
+</dl>
+</div>
+</blockquote>
+<div class="attribution">
+&#8212; Erich Gamma、Richard Helm、Ralph Johnson、John Vlissides<br>
+<cite>《设计模式》</cite>
+</div>
+</div>
+<div class="paragraph">
+<p>类图如下：</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="./diag-8180ed1bc3655ed46a87e816db6f888d.svg" alt="Diagram" width="90%" height="517">
+</div>
+</div>
+<div class="paragraph">
+<p>当需要访问一个聚集对象，而且不管这些对象是什么都需要遍历的时候，就应该考虑用迭代器模式。</p>
+</div>
+<div class="paragraph">
+<p>当需要对聚集有多种方式遍历时，可以考虑用迭代器模式。</p>
+</div>
+<div class="paragraph">
+<p>为遍历不同的聚集结构提供如开始、下一个、是否结束、当前哪一项等统一的接口。</p>
+</div>
+<div class="paragraph">
+<p>尽管我们不需要显式的引用迭代器，但系统本身还是通过迭代器来实现遍历的。总地来说，迭代器（<code>Iterator</code>）模式就是分离了集合对象的遍历行为，抽象出一个迭代器类来负责，这样既可以做到不暴露集合的内部结构，又可让外部代码透明地访问集合内部的数据。</p>
+</div>
+<div class="paragraph">
+<p>请问： Java 中是如何应用迭代器模式呢？</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_iterator"><a class="anchor" href="#_iterator"></a>2. <code>Iterator</code></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>从上面的设计模式可以看出，迭代器模式就是为了遍历不同的聚集结构提供诸如开始、下一个、是否结束、当前元素等常见操作的统一接口。来看看 Java 集合类是如何提炼接口的。</p>
+</div>
+<div class="listingblock">
+<div class="title">java.util.Iterator</div>
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td><td class="code"><pre><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Iterator</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="o">{</span>
+
+    <span class="kt">boolean</span> <span class="nf">hasNext</span><span class="o">();</span>
+
+    <span class="no">E</span> <span class="nf">next</span><span class="o">();</span>
+
+    <span class="k">default</span> <span class="kt">void</span> <span class="nf">remove</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">UnsupportedOperationException</span><span class="o">(</span><span class="s">"remove"</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+     * @since 1.8
+     */</span>
+    <span class="k">default</span> <span class="kt">void</span> <span class="nf">forEachRemaining</span><span class="o">(</span><span class="nc">Consumer</span><span class="o">&lt;?</span> <span class="kd">super</span> <span class="no">E</span><span class="o">&gt;</span> <span class="n">action</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Objects</span><span class="o">.</span><span class="na">requireNonNull</span><span class="o">(</span><span class="n">action</span><span class="o">);</span>
+        <span class="k">while</span> <span class="o">(</span><span class="n">hasNext</span><span class="o">())</span>
+            <span class="n">action</span><span class="o">.</span><span class="na">accept</span><span class="o">(</span><span class="n">next</span><span class="o">());</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>从上述代码中，可以看出 Java 提取了 <code>boolean hasNext()</code>、 <code>E next()</code>、 <code>void remove()</code> 等三个操作方法；在 Java 8 中，为了支持 Stream API，有增加了 <code>void forEachRemaining(Consumer&lt;? super E&gt; action)</code> 方法。</p>
+</div>
+<div class="paragraph">
+<p>这里多扯一句，Java 在 1.2 以前迭代器是通过另外一个接口实现的：</p>
+</div>
+<div class="listingblock">
+<div class="title">java.util.Enumeration</div>
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="code"><pre><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Enumeration</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="o">{</span>
+
+    <span class="kt">boolean</span> <span class="nf">hasMoreElements</span><span class="o">();</span>
+
+    <span class="no">E</span> <span class="nf">nextElement</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>与上面的 <code>java.util.Iterator</code> 对比可以看出，两者差别不大。那为什么 Java 在已有 <code>java.util.Iterator</code> 接口的情况下，还要推出 <code>java.util.Enumeration</code> 接口呢？在 <code>java.util.Iterator</code> 接口的 JavaDoc 中给出了如下理由：</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Iterators allow the caller to remove elements from the underlying collection during the iteration with well-defined semantics.</p>
+</li>
+<li>
+<p>Method names have been improved.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>我们都知道，在 Java 8 之前，接口中的方法不能有任何实现。所以，为了保持兼容性，不能在已有接口中增加方法。只能另起炉灶，把“洞”补上。这也就不难理解，为什么又搞出了个 <code>java.util.Iterator</code>。</p>
+</div>
+<div class="paragraph">
+<p>这里再多提一句，需要增加自定义的迭代器实现时，请优先选择 <code>java.util.Iterator</code>。</p>
+</div>
+<div class="paragraph">
+<p>请问：既然有迭代器接口定义了，那么 Java 又是如何生成迭代器实例呢？</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_iterable"><a class="anchor" href="#_iterable"></a>3. <code>Iterable</code></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>既然迭代器可以抽象成一个公共的接口，那么生成迭代器实例的这个操作，也可以抽象成一个接口。 Java 也确实是这样做的：</p>
+</div>
+<div class="listingblock">
+<div class="title">java.lang.Iterable</div>
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="code"><pre><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Iterable</span><span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="o">{</span>
+
+    <span class="nc">Iterator</span><span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="nf">iterator</span><span class="o">();</span>
+
+    <span class="cm">/**
+     * @since 1.8
+     */</span>
+    <span class="k">default</span> <span class="kt">void</span> <span class="nf">forEach</span><span class="o">(</span><span class="nc">Consumer</span><span class="o">&lt;?</span> <span class="kd">super</span> <span class="no">T</span><span class="o">&gt;</span> <span class="n">action</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Objects</span><span class="o">.</span><span class="na">requireNonNull</span><span class="o">(</span><span class="n">action</span><span class="o">);</span>
+        <span class="k">for</span> <span class="o">(</span><span class="no">T</span> <span class="n">t</span> <span class="o">:</span> <span class="k">this</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">action</span><span class="o">.</span><span class="na">accept</span><span class="o">(</span><span class="n">t</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+     * @since 1.8
+     */</span>
+    <span class="k">default</span> <span class="nc">Spliterator</span><span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="nf">spliterator</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nc">Spliterators</span><span class="o">.</span><span class="na">spliteratorUnknownSize</span><span class="o">(</span><span class="n">iterator</span><span class="o">(),</span> <span class="mi">0</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>从类的定义中，可以看到 <code>java.lang.Iterable</code> 提供了 <code>iterator()</code>，用于创建 <code>java.util.Iterator</code> 示例对象。</p>
+</div>
+<div class="paragraph">
+<p>在 Java 8 中，为了支持 Lambda 表达式和 Stream API，又增加了 <code>forEach(Consumer&lt;? super T&gt; action)</code> 和 <code>spliterator()</code> 方法。</p>
+</div>
+<div class="paragraph">
+<p>在思考实现原理的过程中，D瓜哥突然想到，<code>java.lang.Iterable</code> 就是一个工厂方法模式的应用。来分析一下：</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_工厂方法模式"><a class="anchor" href="#_工厂方法模式"></a>4. 工厂方法模式</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>先来看看工厂方法模式的定义：</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">工厂方法模式（Factory Method）</dt>
+<dd>
+<p>定义一个用于创建对象的接口，让子类决定实例化哪一个类。工厂方法使一个类的实例化延迟到其子类。</p>
+</dd>
+</dl>
+</div>
+</blockquote>
+<div class="attribution">
+&#8212; Erich Gamma、Richard Helm、Ralph Johnson、John Vlissides<br>
+<cite>《设计模式》</cite>
+</div>
+</div>
+<div class="paragraph">
+<p>类图如下：</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="./diag-db0e11d8a820919577b56d18fe8bc790.svg" alt="Diagram" width="90%" height="392">
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>java.lang.Iterable</code> 就相当于 <code>Factory</code> 接口，也就是工厂；</p>
+</li>
+<li>
+<p><code>java.util.Iterator</code> 就相当于工厂生成的产品 <code>Product</code>；</p>
+</li>
+<li>
+<p><code>iterator()</code> 方法就是工厂方法 <code>factoryMethod()</code>；</p>
+</li>
+<li>
+<p><code>java.lang.Iterable</code> 和 <code>java.util.Iterator</code> 子类，都放在了各个集合类中来具体实现。</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>在各个聚集类中，去实现 <code>java.lang.Iterable</code> 接口，然后根据聚集类的情况，返回对应的 <code>java.util.Iterator</code> 具体类对象即可。</p>
+</div>
+<div class="paragraph">
+<p>细心的童鞋，可能发现还有个类似迭代器的类 <code>Spliterator</code>。这是个什么类？为啥要增加相关的接口呢？</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_spliterator"><a class="anchor" href="#_spliterator"></a>5. <code>Spliterator</code></h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="ListIterator"><a class="anchor" href="#ListIterator"></a>6. <code>ListIterator</code></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>java.util.Iterator</code> 是针对整个集合类抽象出来的通用迭代器。但是，可以思考一下，对于 <code>java.util.List</code> 是不是可以有更契合的迭代器？</p>
+</div>
+<div class="paragraph">
+<p>关于这个问题的答案，JDK 给出了自己的答案：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+</pre></td><td class="code"><pre><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">ListIterator</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="kd">extends</span> <span class="nc">Iterator</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="c1">// Query Operations</span>
+
+    <span class="kt">boolean</span> <span class="nf">hasNext</span><span class="o">();</span>
+
+    <span class="no">E</span> <span class="nf">next</span><span class="o">();</span>
+
+    <span class="kt">boolean</span> <span class="nf">hasPrevious</span><span class="o">();</span>
+
+    <span class="no">E</span> <span class="nf">previous</span><span class="o">();</span>
+
+    <span class="kt">int</span> <span class="nf">nextIndex</span><span class="o">();</span>
+
+    <span class="kt">int</span> <span class="nf">previousIndex</span><span class="o">();</span>
+
+
+    <span class="c1">// Modification Operations</span>
+
+    <span class="kt">void</span> <span class="nf">remove</span><span class="o">();</span>
+
+    <span class="kt">void</span> <span class="nf">set</span><span class="o">(</span><span class="no">E</span> <span class="n">e</span><span class="o">);</span>
+
+    <span class="kt">void</span> <span class="nf">add</span><span class="o">(</span><span class="no">E</span> <span class="n">e</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>由于 <code>List</code> 是有序的，从代码中可以看出，所以，<code>ListIterator</code> 在 <code>Iterator</code> 基础之上，增加了获前后元素相关的方法；同时，还增加了修改相关的操作方法。</p>
+</div>
+<div class="paragraph">
+<p>因为增加了 <code>hasPrevious()</code> 和 <code>previous()</code>，那么 <code>ListIterator</code> 就有了双向遍历的能力：既可以像传统迭代器那样，从前向后遍历；又可以逆向，从后想前遍历。这样在某些场景下就会特别方便。</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_参考资料"><a class="anchor" href="#_参考资料"></a>7. 参考资料</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://www.journaldev.com/13457/java-listiterator">Java ListIterator - ListIterator in Java - JournalDev</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2022-06-21 15:32:25 UTC
+</div>
+</div>
+</body>
+</html>

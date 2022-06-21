@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.17">
+<title>ServiceLoader</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="assets/styles/asciidoctor.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="assets/styles/rouge-github.css">
+<style>a{text-decoration:none;}.img_bk{text-align:center;}strong>code,p>code{color: #d14 !important;background-color: #f5f5f5 !important;border: 1px solid #e1e1e8;white-space: nowrap;border-radius: 3px;}</style>
+</head>
+<body class="book toc2 toc-left">
+<div id="header">
+<h1><code>ServiceLoader</code></h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_参考资料">1. 参考资料</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="code"><pre><span class="kn">package</span> <span class="nn">com.diguage.truman</span><span class="o">;</span>
+
+<span class="cm">/**
+ * @author D瓜哥, https://www.diguage.com/
+ * @since 2020-04-08 10:47
+ */</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">ServiceLoaderSay</span> <span class="o">{</span>
+    <span class="kt">void</span> <span class="nf">say</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+</pre></td><td class="code"><pre><span class="kn">package</span> <span class="nn">com.diguage.truman</span><span class="o">;</span>
+
+<span class="cm">/**
+ * @author D瓜哥, https://www.diguage.com/
+ * @since 2020-04-08 10:48
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ServiceLoaderSayHello</span> <span class="kd">implements</span> <span class="nc">ServiceLoaderSay</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">say</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Hello, https://www.diguage.com/"</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+</pre></td><td class="code"><pre><span class="kn">package</span> <span class="nn">com.diguage.truman</span><span class="o">;</span>
+
+<span class="cm">/**
+ * @author D瓜哥, https://www.diguage.com/
+ * @since 2020-04-08 10:48
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ServiceLoaderSayGoodbye</span> <span class="kd">implements</span> <span class="nc">ServiceLoaderSay</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">say</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Goodbye, https://www.diguage.com/"</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+</pre></td><td class="code"><pre><span class="kn">package</span> <span class="nn">com.diguage.truman</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">org.junit.jupiter.api.Test</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.Iterator</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.ServiceLoader</span><span class="o">;</span>
+
+<span class="cm">/**
+ * @author D瓜哥, https://www.diguage.com/
+ * @since 2020-04-08 10:40
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ServiceLoaderTest</span> <span class="o">{</span>
+    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">ServiceLoader</span><span class="o">&lt;</span><span class="nc">ServiceLoaderSay</span><span class="o">&gt;</span> <span class="n">loader</span>
+                <span class="o">=</span> <span class="nc">ServiceLoader</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="nc">ServiceLoaderSay</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="nc">Iterator</span><span class="o">&lt;</span><span class="nc">ServiceLoaderSay</span><span class="o">&gt;</span> <span class="n">iterator</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="na">iterator</span><span class="o">();</span>
+        <span class="k">while</span> <span class="o">(</span><span class="n">iterator</span><span class="o">.</span><span class="na">hasNext</span><span class="o">())</span> <span class="o">{</span>
+            <span class="nc">ServiceLoaderSay</span> <span class="n">say</span> <span class="o">=</span> <span class="n">iterator</span><span class="o">.</span><span class="na">next</span><span class="o">();</span>
+            <span class="n">say</span><span class="o">.</span><span class="na">say</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>经过测试，有几点需要注意：</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>只支持 <code>public</code> 的类。D瓜哥测试，这是因为内部需要创建对象，其他访问控制不能在 <code>ServiceLoader</code> 类中创建对象。</p>
+</li>
+<li>
+<p>不支持 <code>Outter.Inner</code> 这样的内部类 ，即使是 <code>public static class</code>。</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_参考资料"><a class="anchor" href="#_参考资料"></a>1. 参考资料</h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><a href="http://www.throwable.club/2018/11/30/java-service-loader/">浅析JDK中ServiceLoader的源码 - Throwable&#8217;s Blog</a>&#8201;&#8212;&#8201;这里的代码是基于 JDK 8 的，和 JDK 11 的代码已经相差很大。</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2022-06-21 15:32:25 UTC
+</div>
+</div>
+</body>
+</html>

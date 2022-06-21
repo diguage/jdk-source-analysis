@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.17">
+<title>TreeMap</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="assets/styles/asciidoctor.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="assets/styles/rouge-github.css">
+<style>a{text-decoration:none;}.img_bk{text-align:center;}strong>code,p>code{color: #d14 !important;background-color: #f5f5f5 !important;border: 1px solid #e1e1e8;white-space: nowrap;border-radius: 3px;}</style>
+</head>
+<body class="book">
+<div id="header">
+<h1>TreeMap</h1>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>先看一个问题：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+</pre></td><td class="code"><pre>    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testQuestion</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">TreeMap</span><span class="o">&lt;</span><span class="nc">Pair</span><span class="o">,</span> <span class="nc">Pair</span><span class="o">&gt;</span> <span class="n">data</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">TreeMap</span><span class="o">&lt;&gt;();</span>
+        <span class="nc">Pair</span> <span class="n">pair</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Pair</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="nc">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">());</span>
+
+        <span class="n">data</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">pair</span><span class="o">,</span> <span class="n">pair</span><span class="o">);</span>
+        <span class="nc">Pair</span> <span class="n">value</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="k">new</span> <span class="nc">Pair</span><span class="o">(</span><span class="mi">1</span><span class="o">));</span>
+        <span class="c1">// 请问，这里会输出 true ？还是 false ？</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">pair</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">value</span><span class="o">));</span>
+    <span class="o">}</span>
+
+    <span class="kd">class</span> <span class="nc">Pair</span> <span class="kd">implements</span> <span class="nc">Comparable</span><span class="o">&lt;</span><span class="nc">Pair</span><span class="o">&gt;</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">key</span><span class="o">;</span>
+        <span class="kt">long</span> <span class="n">time</span><span class="o">;</span>
+
+        <span class="kd">public</span> <span class="nf">Pair</span><span class="o">(</span><span class="kt">int</span> <span class="n">key</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">key</span> <span class="o">=</span> <span class="n">key</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="nf">Pair</span><span class="o">(</span><span class="kt">int</span> <span class="n">key</span><span class="o">,</span> <span class="kt">long</span> <span class="n">time</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">key</span> <span class="o">=</span> <span class="n">key</span><span class="o">;</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">time</span> <span class="o">=</span> <span class="n">time</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">int</span> <span class="nf">compareTo</span><span class="o">(</span><span class="nc">Pair</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="nc">Long</span><span class="o">.</span><span class="na">compare</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">time</span><span class="o">,</span> <span class="n">o</span><span class="o">.</span><span class="na">time</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">equals</span><span class="o">(</span><span class="nc">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(</span><span class="k">this</span> <span class="o">==</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+            <span class="o">}</span>
+
+            <span class="k">if</span> <span class="o">(</span><span class="n">o</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">getClass</span><span class="o">()</span> <span class="o">!=</span> <span class="n">o</span><span class="o">.</span><span class="na">getClass</span><span class="o">())</span> <span class="o">{</span>
+                <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="nc">Pair</span> <span class="n">pair</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Pair</span><span class="o">)</span> <span class="n">o</span><span class="o">;</span>
+            <span class="k">return</span> <span class="n">key</span> <span class="o">==</span> <span class="n">pair</span><span class="o">.</span><span class="na">key</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">int</span> <span class="nf">hashCode</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="nc">Objects</span><span class="o">.</span><span class="na">hash</span><span class="o">(</span><span class="n">key</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>TreeMap</code> 底层是一个红黑树。</p>
+</div>
+<div class="paragraph">
+<p>先定义一个测试实体类：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+</pre></td><td class="code"><pre>    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">Person</span> <span class="o">{</span>
+        <span class="kt">long</span> <span class="n">id</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">sortFactor</span><span class="o">;</span>
+
+        <span class="kd">public</span> <span class="nf">Person</span><span class="o">(</span><span class="kt">long</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">(</span><span class="n">id</span><span class="o">,</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span> <span class="n">id</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="nf">Person</span><span class="o">(</span><span class="kt">long</span> <span class="n">id</span><span class="o">,</span> <span class="kt">int</span> <span class="n">sortFactor</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">id</span> <span class="o">=</span> <span class="n">id</span><span class="o">;</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">sortFactor</span> <span class="o">=</span> <span class="n">sortFactor</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">equals</span><span class="o">(</span><span class="nc">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(</span><span class="k">this</span> <span class="o">==</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">o</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">getClass</span><span class="o">()</span> <span class="o">!=</span> <span class="n">o</span><span class="o">.</span><span class="na">getClass</span><span class="o">())</span> <span class="o">{</span>
+                <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="nc">Person</span> <span class="n">person</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Person</span><span class="o">)</span> <span class="n">o</span><span class="o">;</span>
+            <span class="k">return</span> <span class="n">id</span> <span class="o">==</span> <span class="n">person</span><span class="o">.</span><span class="na">id</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">int</span> <span class="nf">hashCode</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="nc">Objects</span><span class="o">.</span><span class="na">hash</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="nc">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="s">"Person{"</span> <span class="o">+</span>
+                    <span class="s">"id="</span> <span class="o">+</span> <span class="n">id</span> <span class="o">+</span>
+                    <span class="s">", age="</span> <span class="o">+</span> <span class="n">sortFactor</span> <span class="o">+</span>
+                    <span class="sc">'}'</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+</pre></td><td class="code"><pre>    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testSort</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">Comparator</span><span class="o">&lt;</span><span class="nc">Person</span><span class="o">&gt;</span> <span class="n">comparator</span>
+                <span class="o">=</span> <span class="nc">Comparator</span><span class="o">.</span><span class="na">comparingInt</span><span class="o">(</span><span class="n">a</span> <span class="o">-&gt;</span> <span class="n">a</span><span class="o">.</span><span class="na">sortFactor</span><span class="o">);</span>
+        <span class="nc">TreeMap</span><span class="o">&lt;</span><span class="nc">Person</span><span class="o">,</span> <span class="nc">Person</span><span class="o">&gt;</span> <span class="n">map</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">TreeMap</span><span class="o">&lt;&gt;(</span><span class="n">comparator</span><span class="o">);</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">((</span><span class="n">i</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="o">)</span> <span class="o">==</span> <span class="mi">1</span><span class="o">)</span> <span class="o">{</span>
+                <span class="nc">Person</span> <span class="n">person</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Person</span><span class="o">(</span><span class="n">i</span><span class="o">);</span>
+                <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">person</span><span class="o">,</span> <span class="n">person</span><span class="o">);</span>
+            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                <span class="nc">Person</span> <span class="n">param</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Person</span><span class="o">(</span><span class="n">i</span> <span class="o">/</span> <span class="mi">2</span><span class="o">);</span>
+                <span class="nc">Person</span> <span class="n">person</span> <span class="o">=</span> <span class="n">map</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">param</span><span class="o">);</span>
+                <span class="k">if</span> <span class="o">(</span><span class="nc">Objects</span><span class="o">.</span><span class="na">nonNull</span><span class="o">(</span><span class="n">person</span><span class="o">))</span> <span class="o">{</span>
+                    <span class="n">person</span><span class="o">.</span><span class="na">sortFactor</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Random</span><span class="o">().</span><span class="na">nextInt</span><span class="o">();</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="c1">//</span>
+        <span class="n">map</span><span class="o">.</span><span class="na">forEach</span><span class="o">((</span><span class="n">k</span><span class="o">,</span> <span class="n">v</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">k</span><span class="o">);</span>
+        <span class="o">});</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"-------------"</span><span class="o">);</span>
+        <span class="k">for</span> <span class="o">(</span><span class="nc">Person</span> <span class="n">person</span> <span class="o">:</span> <span class="n">map</span><span class="o">.</span><span class="na">navigableKeySet</span><span class="o">())</span> <span class="o">{</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">person</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"-------------"</span><span class="o">);</span>
+        <span class="k">for</span> <span class="o">(</span><span class="nc">Person</span> <span class="n">person</span> <span class="o">:</span> <span class="n">map</span><span class="o">.</span><span class="na">descendingKeySet</span><span class="o">())</span> <span class="o">{</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">person</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>修改排序字段，打印时，依然可以保持有序性。<em>这个实现是怎么回事？</em></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+</pre></td><td class="code"><pre>    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testDuplicateSortFactor</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">Comparator</span><span class="o">&lt;</span><span class="nc">Person</span><span class="o">&gt;</span> <span class="n">comparator</span>
+                <span class="o">=</span> <span class="nc">Comparator</span><span class="o">.</span><span class="na">comparingInt</span><span class="o">(</span><span class="n">a</span> <span class="o">-&gt;</span> <span class="n">a</span><span class="o">.</span><span class="na">sortFactor</span><span class="o">);</span>
+        <span class="nc">TreeMap</span><span class="o">&lt;</span><span class="nc">Person</span><span class="o">,</span> <span class="nc">Person</span><span class="o">&gt;</span> <span class="n">treeMap</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">TreeMap</span><span class="o">&lt;&gt;(</span><span class="n">comparator</span><span class="o">);</span>
+        <span class="nc">Person</span> <span class="n">p1</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Person</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+        <span class="nc">Person</span> <span class="n">p2</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Person</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+        <span class="k">assert</span> <span class="o">!</span><span class="n">p1</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">p2</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">p1</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">p2</span><span class="o">));</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+            <span class="nc">Person</span> <span class="n">person</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Person</span><span class="o">(</span><span class="n">i</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+            <span class="n">treeMap</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">person</span><span class="o">,</span> <span class="n">person</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="k">assert</span> <span class="o">(</span><span class="n">treeMap</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="mi">1</span><span class="o">);</span>
+        <span class="n">treeMap</span><span class="o">.</span><span class="na">forEach</span><span class="o">((</span><span class="n">k</span><span class="o">,</span> <span class="n">v</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"-----------------------"</span><span class="o">);</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">"kid= %-4d kfactor= %-8d%n"</span><span class="o">,</span> <span class="n">k</span><span class="o">.</span><span class="na">id</span><span class="o">,</span> <span class="n">k</span><span class="o">.</span><span class="na">sortFactor</span><span class="o">);</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">"vid= %-4d vfactor= %-8d%n"</span><span class="o">,</span> <span class="n">v</span><span class="o">.</span><span class="na">id</span><span class="o">,</span> <span class="n">v</span><span class="o">.</span><span class="na">sortFactor</span><span class="o">);</span>
+        <span class="o">});</span>
+    <span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>由此看出，<code>TreeMap</code> 不能接受排序因子相同的值。如果存在，则后来者把前者的 <code>Value</code> 覆盖掉。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="code"><pre>    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testPut</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">TreeMap</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">&gt;</span> <span class="n">treeMap</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">TreeMap</span><span class="o">&lt;&gt;();</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+            <span class="n">treeMap</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">i</span><span class="o">,</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">100</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2022-06-21 15:32:25 UTC
+</div>
+</div>
+</body>
+</html>

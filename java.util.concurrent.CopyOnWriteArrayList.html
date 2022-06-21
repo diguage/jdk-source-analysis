@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.17">
+<title>CopyOnWriteArrayList</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="assets/styles/asciidoctor.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="assets/styles/rouge-github.css">
+<style>a{text-decoration:none;}.img_bk{text-align:center;}strong>code,p>code{color: #d14 !important;background-color: #f5f5f5 !important;border: 1px solid #e1e1e8;white-space: nowrap;border-radius: 3px;}</style>
+</head>
+<body class="book toc2 toc-left">
+<div id="header">
+<h1>CopyOnWriteArrayList</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_参考资料">1. 参考资料</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="java.util.concurrent.locks.ReentrantReadWriteLock.html"><code>ReentrantReadWriteLock</code></a> 读写锁的思想非常类似，也就是读读共享、写写互斥、读写互斥、写读互斥。JDK 中提供了 <code>CopyOnWriteArrayList</code> 类比相比于在读写锁的思想又更进一步。为了将读取的性能发挥到极致，<code>CopyOnWriteArrayList</code> 读取是完全不用加锁的，并且更厉害的是：写入也不会阻塞读取操作。只有写入和写入之间需要进行同步等待。这样一来，读操作的性能就会大幅度提升。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+</pre></td><td class="code"><pre><span class="cm">/** The array, accessed only via getArray/setArray. */</span>
+<span class="kd">private</span> <span class="kd">transient</span> <span class="kd">volatile</span> <span class="nc">Object</span><span class="o">[]</span> <span class="n">array</span><span class="o">;</span>
+
+<span class="cm">/**
+ * Gets the array.  Non-private so as to also be accessible
+ * from CopyOnWriteArraySet class.
+ */</span>
+<span class="kd">final</span> <span class="nc">Object</span><span class="o">[]</span> <span class="nf">getArray</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">array</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+ * Sets the array.
+ */</span>
+<span class="kd">final</span> <span class="kt">void</span> <span class="nf">setArray</span><span class="o">(</span><span class="nc">Object</span><span class="o">[]</span> <span class="n">a</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">array</span> <span class="o">=</span> <span class="n">a</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">"unchecked"</span><span class="o">)</span>
+<span class="kd">static</span> <span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="no">E</span> <span class="nf">elementAt</span><span class="o">(</span><span class="nc">Object</span><span class="o">[]</span> <span class="n">a</span><span class="o">,</span> <span class="kt">int</span> <span class="n">index</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="o">(</span><span class="no">E</span><span class="o">)</span> <span class="n">a</span><span class="o">[</span><span class="n">index</span><span class="o">];</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+ * {@inheritDoc}
+ *
+ * @throws IndexOutOfBoundsException {@inheritDoc}
+ */</span>
+<span class="kd">public</span> <span class="no">E</span> <span class="nf">get</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="nf">elementAt</span><span class="o">(</span><span class="n">getArray</span><span class="o">(),</span> <span class="n">index</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+ * Appends the specified element to the end of this list.
+ *
+ * @param e element to be appended to this list
+ * @return {@code true} (as specified by {@link Collection#add})
+ */</span>
+<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">add</span><span class="o">(</span><span class="no">E</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">synchronized</span> <span class="o">(</span><span class="n">lock</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Object</span><span class="o">[]</span> <span class="n">es</span> <span class="o">=</span> <span class="n">getArray</span><span class="o">();</span>
+        <span class="kt">int</span> <span class="n">len</span> <span class="o">=</span> <span class="n">es</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+        <span class="n">es</span> <span class="o">=</span> <span class="nc">Arrays</span><span class="o">.</span><span class="na">copyOf</span><span class="o">(</span><span class="n">es</span><span class="o">,</span> <span class="n">len</span> <span class="o">+</span> <span class="mi">1</span><span class="o">);</span>
+        <span class="n">es</span><span class="o">[</span><span class="n">len</span><span class="o">]</span> <span class="o">=</span> <span class="n">e</span><span class="o">;</span>
+        <span class="n">setArray</span><span class="o">(</span><span class="n">es</span><span class="o">);</span>
+        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+    <span class="cm">/**
+ * Removes the element at the specified position in this list.
+ * Shifts any subsequent elements to the left (subtracts one from their
+ * indices).  Returns the element that was removed from the list.
+ *
+ * @throws IndexOutOfBoundsException {@inheritDoc}
+ */</span>
+<span class="kd">public</span> <span class="no">E</span> <span class="nf">remove</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">synchronized</span> <span class="o">(</span><span class="n">lock</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Object</span><span class="o">[]</span> <span class="n">es</span> <span class="o">=</span> <span class="n">getArray</span><span class="o">();</span>
+        <span class="kt">int</span> <span class="n">len</span> <span class="o">=</span> <span class="n">es</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+        <span class="no">E</span> <span class="n">oldValue</span> <span class="o">=</span> <span class="n">elementAt</span><span class="o">(</span><span class="n">es</span><span class="o">,</span> <span class="n">index</span><span class="o">);</span>
+        <span class="kt">int</span> <span class="n">numMoved</span> <span class="o">=</span> <span class="n">len</span> <span class="o">-</span> <span class="n">index</span> <span class="o">-</span> <span class="mi">1</span><span class="o">;</span>
+        <span class="nc">Object</span><span class="o">[]</span> <span class="n">newElements</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">numMoved</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span>
+            <span class="n">newElements</span> <span class="o">=</span> <span class="nc">Arrays</span><span class="o">.</span><span class="na">copyOf</span><span class="o">(</span><span class="n">es</span><span class="o">,</span> <span class="n">len</span> <span class="o">-</span> <span class="mi">1</span><span class="o">);</span>
+        <span class="k">else</span> <span class="o">{</span>
+            <span class="n">newElements</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Object</span><span class="o">[</span><span class="n">len</span> <span class="o">-</span> <span class="mi">1</span><span class="o">];</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">arraycopy</span><span class="o">(</span><span class="n">es</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">newElements</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">index</span><span class="o">);</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">arraycopy</span><span class="o">(</span><span class="n">es</span><span class="o">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="o">,</span> <span class="n">newElements</span><span class="o">,</span> <span class="n">index</span><span class="o">,</span>
+                             <span class="n">numMoved</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="n">setArray</span><span class="o">(</span><span class="n">newElements</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">oldValue</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>CopyOnWriteArrayList</code> 类的所有可变操作（<code>add</code>，<code>set</code> 等等）都是通过创建底层数组的新副本来实现的。当 <code>List</code> 需要被修改的时候，我并不修改原有内容，而是对原有数据进行一次复制，将修改的内容写入副本。写完之后，再将修改完的副本替换原来的数据，这样就可以保证写操作不会影响读操作了。</p>
+</div>
+<div class="paragraph">
+<p>从 <code>CopyOnWriteArrayList</code> 的名字就能看出 <code>CopyOnWriteArrayList</code> 是满足 <code>CopyOnWrite</code> 的 <code>ArrayList</code>，所谓 <code>CopyOnWrite</code> 也就是说：在计算机，如果你想要对一块内存进行修改时，我们不在原有内存块中进行写操作，而是将内存拷贝一份，在新的内存中进行写操作，写完之后呢，就将指向原来内存指针指向新的内存，原来的内存就可以被回收掉了。</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_参考资料"><a class="anchor" href="#_参考资料"></a>1. 参考资料</h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><a href="https://snailclimb.gitee.io/javaguide/#/docs/java/Multithread/%E5%B9%B6%E5%8F%91%E5%AE%B9%E5%99%A8%E6%80%BB%E7%BB%93">JavaGuide 之 并发容器总结</a></p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2022-06-21 15:32:25 UTC
+</div>
+</div>
+</body>
+</html>

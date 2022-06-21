@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.17">
+<title>Serializable</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="assets/styles/asciidoctor.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="assets/styles/rouge-github.css">
+<style>a{text-decoration:none;}.img_bk{text-align:center;}strong>code,p>code{color: #d14 !important;background-color: #f5f5f5 !important;border: 1px solid #e1e1e8;white-space: nowrap;border-radius: 3px;}</style>
+</head>
+<body class="book">
+<div id="header">
+<h1><code>Serializable</code></h1>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+</pre></td><td class="code"><pre><span class="kn">package</span> <span class="nn">com.diguage.truman</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.io.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.StringJoiner</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">OuterClass</span> <span class="kd">implements</span> <span class="nc">Serializable</span> <span class="o">{</span>
+  <span class="kd">private</span> <span class="kt">int</span> <span class="n">age</span> <span class="o">=</span> <span class="mi">119</span><span class="o">;</span>
+  <span class="kd">private</span> <span class="nc">String</span> <span class="n">name</span> <span class="o">=</span> <span class="s">"D瓜哥"</span><span class="o">;</span>
+
+  <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getAge</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">age</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setAge</span><span class="o">(</span><span class="kt">int</span> <span class="n">age</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">age</span> <span class="o">=</span> <span class="n">age</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="nc">String</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">name</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setName</span><span class="o">(</span><span class="nc">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="nc">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nf">StringJoiner</span><span class="o">(</span><span class="s">", "</span><span class="o">,</span> <span class="nc">OuterClass</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getSimpleName</span><span class="o">()</span> <span class="o">+</span> <span class="s">"["</span><span class="o">,</span> <span class="s">"]"</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"age="</span> <span class="o">+</span> <span class="n">age</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"name='"</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s">"'"</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">InnerClass</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">iage</span> <span class="o">=</span> <span class="mi">120</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="nc">String</span> <span class="n">iname</span> <span class="o">=</span> <span class="s">"https://www.diguage.com"</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getIage</span><span class="o">()</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="n">iage</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setIage</span><span class="o">(</span><span class="kt">int</span> <span class="n">iage</span><span class="o">)</span> <span class="o">{</span>
+      <span class="k">this</span><span class="o">.</span><span class="na">iage</span> <span class="o">=</span> <span class="n">iage</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">getIname</span><span class="o">()</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="n">iname</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setIname</span><span class="o">(</span><span class="nc">String</span> <span class="n">iname</span><span class="o">)</span> <span class="o">{</span>
+      <span class="k">this</span><span class="o">.</span><span class="na">iname</span> <span class="o">=</span> <span class="n">iname</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="k">new</span> <span class="nf">StringJoiner</span><span class="o">(</span><span class="s">", "</span><span class="o">,</span> <span class="nc">InnerClass</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getSimpleName</span><span class="o">()</span> <span class="o">+</span> <span class="s">"["</span><span class="o">,</span> <span class="s">"]"</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"iage="</span> <span class="o">+</span> <span class="n">iage</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"iname='"</span> <span class="o">+</span> <span class="n">iname</span> <span class="o">+</span> <span class="s">"'"</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">Throwable</span> <span class="o">{</span>
+      <span class="n">test</span><span class="o">(</span><span class="k">new</span> <span class="nc">OuterClass</span><span class="o">());</span>
+      <span class="n">test</span><span class="o">(</span><span class="k">new</span> <span class="nc">InnerClass</span><span class="o">());</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">(</span><span class="nc">Object</span> <span class="n">param</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">Exception</span> <span class="o">{</span>
+      <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"param = "</span> <span class="o">+</span> <span class="n">param</span><span class="o">);</span>
+      <span class="nc">ByteArrayOutputStream</span> <span class="n">baos</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ByteArrayOutputStream</span><span class="o">(</span><span class="mi">10240</span><span class="o">);</span>
+      <span class="nc">ObjectOutputStream</span> <span class="n">oos</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ObjectOutputStream</span><span class="o">(</span><span class="n">baos</span><span class="o">);</span>
+      <span class="n">oos</span><span class="o">.</span><span class="na">writeObject</span><span class="o">(</span><span class="n">param</span><span class="o">);</span>
+
+      <span class="nc">ByteArrayInputStream</span> <span class="n">bais</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ByteArrayInputStream</span><span class="o">(</span><span class="n">baos</span><span class="o">.</span><span class="na">toByteArray</span><span class="o">());</span>
+      <span class="nc">ObjectInputStream</span> <span class="n">ois</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ObjectInputStream</span><span class="o">(</span><span class="n">bais</span><span class="o">);</span>
+      <span class="nc">Object</span> <span class="n">object</span> <span class="o">=</span> <span class="n">ois</span><span class="o">.</span><span class="na">readObject</span><span class="o">();</span>
+      <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"deser = "</span> <span class="o">+</span> <span class="n">object</span><span class="o">);</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2022-06-21 15:32:25 UTC
+</div>
+</div>
+</body>
+</html>

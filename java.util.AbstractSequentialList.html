@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.17">
+<title>AbstractSequentialList</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="assets/styles/asciidoctor.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>a{text-decoration:none;}.img_bk{text-align:center;}strong>code,p>code{color: #d14 !important;background-color: #f5f5f5 !important;border: 1px solid #e1e1e8;white-space: nowrap;border-radius: 3px;}</style>
+</head>
+<body class="book toc2 toc-left">
+<div id="header">
+<h1>AbstractSequentialList</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_类图">1. 类图</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_类图"><a class="anchor" href="#_类图"></a>1. 类图</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>先来看一下 <code>AbstractSequentialList</code> 的类图：</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="./diag-736a0aa84d33ab4e8b57504bb28e1f96.svg" alt="Diagram" width="90%" height="534">
+</div>
+</div>
+<div class="paragraph">
+<p><code>AbstractSequentialList</code> 是 <a href="java.util.LinkedList.html"><code>java.util.LinkedList</code></a> 的父类，主要是基于 <a href="java.util.Iterator.html#ListIterator"><code>java.util.ListIterator</code></a> 实现了</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>get(int index)</code></p>
+</li>
+<li>
+<p><code>set(int index, E element)</code></p>
+</li>
+<li>
+<p><code>add(int index, E element)</code></p>
+</li>
+<li>
+<p><code>remove(int index)</code></p>
+</li>
+<li>
+<p><code>addAll(int index, Collection&lt;? extends E&gt; c)</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>等与具体坐标相关的随机访问 List 的方法。</p>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2022-06-21 15:32:25 UTC
+</div>
+</div>
+</body>
+</html>

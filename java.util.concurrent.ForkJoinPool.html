@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.17">
+<title>ForkJoinPool</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="assets/styles/asciidoctor.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="assets/styles/rouge-github.css">
+<style>a{text-decoration:none;}.img_bk{text-align:center;}strong>code,p>code{color: #d14 !important;background-color: #f5f5f5 !important;border: 1px solid #e1e1e8;white-space: nowrap;border-radius: 3px;}</style>
+</head>
+<body class="book toc2 toc-left">
+<div id="header">
+<h1>ForkJoinPool</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_参考资料">1. 参考资料</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="imageblock">
+<div class="content">
+<img src="./images/ForkJoinPool-fork-join.webp" alt="ForkJoinPool fork join">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./images/ForkJoinPool-work-stealing.webp" alt="ForkJoinPool work stealing">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./images/ForkJoinPool-invoke-link.png" alt="ForkJoinPool invoke link">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./images/ForkJoinPool-data-structures.png" alt="ForkJoinPool data structures">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./images/ForkJoinPool-ctl.png" alt="ForkJoinPool ctl">
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+</pre></td><td class="code"><pre><span class="kn">package</span> <span class="nn">com.diguage.truman.concurrent</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">org.junit.jupiter.api.Test</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.io.File</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.LinkedList</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.List</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.Objects</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.concurrent.ExecutionException</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.concurrent.ForkJoinPool</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.concurrent.ForkJoinTask</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.concurrent.RecursiveTask</span><span class="o">;</span>
+
+<span class="cm">/**
+ * @author D瓜哥, https://www.diguage.com/
+ * @since 2020-03-12 10:54
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ForkJoinPoolTest</span> <span class="o">{</span>
+    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">ForkJoinPool</span> <span class="n">pool</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ForkJoinPool</span><span class="o">(</span><span class="mi">2</span><span class="o">);</span>
+        <span class="nc">String</span> <span class="n">homePath</span> <span class="o">=</span> <span class="nc">System</span><span class="o">.</span><span class="na">getProperty</span><span class="o">(</span><span class="s">"user.home"</span><span class="o">);</span>
+        <span class="nc">FileCountTask</span> <span class="n">task</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">FileCountTask</span><span class="o">(</span><span class="n">homePath</span><span class="o">);</span>
+        <span class="nc">ForkJoinTask</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span><span class="n">task</span><span class="o">);</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="nc">Integer</span> <span class="n">count</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"file count = "</span> <span class="o">+</span> <span class="n">count</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">InterruptedException</span> <span class="o">|</span> <span class="nc">ExecutionException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+        <span class="o">}</span>
+        <span class="n">pool</span><span class="o">.</span><span class="na">shutdown</span><span class="o">();</span>
+        <span class="k">while</span> <span class="o">(!</span><span class="n">pool</span><span class="o">.</span><span class="na">isTerminated</span><span class="o">())</span> <span class="o">{</span>
+        <span class="o">}</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"All thread finish..."</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">FileCountTask</span> <span class="kd">extends</span> <span class="nc">RecursiveTask</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">&gt;</span> <span class="o">{</span>
+        <span class="kd">private</span> <span class="nc">File</span> <span class="n">file</span><span class="o">;</span>
+
+        <span class="kd">public</span> <span class="nf">FileCountTask</span><span class="o">(</span><span class="nc">File</span> <span class="n">file</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">file</span> <span class="o">=</span> <span class="n">file</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="nf">FileCountTask</span><span class="o">(</span><span class="nc">String</span> <span class="n">file</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">file</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">File</span><span class="o">(</span><span class="n">file</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">protected</span> <span class="nc">Integer</span> <span class="nf">compute</span><span class="o">()</span> <span class="o">{</span>
+            <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">file</span><span class="o">.</span><span class="na">isFile</span><span class="o">())</span> <span class="o">{</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span><span class="o">;</span>
+            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                <span class="nc">File</span><span class="o">[]</span> <span class="n">files</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="na">listFiles</span><span class="o">();</span>
+                <span class="k">if</span> <span class="o">(</span><span class="nc">Objects</span><span class="o">.</span><span class="na">isNull</span><span class="o">(</span><span class="n">files</span><span class="o">))</span> <span class="o">{</span>
+                    <span class="n">files</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">File</span><span class="o">[</span><span class="mi">0</span><span class="o">];</span>
+                <span class="o">}</span>
+                <span class="nc">List</span><span class="o">&lt;</span><span class="nc">FileCountTask</span><span class="o">&gt;</span> <span class="n">subTasks</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">LinkedList</span><span class="o">&lt;&gt;();</span>
+                <span class="k">for</span> <span class="o">(</span><span class="nc">File</span> <span class="n">f</span> <span class="o">:</span> <span class="n">files</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="k">if</span> <span class="o">(</span><span class="n">f</span><span class="o">.</span><span class="na">isDirectory</span><span class="o">())</span> <span class="o">{</span>
+                        <span class="nc">FileCountTask</span> <span class="n">task</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">FileCountTask</span><span class="o">(</span><span class="n">f</span><span class="o">);</span>
+                        <span class="n">subTasks</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">task</span><span class="o">);</span>
+                        <span class="n">task</span><span class="o">.</span><span class="na">fork</span><span class="o">();</span>
+                    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span><span class="o">;</span>
+                    <span class="o">}</span>
+                <span class="o">}</span>
+                <span class="k">for</span> <span class="o">(</span><span class="nc">FileCountTask</span> <span class="n">subTask</span> <span class="o">:</span> <span class="n">subTasks</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">count</span> <span class="o">+=</span> <span class="n">subTask</span><span class="o">.</span><span class="na">join</span><span class="o">();</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">"%8d     %s %n"</span><span class="o">,</span> <span class="n">count</span><span class="o">,</span> <span class="n">file</span><span class="o">.</span><span class="na">getAbsolutePath</span><span class="o">());</span>
+            <span class="k">return</span> <span class="n">count</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_参考资料"><a class="anchor" href="#_参考资料"></a>1. 参考资料</h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><a href="https://blog.csdn.net/u010841296/article/details/83963637">ForkJoinPool实现原理和源码解析_Java_Java程序员的进阶之路-CSDN博客</a></p>
+</li>
+<li>
+<p><a href="https://segmentfault.com/a/1190000016781127">Java多线程进阶（四三）—— J.U.C之executors框架：Fork/Join框架（1） 原理 - 透彻理解Java并发编程 - SegmentFault 思否</a></p>
+</li>
+<li>
+<p><a href="https://segmentfault.com/a/1190000016877931">Java多线程进阶（四四）—— J.U.C之executors框架：Fork/Join框架（2）实现 - 透彻理解Java并发编程 - SegmentFault 思否</a></p>
+</li>
+<li>
+<p><a href="https://liuyehcf.github.io/2017/08/01/Java-concurrent-Fork-Join-%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/">Java-concurrent-Fork-Join-源码剖析 | Liuye Blog</a></p>
+</li>
+<li>
+<p><a href="https://www.jianshu.com/p/32a15ef2f1bf">JUC源码分析-线程池篇（四）：ForkJoinPool - 1 - 简书</a></p>
+</li>
+<li>
+<p><a href="https://www.jianshu.com/p/6a14d0b54b8d">JUC源码分析-线程池篇（五）：ForkJoinPool - 2 - 简书</a></p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2022-06-21 15:32:25 UTC
+</div>
+</div>
+</body>
+</html>

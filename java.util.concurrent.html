@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.17">
+<title>并发库概述</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="assets/styles/asciidoctor.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>a{text-decoration:none;}.img_bk{text-align:center;}strong>code,p>code{color: #d14 !important;background-color: #f5f5f5 !important;border: 1px solid #e1e1e8;white-space: nowrap;border-radius: 3px;}</style>
+</head>
+<body class="book toc2 toc-left">
+<div id="header">
+<h1>并发库概述</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_happy_before_原则">1. Happy-Before 原则</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="imageblock">
+<div class="content">
+<img src="./images/java-concurrent-overview.png" alt="java concurrent overview">
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_happy_before_原则"><a class="anchor" href="#_happy_before_原则"></a>1. Happy-Before 原则</h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Single Thread Rule 单一线程原则</p>
+</li>
+<li>
+<p>Monitor Lock Rule 管程锁定规则</p>
+</li>
+<li>
+<p>Volatile Variable Rule <code>volatile</code> 变量规则</p>
+</li>
+<li>
+<p>Thread Start Rule 线程启动规则</p>
+</li>
+<li>
+<p>Thread Join Rule 线程加入规则</p>
+</li>
+<li>
+<p>Thread Interruption Rule 线程中断规则</p>
+</li>
+<li>
+<p>Finalizer Rule 对象终结规则</p>
+</li>
+<li>
+<p>Transitivity 传递性</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2022-06-21 15:32:25 UTC
+</div>
+</div>
+</body>
+</html>
