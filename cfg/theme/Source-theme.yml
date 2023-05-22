@@ -2,19 +2,21 @@ font:
   catalog:
     merge: true
     Source Han Serif SC:
-      normal: SourceHanSerifSC-Regular.ttf
-      bold: SourceHanSerifSC-Bold.ttf
-      italic: SourceHanSerifSC-Medium.ttf
-      bold_italic: SourceHanSerifSC-SemiBold.ttf
+      normal: SourceHanSerifSC-Regular.otf
+      bold: SourceHanSerifSC-Bold.otf
+      italic: SourceHanSerifSC-Medium.otf
+      bold_italic: SourceHanSerifSC-SemiBold.otf
 #SourceHanSerifSC-Heavy.otf
 #SourceHanSerifSC-ExtraLight.otf
 #SourceHanSerifSC-Light.otf
     Source Code Pro:
-      normal: SourceCodePro-Regular.ttf
-      bold: SourceCodePro-Semibold.ttf
-      italic: SourceCodePro-It.ttf
-      bold_italic: SourceCodePro-BoldIt.ttf
-    Emoji: Symbola.ttf
+      normal: SourceCodePro-Regular.otf
+      bold: SourceCodePro-Semibold.otf
+      italic: SourceCodePro-It.otf
+      bold_italic: SourceCodePro-BoldIt.otf
+#    Emoji: NotoColorEmoji.ttf
+    Emoji: NotoEmoji-Regular.ttf
+#    Emoji: Symbola.ttf
 #SourceCodePro-Black.ttf
 #SourceCodePro-BlackIt.ttf
 #SourceCodePro-ExtraLight.ttf

@@ -26,9 +26,10 @@ ____
 ....
 @startuml
 'skinparam nodesep 70
+skinparam titleFontSize 30
 skinparam defaultFontName Hiragino Sans GB
 
-title <b>迭代器模式</b>
+title **迭代器模式**
 
 abstract class Iterator {
 + {abstract} first() :Object
@@ -63,6 +64,9 @@ Iterator <|-- ConcreteIterator
 
 ConcreteIterator -left-> ConcreteAggregate
 ConcreteIterator <.. ConcreteAggregate
+
+skinparam footerFontSize 20
+footer D瓜哥 · https://www.diguage.com · 出品
 
 @enduml
 ....

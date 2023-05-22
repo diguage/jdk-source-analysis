@@ -10,3 +10,9 @@ include::{sourcedir}/StringUtils.java[]
 ----
 include::{sourcedir}/StringUtilTest.java[]
 ----
+
+
+[{java_src_attr}]
+----
+include::{sourcedir}/StringTest.java[]
+----

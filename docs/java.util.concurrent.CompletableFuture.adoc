@@ -9,6 +9,13 @@ Java 中的 Promise。
 include::{sourcedir}/concurrent/CompletableFutureTest.java[]
 ----
 
+`CompletableFuture` 实现了 `Future` 和 `CompletionStage` 两个接口。
+
+`CompletionStage` 接口声明了大量方法， `thenApply*` 接受 `Function` 对象，可以实现将任务的结果转化成另外一个对象，类似 Java Stream API 中的 `map` 操作； `thenAccept` 接受 `Consumer` 对象，见文知意，就是“消费”异步任务的结果值，类似 Java Stream API 的“终止操作”。
+
+
+
 == 参考资料
 
 . https://www.baeldung.com/java-completablefuture[Guide To CompletableFuture | Baeldung]
+. https://xie.infoq.cn/article/12fb1f7f825bb27795679ad13[Java 8 的异步利器：CompletableFuture源码解析^]
