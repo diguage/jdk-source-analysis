@@ -20,7 +20,7 @@
     <byte-buddy.version>1.14.4</byte-buddy.version>
     <netty.version>4.1.92.Final</netty.version>
     <protobuf.version>3.23.1</protobuf.version>
-    <guava.version>31.1-jre</guava.version>
+    <guava.version>32.0.0-jre</guava.version>
     <commons-collections4.version>4.4</commons-collections4.version>
     <eclipse-collections.version>11.0.0</eclipse-collections.version>
     <slf4j.version>1.7.36</slf4j.version>
