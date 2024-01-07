@@ -14,36 +14,36 @@
 
   <properties>
     <jol.version>0.17</jol.version>
-    <jmh.version>1.36</jmh.version>
+    <jmh.version>1.37</jmh.version>
     <gson.version>2.10.1</gson.version>
-    <joda.version>2.10.13</joda.version>
-    <byte-buddy.version>1.14.4</byte-buddy.version>
-    <netty.version>4.1.92.Final</netty.version>
-    <protobuf.version>3.23.1</protobuf.version>
-    <guava.version>31.1-jre</guava.version>
+    <joda.version>2.12.5</joda.version>
+    <byte-buddy.version>1.14.11</byte-buddy.version>
+    <netty.version>4.1.104.Final</netty.version>
+    <protobuf.version>3.25.1</protobuf.version>
+    <guava.version>33.0.0-jre</guava.version>
     <commons-collections4.version>4.4</commons-collections4.version>
-    <eclipse-collections.version>11.0.0</eclipse-collections.version>
+    <eclipse-collections.version>11.1.0</eclipse-collections.version>
     <slf4j.version>1.7.36</slf4j.version>
     <logback.version>1.2.12</logback.version>
 
-    <junit.version>5.8.2</junit.version>
-    <assertj.version>3.23.1</assertj.version>
+    <junit.version>5.10.1</junit.version>
+    <assertj.version>3.25.1</assertj.version>
 
-    <asciidoctorj.version>2.5.8</asciidoctorj.version>
-    <asciidoctorj-pdf.version>2.3.7</asciidoctorj-pdf.version>
+    <asciidoctorj.version>2.5.11</asciidoctorj.version>
+    <asciidoctorj-pdf.version>2.3.10</asciidoctorj-pdf.version>
     <asciidoctorj-epub3.version>1.5.1</asciidoctorj-epub3.version>
-    <asciidoctorj-diagram.version>2.2.8</asciidoctorj-diagram.version>
-    <asciidoctor-multipage.version>0.0.16</asciidoctor-multipage.version>
+    <asciidoctorj-diagram.version>2.2.14</asciidoctorj-diagram.version>
+    <asciidoctor-multipage.version>0.0.19</asciidoctor-multipage.version>
     <asciidoctor-comment-links.version>0.0.1</asciidoctor-comment-links.version>
-    <asciidoctor-maven-plugin.version>2.2.3</asciidoctor-maven-plugin.version>
-    <jruby.version>9.3.10.0</jruby.version>
+    <asciidoctor-maven-plugin.version>2.2.4</asciidoctor-maven-plugin.version>
+    <jruby.version>9.4.5.0</jruby.version>
     <gem.path>${project.basedir}/cfg/gems</gem.path>
     <pdf-fonts.path>${project.basedir}/cfg/fonts</pdf-fonts.path>
     <pdf-fonts.baseuri>https://github.com/diguage/open-fonts/releases/download/latest</pdf-fonts.baseuri>
 
     <mavengem-wagon.version>1.0.3</mavengem-wagon.version>
     <gem-maven-plugin.version>2.0.1</gem-maven-plugin.version>
-    <download-maven-plugin.version>1.7.0</download-maven-plugin.version>
+    <download-maven-plugin.version>1.8.0</download-maven-plugin.version>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
