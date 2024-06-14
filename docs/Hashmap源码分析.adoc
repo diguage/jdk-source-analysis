@@ -1,0 +1,77 @@
+= HashMap
+
+== HashMap 问题集
+
+public class HashMap<K,V> extends AbstractMap<K,V>
+    implements Map<K,V>, Cloneable, Serializable
+
+HashMap的数据结构是链表散列，也就是数组+链表key位置，允许null
+原因：避免hash冲突。
+hash冲突：两个不同的元素用过哈希函数得出的实际存储地址相同。
+哈希冲突的解决方案有多种:开放定址法（发生冲突，继续寻找下一块未被占用的存储地址），再散列函数法，链地址法
+HashMap采用链地址法：数组+链表
+
+entry：有next节点，构成链表：
+static class Entry<K,V> implements Map.Entry<K,V> {
+    final K key;
+    V value;
+    Entry<K,V> next;
+    final int hash;
+    ……
+}
+
+创建一个hashMap的时候，table = new Entry[capacity]; 创建一个Entry数组。
+
+put的时候，根据key的hashCode重新计算hash值，根据hash值得到这个元素在数组中的位置 也就是下标，如果数组在该位置上已有其他元素，那么在这个位置上的元素将以链表的形式存放，新加入的在立案表头，先加入的在尾部
+
+public V put(K key, V value) {
+    //其允许存放null的key和null的value，当其key为null时，调用putForNullKey方法，放入到table[0]的这个位置
+    if (key == null)
+        return putForNullKey(value);
+    //通过调用hash方法对key进行哈希，得到哈希之后的数值。该方法实现可以通过看源码，其目的是为了尽可能的让键值对可以分不到不同的桶中
+    int hash = hash(key);
+    //根据上一步骤中求出的hash得到在数组中是索引i
+    int i = indexFor(hash, table.length);
+    //如果i处的Entry不为null，则通过其next指针不断遍历e元素的下一个元素。
+    for (Entry<K,V> e = table[i]; e != null; e = e.next) {
+        Object k;
+        if (e.hash == hash && ((k = e.key) == key || key.equals(k))) {
+            V oldValue = e.value;
+            e.value = value;
+            e.recordAccess(this);
+            return oldValue;
+        }
+    }
+
+    modCount++;
+    addEntry(hash, key, value, i);
+    return null;
+}
+
+get方法：
+get()方法也会是首先计算key的 hashCode 找到数组中对应位置的某一元素，通过key的equals方法在对应位置的链表中找到要的元素，
+key(hashcode)-->hash-->indexFor-->最终索引位置，找到对应位置table[i]，再查看是否有链表，遍历链表，通过key的equals方法比对查找对应的记录。
+
+public V get(Object key) {
+    if (key == null)
+        return getForNullKey();
+    Entry<K,V> entry = getEntry(key);
+
+    return null == entry ? null : entry.getValue();
+}
+
+final Entry<K,V> getEntry(Object key) {
+    int hash = (key == null) ? 0 : hash(key);
+    for (Entry<K,V> e = table[indexFor(hash, table.length)];
+         e != null;
+         e = e.next) {
+        Object k;
+        if (e.hash == hash &&
+            ((k = e.key) == key || (key != null && key.equals(k))))
+            return e;
+    }
+    return null;
+}
+
+hashmap为什么不是线程安全的
+HashMap在put的时候，插入的元素超过了容量（由负载因子决定）的范围就会触发扩容操作，就是rehash，这个会重新将原数组的内容重新hash到新的扩容数组中，在多线程的环境下，存在同时其他的元素也在进行put操作，如果hash值相同，可能出现同时在同一数组下用链表表示，造成闭环，导致在get时会出现死循环，所以HashMap是线程不安全的。
