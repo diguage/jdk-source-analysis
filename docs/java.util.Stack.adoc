@@ -1,3 +1,4 @@
+[#util-Stack]
 = Stack
 
 [plantuml,{diagram_attr}]

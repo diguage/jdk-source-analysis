@@ -472,7 +472,7 @@
 
               <attributes>
                 <toc>left</toc>
-                <source_attr>indent=0,subs="attributes,verbatim,quotes"</source_attr>
+                <docinfo1>true</docinfo1>
               </attributes>
             </configuration>
           </execution>

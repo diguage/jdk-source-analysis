@@ -1,3 +1,4 @@
+[#concurrent-DelayQueue]
 = DelayQueue
 
 `DelayQueue` 对元素进行持有直到一个特定的延迟到期。注入其中的元素必须实现 `java.util.concurrent.Delayed` 接口，该接口定义:

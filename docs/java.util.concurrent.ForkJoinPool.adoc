@@ -1,3 +1,4 @@
+[#concurrent-ForkJoinPool]
 = ForkJoinPool
 
 image::images/ForkJoinPool-fork-join.webp[]

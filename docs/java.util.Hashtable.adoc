@@ -1,3 +1,4 @@
+[#util-Hashtable]
 = Hashtable
 
 image::images/Hashtable-lock.png[]

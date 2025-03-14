@@ -1,4 +1,6 @@
+[#util-Iterator]
 = 迭代器 Iterator、 Enumeration、 Spliterator 与 Iterable
+
 == 涉及代码
 
 . `java.util.Iterator`

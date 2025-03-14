@@ -1,3 +1,4 @@
+[#concurrent-PriorityBlockingQueue]
 = PriorityBlockingQueue
 
 `PriorityBlockingQueue` 是一个支持优先级的无界阻塞队列。默认情况下元素采用自然顺序进行排序，也可以通过自定义类实现 `compareTo()` 方法来指定元素排序规则，或者初始化时通过构造器参数 `Comparator` 来指定排序规则。

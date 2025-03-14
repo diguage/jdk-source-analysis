@@ -1,3 +1,4 @@
+[#concurrent-CompletableFuture]
 = CompletableFuture
 
 Java 中的 Promise。

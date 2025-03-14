@@ -1,3 +1,4 @@
+[#util-HashMap]
 = HashMap
 
 == HashMap 问题集

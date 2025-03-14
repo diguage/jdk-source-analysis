@@ -1,3 +1,4 @@
+[#concurrent-locks-AbstractQueuedSynchronizer]
 = AbstractQueuedSynchronizer
 
 Doug Lea
