@@ -183,7 +183,7 @@ public final class MyDataInfo {
           e).setUnfinishedMessage(this);
       } finally {
         this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
+//        makeExtensionsImmutable(); TODO
       }
     }
 
@@ -1451,7 +1451,7 @@ public final class MyDataInfo {
           e).setUnfinishedMessage(this);
       } finally {
         this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
+//        makeExtensionsImmutable();
       }
     }
 
@@ -2168,7 +2168,7 @@ public final class MyDataInfo {
           e).setUnfinishedMessage(this);
       } finally {
         this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
+//        makeExtensionsImmutable();
       }
     }
 

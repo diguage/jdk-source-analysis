@@ -128,7 +128,7 @@ public final class StudentPOJO {
           e).setUnfinishedMessage(this);
       } finally {
         this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
+//        makeExtensionsImmutable(); TODO
       }
     }
 

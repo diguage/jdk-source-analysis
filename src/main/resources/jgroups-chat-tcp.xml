@@ -1,0 +1,44 @@
+<!--
+    TCP based stack, with flow control and message bundling. This is usually used when IP
+    multicasting cannot be used in a network, e.g. because it is disabled (routers discard multicast).
+    Note that TCP.bind_addr and TCPPING.initial_hosts should be set, possibly via system properties, e.g.
+    -Djgroups.bind_addr=192.168.5.2 and -Djgroups.tcpping.initial_hosts=192.168.5.2[7800]
+    author: Bela Ban
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="urn:org:jgroups"
+        xsi:schemaLocation="urn:org:jgroups http://www.jgroups.org/schema/jgroups.xsd"
+>
+  <TCP bind_addr="${jgroups.bind_addr:localhost}"
+       bind_port="${jgroups.bind_port:7800}"
+       external_addr="${jgroups.external_addr}"
+       external_port="${jgroups.external_port}"
+       thread_pool.min_threads="0"
+       thread_pool.max_threads="200"
+       thread_pool.keep_alive_time="30000"/>
+  <NON_BLOCKING_SENDS/>
+  <!--RED/-->
+
+  <TCPPING async_discovery="true"
+           initial_hosts="${jgroups.tcpping.initial_hosts:localhost[7800],localhost[7801]}"
+           return_entire_cache="${jgroups.tcpping.return_entire_cache:false}"
+           port_range="${jgroups.tcp.port_range:2}"/>
+  <MERGE3  min_interval="10s"
+           max_interval="30s"/>
+  <FD_SOCK2/>
+  <FD_ALL3 timeout="40s" interval="5s" />
+  <VERIFY_SUSPECT2 timeout="1.5s"  />
+  <BARRIER />
+  <pbcast.NAKACK2 use_mcast_xmit="false" />
+  <UNICAST3 />
+  <pbcast.STABLE desired_avg_gossip="50s"
+                 max_bytes="4M"/>
+  <pbcast.GMS print_local_addr="true" join_timeout="2s"/>
+  <MFC max_credits="10M"
+       min_threshold="0.4"/>
+  <UFC max_credits="10M"
+       min_threshold="0.4"/>
+  <FRAG2 frag_size="60K"  />
+  <!--RSVP resend_interval="2s" timeout="10s"/-->
+  <pbcast.STATE_TRANSFER/>
+</config>
