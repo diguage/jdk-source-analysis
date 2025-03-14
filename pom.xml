@@ -13,43 +13,65 @@
   <url>https://www.diguage.com/</url>
 
   <properties>
+    <jgroups.version>5.3.10.Final</jgroups.version>
     <jol.version>0.17</jol.version>
     <jmh.version>1.37</jmh.version>
-    <gson.version>2.10.1</gson.version>
-    <joda.version>2.12.5</joda.version>
-    <byte-buddy.version>1.14.11</byte-buddy.version>
-    <netty.version>4.1.104.Final</netty.version>
-    <protobuf.version>3.25.1</protobuf.version>
-    <guava.version>33.0.0-jre</guava.version>
+    <gson.version>2.11.0</gson.version>
+    <joda.version>2.12.7</joda.version>
+    <byte-buddy.version>1.14.18</byte-buddy.version>
+    <netty.version>4.1.112.Final</netty.version>
+    <protobuf.version>4.27.3</protobuf.version>
+    <guava.version>33.2.1-jre</guava.version>
     <commons-collections4.version>4.4</commons-collections4.version>
     <eclipse-collections.version>11.1.0</eclipse-collections.version>
-    <slf4j.version>1.7.36</slf4j.version>
-    <logback.version>1.2.12</logback.version>
+    <slf4j.version>2.0.13</slf4j.version>
+    <logback.version>1.5.6</logback.version>
 
-    <junit.version>5.10.1</junit.version>
-    <assertj.version>3.25.1</assertj.version>
+    <junit.version>5.10.3</junit.version>
+    <assertj.version>3.26.3</assertj.version>
 
-    <asciidoctorj.version>2.5.11</asciidoctorj.version>
-    <asciidoctorj-pdf.version>2.3.10</asciidoctorj-pdf.version>
-    <asciidoctorj-epub3.version>1.5.1</asciidoctorj-epub3.version>
-    <asciidoctorj-diagram.version>2.2.14</asciidoctorj-diagram.version>
+    <asciidoctorj.version>3.0.0</asciidoctorj.version>
+    <asciidoctorj-pdf.version>2.3.19</asciidoctorj-pdf.version>
+    <asciidoctorj-epub3.version>2.1.3</asciidoctorj-epub3.version>
+    <asciidoctorj-diagram.version>2.3.1</asciidoctorj-diagram.version>
+    <asciidoctor-diagram.version>2.3.1</asciidoctor-diagram.version>
+    <asciidoctor-diagram-plantuml.version>1.2025.2</asciidoctor-diagram-plantuml.version>
+    <rouge.version>4.5.1</rouge.version>
     <asciidoctor-multipage.version>0.0.19</asciidoctor-multipage.version>
-    <asciidoctor-comment-links.version>0.0.1</asciidoctor-comment-links.version>
-    <asciidoctor-maven-plugin.version>2.2.4</asciidoctor-maven-plugin.version>
-    <jruby.version>9.4.5.0</jruby.version>
+    <asciidoctor-comment-links.version>0.0.2</asciidoctor-comment-links.version>
+    <asciidoctor-tabs.version>1.0.0.beta.6</asciidoctor-tabs.version>
+    <asciidoclet.version>2.0.0</asciidoclet.version>
+    <asciidoctor-maven-plugin.version>3.1.1</asciidoctor-maven-plugin.version>
+    <mavengem-wagon.version>2.0.2</mavengem-wagon.version>
+    <gem-maven-plugin.version>3.0.5</gem-maven-plugin.version>
+    <download-maven-plugin.version>1.13.0</download-maven-plugin.version>
+    <exec-maven-plugin.version>3.5.0</exec-maven-plugin.version>
+    <jruby.version>9.4.12.0</jruby.version>
     <gem.path>${project.basedir}/cfg/gems</gem.path>
     <pdf-fonts.path>${project.basedir}/cfg/fonts</pdf-fonts.path>
     <pdf-fonts.baseuri>https://github.com/diguage/open-fonts/releases/download/latest</pdf-fonts.baseuri>
 
-    <mavengem-wagon.version>1.0.3</mavengem-wagon.version>
-    <gem-maven-plugin.version>2.0.1</gem-maven-plugin.version>
-    <download-maven-plugin.version>1.8.0</download-maven-plugin.version>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
+    <java.version>21</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <maven.compiler.release>${java.version}</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
 
   <dependencies>
+    <!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp</artifactId>
+      <version>4.12.0</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.jgroups/jgroups -->
+    <dependency>
+      <groupId>org.jgroups</groupId>
+      <artifactId>jgroups</artifactId>
+      <version>${jgroups.version}</version>
+    </dependency>
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
@@ -152,6 +174,25 @@
 
     <dependency>
       <groupId>rubygems</groupId>
+      <artifactId>rouge</artifactId>
+      <version>${rouge.version}</version>
+      <type>gem</type>
+    </dependency>
+    <dependency>
+      <groupId>rubygems</groupId>
+      <!-- https://github.com/asciidoctor/asciidoctor-tabs -->
+      <artifactId>asciidoctor-tabs</artifactId>
+      <version>${asciidoctor-tabs.version}</version>
+      <type>gem</type>
+      <exclusions>
+        <exclusion>
+          <groupId>rubygems</groupId>
+          <artifactId>asciidoctor</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>rubygems</groupId>
       <artifactId>asciidoctor-multipage</artifactId>
       <version>${asciidoctor-multipage.version}</version>
       <type>gem</type>
@@ -178,14 +219,14 @@
   <build>
     <extensions>
       <extension> <!-- this allows us to download gems -->
-        <groupId>org.torquebox.mojo</groupId>
+        <groupId>org.jruby.maven</groupId>
         <artifactId>mavengem-wagon</artifactId>
         <version>${mavengem-wagon.version}</version>
       </extension>
     </extensions>
     <plugins>
       <plugin>
-        <groupId>de.saumya.mojo</groupId>
+        <groupId>org.jruby.maven</groupId>
         <artifactId>gem-maven-plugin</artifactId>
         <version>${gem-maven-plugin.version}</version>
         <configuration>
@@ -405,6 +446,8 @@
             <html_src_attr>source%nowrap,html,{source_attr}</html_src_attr>
             <image_attr>align="center",width=100%</image_attr>
             <diagram_attr>format=svg,align="center",width=90%</diagram_attr>
+            <plantumlconfig>${project.basedir}/cfg/plantuml.cfg</plantumlconfig>
+            <iconfont-cdn>//cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css</iconfont-cdn>
           </attributes>
         </configuration>
         <executions>
@@ -433,23 +476,28 @@
               </attributes>
             </configuration>
           </execution>
-          <execution>
-            <id>generate-html</id>
-            <phase>package</phase>
-            <goals>
-              <goal>process-asciidoc</goal>
-            </goals>
-            <configuration>
-              <backend>html5</backend>
-              <doctype>book</doctype>
-              <outputDirectory>${project.build.directory}/docs/html</outputDirectory>
-              <attributes>
-                <toc>left</toc>
-                <docinfo1>true</docinfo1>
-                <source_attr>indent=0,subs="attributes,verbatim,quotes"</source_attr>
-              </attributes>
-            </configuration>
-          </execution>
+          <!-- <execution>-->
+          <!--   <id>generate-html</id>-->
+          <!--   <phase>package</phase>-->
+          <!--   <goals>-->
+          <!--     <goal>process-asciidoc</goal>-->
+          <!--   </goals>-->
+          <!--   <configuration>-->
+          <!--     <backend>html5</backend>-->
+          <!--     <doctype>book</doctype>-->
+          <!--     <gemPath>${gem.path}</gemPath>-->
+          <!--     <requires>-->
+          <!--       <require>asciidoctor-diagram</require>-->
+          <!--       <require>asciidoctor-comment-links</require>-->
+          <!--     </requires>-->
+          <!--     <outputDirectory>${project.build.directory}/docs/html</outputDirectory>-->
+          <!--     <attributes>-->
+          <!--       <toc>left</toc>-->
+          <!--       <docinfo1>true</docinfo1>-->
+          <!--       <source_attr>indent=0,subs="attributes,verbatim,quotes"</source_attr>-->
+          <!--     </attributes>-->
+          <!--   </configuration>-->
+          <!-- </execution>-->
           <!-- <execution>-->
           <!--     <id>generate-epub</id>-->
           <!--     <phase>package</phase>-->
@@ -480,37 +528,37 @@
           <!--         </attributes>-->
           <!--     </configuration>-->
           <!-- </execution>-->
-<!--           <execution>-->
-<!--               <id>generate-pdf</id>-->
-<!--               <phase>package</phase>-->
-<!--               <goals>-->
-<!--                   <goal>process-asciidoc</goal>-->
-<!--               </goals>-->
-<!--               <configuration>-->
-<!--                   <backend>pdf</backend>-->
-<!--                   <outputDirectory>${project.build.directory}/docs/pdf</outputDirectory>-->
-<!--                   <attributes>-->
-<!--                       <allow-uri-read/>-->
-<!--                       <plantumlconfig>${project.basedir}/cfg/plantuml.cfg</plantumlconfig>-->
-<!--                       <pdf-fontsdir>${project.basedir}/cfg/fonts</pdf-fontsdir>-->
-<!--                       <pdf-themesdir>${project.basedir}/cfg/theme</pdf-themesdir>-->
-<!--                       &lt;!&ndash; Set Source theme &ndash;&gt;-->
-<!--                       <pdf-theme>Source</pdf-theme>-->
-<!--                       <pagenums/>-->
-<!--                       <toc/>-->
-<!--                       <idprefix/>-->
-<!--                       <idseparator>-</idseparator>-->
-<!--                       &lt;!&ndash; Fixes line wraps formatting inserting zero-width spaces (ZWSP) before CJ characters &ndash;&gt;-->
-<!--                       <scripts>cjk</scripts>-->
-<!--                       <pdf-version>1.7</pdf-version>-->
-<!--                       <rouge-style>github</rouge-style>-->
-<!--                       &lt;!&ndash;<media>screen</media>&ndash;&gt;-->
-<!--                       &lt;!&ndash;<optimize>screen</optimize>&ndash;&gt;-->
-<!--                       &lt;!&ndash;<media>prepress</media>&ndash;&gt;-->
-<!--                       &lt;!&ndash;<optimize>prepress</optimize>&ndash;&gt;-->
-<!--                   </attributes>-->
-<!--               </configuration>-->
-<!--           </execution>-->
+          <!--           <execution>-->
+          <!--               <id>generate-pdf</id>-->
+          <!--               <phase>package</phase>-->
+          <!--               <goals>-->
+          <!--                   <goal>process-asciidoc</goal>-->
+          <!--               </goals>-->
+          <!--               <configuration>-->
+          <!--                   <backend>pdf</backend>-->
+          <!--                   <outputDirectory>${project.build.directory}/docs/pdf</outputDirectory>-->
+          <!--                   <attributes>-->
+          <!--                       <allow-uri-read/>-->
+          <!--                       <plantumlconfig>${project.basedir}/cfg/plantuml.cfg</plantumlconfig>-->
+          <!--                       <pdf-fontsdir>${project.basedir}/cfg/fonts</pdf-fontsdir>-->
+          <!--                       <pdf-themesdir>${project.basedir}/cfg/theme</pdf-themesdir>-->
+          <!--                       &lt;!&ndash; Set Source theme &ndash;&gt;-->
+          <!--                       <pdf-theme>Source</pdf-theme>-->
+          <!--                       <pagenums/>-->
+          <!--                       <toc/>-->
+          <!--                       <idprefix/>-->
+          <!--                       <idseparator>-</idseparator>-->
+          <!--                       &lt;!&ndash; Fixes line wraps formatting inserting zero-width spaces (ZWSP) before CJ characters &ndash;&gt;-->
+          <!--                       <scripts>cjk</scripts>-->
+          <!--                       <pdf-version>1.7</pdf-version>-->
+          <!--                       <rouge-style>github</rouge-style>-->
+          <!--                       &lt;!&ndash;<media>screen</media>&ndash;&gt;-->
+          <!--                       &lt;!&ndash;<optimize>screen</optimize>&ndash;&gt;-->
+          <!--                       &lt;!&ndash;<media>prepress</media>&ndash;&gt;-->
+          <!--                       &lt;!&ndash;<optimize>prepress</optimize>&ndash;&gt;-->
+          <!--                   </attributes>-->
+          <!--               </configuration>-->
+          <!--           </execution>-->
         </executions>
         <dependencies>
           <dependency>

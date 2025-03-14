@@ -5,30 +5,136 @@ on:
       - master
 jobs:
   build-and-deploy:
+    # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idruns-on
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout 🛎️
-        uses: actions/checkout@v3
+      # https://github.com/actions/setup-node
+      - name: Setup Node.js 🕸
+        uses: actions/setup-node@v4
+        with:
+          # https://github.com/nvm-sh/nvm#long-term-support
+          node-version: 'lts/*'
+
+      # https://github.com/actions/checkout
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
 
-      - name: Set up JDK 17 ☕️
-        uses: actions/setup-java@v3
+      # https://github.com/actions/setup-java
+      - name: Set up JDK ☕️
+        uses: actions/setup-java@v4
         with:
-          java-version: '17'
           distribution: 'corretto'
+          java-version: '21'
+          cache: 'maven'
 
       - name: Install Graphviz 🐰
         run: |
           sudo apt update -y -m
           sudo apt install -y graphviz
 
-      - name: Build 🔧
-        run: mvn clean package
+      - name: Improve Document 📝
+        run: |
+          cd docs
+          sed -i 's@xref:\([^\.]*\).adoc\[[^:]*\]@<<\1>>@g' *.adoc
+          cd ..
+      # 处理 sed 不支持非贪婪模式
+      # https://stackoverflow.com/a/46719361
+      # https://stackoverflow.com/a/1103159
 
+      - name: Build 🔧
+        run: |
+          mvn clean package
+
+      - name: Add Reward Qrcode 💰
+        run: |
+          cd target/docs/multipage/
+          find . -name "*.html" | xargs -I {} sed -i 's@\(<div id="content">\)@\1<div class="sect2"><h3 id="_友情支持">友情支持</h3><div class="paragraph"><p>如果您觉得这个笔记对您有所帮助，看在D瓜哥码这么多字的辛苦上，请友情支持一下，D瓜哥感激不尽，😜</p></div><table class="tableblock frame-none grid-all stretch"><colgroup><col style="width: 50%;"><col style="width: 50%;"></colgroup><tbody><tr><td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="./images/alipay.png" alt="支付宝" width="85%" title="支付宝"></span></p></td><td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="./images/wxpay.jpg" alt="微信" width="85%" title="微信"></span></p></td></tr></tbody></table><div class="paragraph"><p>有些打赏的朋友希望可以加个好友，欢迎关注D 瓜哥的微信公众号，这样就可以通过公众号的回复直接给我发信息。</p></div><div class="paragraph"><p><span class="image"><img src="./images/wx-jikerizhi.png" alt="wx jikerizhi" width="98%"></span></p></div><div class="admonitionblock tip"><table><tbody><tr><td class="icon"><i class="fa icon-tip" title="Tip"></i></td><td class="content"><strong>公众号的微信号是: <code>jikerizhi</code></strong>。<em>因为众所周知的原因，有时图片加载不出来。 如果图片加载不出来可以直接通过搜索微信号来查找我的公众号。</em></td></tr></tbody></table></div></div>@' {}
+
+#      - name: Add Tab Resource 🌗
+#        run: |
+#          cp -R docs/assets target/docs/multipage/
+#          cd target/docs/multipage/
+#          sed -i 's@>题解@ target="_blank">题解@g' logbook-*.html
+#          mv images/* assets/images/
+#          sed -i 's@src="asciidoctor-tabs.js"@src="assets/scripts/asciidoctor-tabs.js"@g' *.html
+#          sed -i 's@img src="./images@img src="assets/images@g' *.html
+
+      - name: Add Scroll TOC JS 🐌
+        run: |
+          touch target/docs/multipage/assets/scripts/scroll-toc.js
+          cat > target/docs/multipage/assets/scripts/scroll-toc.js <<- EOF
+            document.querySelector('#toc li a span.toc-current')
+              .scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+          EOF
+          cd target/docs/multipage/
+          sed -i 's@</body>@<script src="assets/scripts/scroll-toc.js"></script></body>@g' *.html
+          sed -i 's@\(.toc-current{\)@\1color:#d14;font-size:130%;@g' *.html
+
+      - name: Rename Title 🤡
+        run: |
+          cd target/docs/multipage/
+          for file in ./*.html;
+          do
+            # https://ioflood.com/blog/bash-not-equal/
+            if [ "${file}" != "./index.html" ]; then
+              subtitle=$(grep '<h2.*></a>' $file | awk -F'>' '{print $4}' | awk -F'<' '{print $1}')
+              echo "$file -- $subtitle"
+              if [ "${subtitle}" != "" ]; then
+                # 将变量中的 & 替换为 \&
+                escaped_title=$(sed 's/&/\\&/g' <<< "${subtitle}") 
+                sed -i "s@ 解题笔记</h1>@: ${escaped_title}</h1>@g" $file
+                sed -i "s@ 解题笔记</title>@: ${escaped_title}</title>@g" $file
+              fi
+            fi
+          done
+
+      # https://goalsmashers.github.io/css-minification-benchmark/
+      - name: Compress CSS 🍭
+        run: |
+          # https://github.com/parcel-bundler/lightningcss
+          npm install -g clean-css-cli
+          # Multiple HTML page
+          cd target/docs/
+          for f in `find . -name "*.css"`;
+          do
+            fn="${f%.*}.min.css";
+            echo  "compress $f"
+            cleancss -o $fn $f
+            rm -rf $f;
+            mv $fn $f
+          done
+
+      # https://github.com/privatenumber/minification-benchmarks
+      - name: Compress JS 🐢
+        run: |
+          # https://github.com/mishoo/UglifyJS
+          npm install uglify-js -g
+          # Multiple HTML page
+          cd target/docs/
+          for f in `find . -name "*.js"`;
+          do
+            fn="${f%.*}.min.css";
+            echo  "compress $f"
+            uglifyjs $f --compress --rename -o $fn 
+            rm -rf $f;
+            mv $fn $f
+          done
+
+      - name: Add links for comments 🔗
+        run: |
+          cd target/docs/
+          for file in `find . -name "*.html"`;
+          do
+            sed -i 's@\(D瓜哥 · https://www.diguage.com\)@<a href="https://www.diguage.com" class="cmt-link" target="_blank">\1</a>@g' $file
+          done
+
+      # https://github.com/JamesIves/github-pages-deploy-action
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
+          # GITHUB_TOKEN: ${{ secrets.CI_TOKEN }}
           branch: gh-pages # The branch the action should deploy to.
-          folder: target/docs/html # The folder the action should deploy.
+          folder: target/docs/multipage # The folder the action should deploy.
           single-commit: true
