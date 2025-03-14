@@ -1,3 +1,4 @@
+[#io-Serializable]
 = `Serializable`
 
 [{java_src_attr}]

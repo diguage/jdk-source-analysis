@@ -1,3 +1,4 @@
+[#util-PriorityQueue]
 = PriorityQueue
 
 对于 `PriorityQueue` 来说，最重要的一点就是要清楚他是基于堆结构实现，可以用它来实现优先队列。

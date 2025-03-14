@@ -1,3 +1,4 @@
+[#concurrent-locks-ReentrantReadWriteLock]
 = ReentrantReadWriteLock
 
 [{java_src_attr}]

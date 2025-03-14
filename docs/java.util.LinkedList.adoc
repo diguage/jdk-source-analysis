@@ -1,3 +1,4 @@
+[#util-LinkedList]
 = LinkedList
 
 `LinkedList` 底层使用的是 双向链表 数据结构（JDK1.6 之前为循环链表，JDK1.7 取消了循环。注意双向链表和双向循环链表的区别。）

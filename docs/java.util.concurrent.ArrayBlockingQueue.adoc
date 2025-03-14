@@ -1,3 +1,4 @@
+[#concurrent-ArrayBlockingQueue]
 = ArrayBlockingQueue
 
 image::images/BlockingQueue.png[align="center"]

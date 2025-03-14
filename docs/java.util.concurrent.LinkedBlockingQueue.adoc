@@ -1,3 +1,4 @@
+[#concurrent-LinkedBlockingQueue]
 = LinkedBlockingQueue
 
 `LinkedBlockingQueue` 底层是一个单向链表结构。如果需要的话，这一链式结构可以选择一个上限。如果没有定义上限，将使用 `Integer.MAX_VALUE` 作为上限。

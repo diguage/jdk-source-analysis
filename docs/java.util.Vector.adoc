@@ -1,3 +1,4 @@
+[#util-Vector]
 = Vector
 
 [plantuml,{diagram_attr}]

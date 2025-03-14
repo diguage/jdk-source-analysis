@@ -1,1 +1,2 @@
+[#util-Collections]
 = 工具类 `Collections`
