@@ -63,6 +63,7 @@ jobs:
 
       - name: Add Scroll TOC JS 🐌
         run: |
+          mkdir -p target/docs/multipage/assets/scripts/
           touch target/docs/multipage/assets/scripts/scroll-toc.js
           cat > target/docs/multipage/assets/scripts/scroll-toc.js <<- EOF
             document.querySelector('#toc li a span.toc-current')
