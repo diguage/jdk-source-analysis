@@ -20,7 +20,7 @@
     <joda.version>2.12.7</joda.version>
     <byte-buddy.version>1.14.18</byte-buddy.version>
     <netty.version>4.1.112.Final</netty.version>
-    <protobuf.version>4.27.3</protobuf.version>
+    <protobuf.version>4.27.5</protobuf.version>
     <guava.version>33.2.1-jre</guava.version>
     <commons-collections4.version>4.4</commons-collections4.version>
     <eclipse-collections.version>11.1.0</eclipse-collections.version>
