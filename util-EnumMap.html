@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.23">
+<meta name="keywords" content="Java,JDK,Java source,Collection,ArrayList,Map,List,HashMap,ArrayDeque,Deque,Set,HashSet,LinkedList,Queue,TreeMap,TreeSet,Vector,Stack">
+<meta name="author" content="D瓜哥">
+<meta name="copyright" content="Apache-2.0">
+<title>JDK 源码分析</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="assets/styles/asciidoctor.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+<style>a{text-decoration:none;}.img_bk{text-align:center;}strong>code,p>code{color: #d14 !important;background-color: #f5f5f5 !important;border: 1px solid #e1e1e8;white-space: nowrap;border-radius: 3px;}</style>
+<style>.toc-current{color:#d14;font-size:130%;font-weight: bold;} .toc-root{font-family: "Open Sans","DejaVu Sans",sans-serif;
+                       font-size: 0.9em;} #content{display: flex; flex-direction: column; flex: 1 1 auto;}
+             .nav-footer{text-align: center; margin-top: auto;}
+             .nav-footer > p > a {white-space: nowrap;}</style>
+</head>
+<body id="util-EnumMap" class="book toc2 toc-left">
+<div id="header">
+<h1>JDK 源码分析</h1>
+<div class="details">
+<span id="author" class="author">D瓜哥</span><br>
+<span id="email" class="email"><a href="https://www.diguage.com" class="bare">https://www.diguage.com</a></span><br>
+<span id="revdate">2025-03-14</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<p><span class="toc-root"><a href="index.html">JDK 源码分析</a></span></p><ul class="sectlevel1">
+<li><a href="preface.html">前言：JDK &amp; STL 源码分析计划</a>
+</li>
+<li><a href="overview.html">1. 集合类概述</a>
+</li>
+<li><a href="util-Iterator.html">2. 迭代器 Iterator、 Enumeration、 Spliterator 与 Iterable</a>
+</li>
+<li><a href="util-Collection.html">3. Collection</a>
+</li>
+<li><a href="util-AbstractCollection.html">4. AbstractCollection</a>
+</li>
+<li><a href="util-List.html">5. List</a>
+</li>
+<li><a href="util-AbstractList.html">6. AbstractList</a>
+</li>
+<li><a href="util-AbstractSequentialList.html">7. AbstractSequentialList</a>
+</li>
+<li><a href="util-ArrayList.html">8. <code>ArrayList</code></a>
+</li>
+<li><a href="util-LinkedList.html">9. LinkedList</a>
+</li>
+<li><a href="util-Stack.html">10. Stack</a>
+</li>
+<li><a href="util-Vector.html">11. Vector</a>
+</li>
+<li><a href="util-Set.html">12. Set</a>
+</li>
+<li><a href="util-AbstractSet.html">13. AbstractSet</a>
+</li>
+<li><a href="util-SortedSet.html">14. SortedSet</a>
+</li>
+<li><a href="util-NavigableSet.html">15. NavigableSet</a>
+</li>
+<li><a href="util-HashSet.html">16. HashSet</a>
+</li>
+<li><a href="util-TreeSet.html">17. TreeSet</a>
+</li>
+<li><a href="util-LinkedHashSet.html">18. LinkedHashSet</a>
+</li>
+<li><a href="util-BitSet.html">19. BitSet</a>
+</li>
+<li><a href="util-EnumSet.html">20. EnumSet</a>
+</li>
+<li><a href="util-Map.html">21. Map</a>
+</li>
+<li><a href="util-SortedMap.html">22. SortedMap</a>
+</li>
+<li><a href="util-NavigableMap.html">23. NavigableMap</a>
+</li>
+<li><a href="util-AbstractMap.html">24. AbstractMap</a>
+</li>
+<li><a href="util-HashMap.html">25. HashMap</a>
+</li>
+<li><a href="util-TreeMap.html">26. TreeMap</a>
+</li>
+<li><a href="util-LinkedHashMap.html">27. LinkedHashMap</a>
+</li>
+<li><a href="util-Dictionary.html">28. Dictionary</a>
+</li>
+<li><a href="util-Hashtable.html">29. Hashtable</a>
+</li>
+<li><a href="util-EnumMap.html"><span class="toc-current">30. EnumMap</span></a>
+</li>
+<li><a href="util-WeakHashMap.html">31. WeakHashMap</a>
+</li>
+<li><a href="util-IdentityHashMap.html">32. IdentityHashMap</a>
+</li>
+<li><a href="util-Queue.html">33. Queue</a>
+</li>
+<li><a href="util-Deque.html">34. Deque</a>
+</li>
+<li><a href="util-AbstractQueue.html">35. AbstractQueue</a>
+</li>
+<li><a href="util-ArrayDeque.html">36. ArrayDeque</a>
+</li>
+<li><a href="util-PriorityQueue.html">37. PriorityQueue</a>
+</li>
+<li><a href="util-Arrays.html">38. 工具类 <code>Arrays</code></a>
+</li>
+<li><a href="util-Collections.html">39. 工具类 <code>Collections</code></a>
+</li>
+<li><a href="concurrent-overview.html">40. 并发库概述</a>
+</li>
+<li><a href="lang-Thread.html">41. Thread</a>
+</li>
+<li><a href="concurrent-locks-LockSupport.html">42. LockSupport</a>
+</li>
+<li><a href="concurrent-locks-AbstractQueuedSynchronizer.html">43. AbstractQueuedSynchronizer</a>
+</li>
+<li><a href="concurrent-locks-ReentrantLock.html">44. ReentrantLock</a>
+</li>
+<li><a href="concurrent-locks-ReentrantReadWriteLock.html">45. ReentrantReadWriteLock</a>
+</li>
+<li><a href="concurrent-locks-StampedLock.html">46. StampedLock</a>
+</li>
+<li><a href="concurrent-Semaphore.html">47. Semaphore</a>
+</li>
+<li><a href="concurrent-CountDownLatch.html">48. CountDownLatch</a>
+</li>
+<li><a href="concurrent-CyclicBarrier.html">49. CyclicBarrier</a>
+</li>
+<li><a href="concurrent-Phaser.html">50. Phaser</a>
+</li>
+<li><a href="concurrent-Exchanger.html">51. Exchanger</a>
+</li>
+<li><a href="lang-ThreadLocal.html">52. ThreadLocal</a>
+</li>
+<li><a href="concurrent-atomic-AtomicInteger.html">53. AtomicInteger</a>
+</li>
+<li><a href="concurrent-atomic-LongAdder.html">54. LongAdder</a>
+</li>
+<li><a href="concurrent-Future.html">55. JUC 包基础类分析</a>
+</li>
+<li><a href="concurrent-FutureTask.html">56. FutureTask</a>
+</li>
+<li><a href="concurrent-CompletableFuture.html">57. CompletableFuture</a>
+</li>
+<li><a href="concurrent-ThreadPoolExecutor.html">58. ThreadPoolExecutor 源码分析</a>
+</li>
+<li><a href="concurrent-ForkJoinTask.html">59. ForkJoinTask</a>
+</li>
+<li><a href="concurrent-ForkJoinPool.html">60. ForkJoinPool</a>
+</li>
+<li><a href="concurrent-ConcurrentHashMap.html">61. <code>ConcurrentHashMap</code></a>
+</li>
+<li><a href="concurrent-ConcurrentSkipListMap.html">62. <code>ConcurrentSkipListMap</code></a>
+</li>
+<li><a href="concurrent-CopyOnWriteArrayList.html">63. CopyOnWriteArrayList</a>
+</li>
+<li><a href="concurrent-ConcurrentLinkedQueue.html">64. ConcurrentLinkedQueue</a>
+</li>
+<li><a href="concurrent-ArrayBlockingQueue.html">65. ArrayBlockingQueue</a>
+</li>
+<li><a href="concurrent-LinkedBlockingQueue.html">66. LinkedBlockingQueue</a>
+</li>
+<li><a href="concurrent-PriorityBlockingQueue.html">67. PriorityBlockingQueue</a>
+</li>
+<li><a href="concurrent-DelayQueue.html">68. DelayQueue</a>
+</li>
+<li><a href="concurrent-ScheduledThreadPoolExecutor.html">69. <code>ScheduledThreadPoolExecutor</code></a>
+</li>
+<li><a href="concurrent-Flow.html">70. <code>Flow</code></a>
+</li>
+<li><a href="lang-ClassLoader.html">71. ClassLoader</a>
+</li>
+<li><a href="reflect-Field.html">72. Field</a>
+</li>
+<li><a href="reflect-Proxy.html">73. Proxy</a>
+</li>
+<li><a href="net-ServerSocket.html">74. ServerSocket</a>
+</li>
+<li><a href="util-ServiceLoader.html">75. <code>ServiceLoader</code></a>
+</li>
+<li><a href="lang-String.html">76. <code>String</code></a>
+</li>
+<li><a href="util-Date.html">77. <code>Date</code></a>
+</li>
+<li><a href="io-Serializable.html">78. <code>Serializable</code></a>
+</li>
+<li><a href="regex-Pattern.html">79. <code>Pattern</code></a>
+</li>
+<li><a href="_netty.html">80. Netty</a>
+</li>
+</ul>
+</div>
+</div>
+<div id="content"><div class="sect2"><h3 id="_友情支持">友情支持</h3><div class="paragraph"><p>如果您觉得这个笔记对您有所帮助，看在D瓜哥码这么多字的辛苦上，请友情支持一下，D瓜哥感激不尽，😜</p></div><table class="tableblock frame-none grid-all stretch"><colgroup><col style="width: 50%;"><col style="width: 50%;"></colgroup><tbody><tr><td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="./images/alipay.png" alt="支付宝" width="85%" title="支付宝"></span></p></td><td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="./images/wxpay.jpg" alt="微信" width="85%" title="微信"></span></p></td></tr></tbody></table><div class="paragraph"><p>有些打赏的朋友希望可以加个好友，欢迎关注D 瓜哥的微信公众号，这样就可以通过公众号的回复直接给我发信息。</p></div><div class="paragraph"><p><span class="image"><img src="./images/wx-jikerizhi.png" alt="wx jikerizhi" width="98%"></span></p></div><div class="admonitionblock tip"><table><tbody><tr><td class="icon"><i class="fa icon-tip" title="Tip"></i></td><td class="content"><strong>公众号的微信号是: <code>jikerizhi</code></strong>。<em>因为众所周知的原因，有时图片加载不出来。 如果图片加载不出来可以直接通过搜索微信号来查找我的公众号。</em></td></tr></tbody></table></div></div>
+<div class="sect1">
+<h2 id="util-EnumMap"><a class="anchor" href="#util-EnumMap"></a>30. EnumMap</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="paragraph nav-footer">
+<p>← Previous: <a href="util-Hashtable.html">Hashtable</a> | ↑ Up: <a href="index.html">JDK 源码分析</a> | Next: <a href="util-WeakHashMap.html">WeakHashMap</a> →</p>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2025-03-14 08:57:51 UTC
+</div>
+</div>
+<script src="assets/scripts/scroll-toc.js"></script></body>
+</html>
