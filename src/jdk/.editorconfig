@@ -1,0 +1,5 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# 4 space indentation
+[*.java]
+indent_size = 4
