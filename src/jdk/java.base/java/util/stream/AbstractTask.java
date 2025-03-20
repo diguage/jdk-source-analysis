@@ -101,7 +101,7 @@ abstract class AbstractTask<P_IN, P_OUT, R,
     protected Spliterator<P_IN> spliterator;
 
     /** Target leaf size, common to all tasks in a computation */
-    protected long targetSize; // may be laziliy initialized
+    protected long targetSize; // may be lazily initialized
 
     /**
      * The left child.
@@ -180,7 +180,7 @@ abstract class AbstractTask<P_IN, P_OUT, R,
 
     /**
      * Computes the result associated with a leaf node.  Will be called by
-     * {@code compute()} and the result passed to @{code setLocalResult()}
+     * {@code compute()} and the result passed to {@code setLocalResult()}
      *
      * @return the computed result of a leaf node
      */

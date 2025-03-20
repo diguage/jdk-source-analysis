@@ -38,9 +38,9 @@ package java.util.concurrent.locks;
 /**
  * A {@code ReadWriteLock} maintains a pair of associated {@link
  * Lock locks}, one for read-only operations and one for writing.
- * The {@link #readLock read lock} may be held simultaneously by
- * multiple reader threads, so long as there are no writers.  The
- * {@link #writeLock write lock} is exclusive.
+ * The {@linkplain #readLock read lock} may be held simultaneously
+ * by multiple reader threads, so long as there are no writers.
+ * The {@linkplain #writeLock write lock} is exclusive.
  *
  * <p>All {@code ReadWriteLock} implementations must guarantee that
  * the memory synchronization effects of {@code writeLock} operations
@@ -78,7 +78,6 @@ package java.util.concurrent.locks;
  * all threads through a small section of code. Ultimately, only profiling
  * and measurement will establish whether the use of a read-write lock is
  * suitable for your application.
- *
  *
  * <p>Although the basic operation of a read-write lock is straight-forward,
  * there are many policy decisions that an implementation must make, which

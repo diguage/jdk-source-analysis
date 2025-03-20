@@ -34,6 +34,7 @@
  */
 
 package java.util.concurrent;
+
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -54,7 +55,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * <p><b>Sample usage:</b> Here is an example of using a barrier in a
  * parallel decomposition design:
  *
- *  <pre> {@code
+ * <pre> {@code
  * class Solver {
  *   final int N;
  *   final float[][] data;
@@ -81,11 +82,10 @@ import java.util.concurrent.locks.ReentrantLock;
  *   public Solver(float[][] matrix) {
  *     data = matrix;
  *     N = matrix.length;
- *     Runnable barrierAction =
- *       new Runnable() { public void run() { mergeRows(...); }};
+ *     Runnable barrierAction = () -> mergeRows(...);
  *     barrier = new CyclicBarrier(N, barrierAction);
  *
- *     List<Thread> threads = new ArrayList<Thread>(N);
+ *     List<Thread> threads = new ArrayList<>(N);
  *     for (int i = 0; i < N; i++) {
  *       Thread thread = new Thread(new Worker(i));
  *       threads.add(thread);
@@ -94,16 +94,17 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  *     // wait until done
  *     for (Thread thread : threads)
- *       thread.join();
+ *       try {
+ *         thread.join();
+ *       } catch (InterruptedException ex) { }
  *   }
  * }}</pre>
  *
- * Here, each worker thread processes a row of the matrix then waits at the
- * barrier until all rows have been processed. When all rows are processed
- * the supplied {@link Runnable} barrier action is executed and merges the
- * rows. If the merger
- * determines that a solution has been found then {@code done()} will return
- * {@code true} and each worker will terminate.
+ * Here, each worker thread processes a row of the matrix, then waits at the
+ * barrier until all rows have been processed. When all rows are processed the
+ * supplied {@link Runnable} barrier action is executed and merges the rows.
+ * If the merger determines that a solution has been found then {@code done()}
+ * will return {@code true} and each worker will terminate.
  *
  * <p>If the barrier action does not rely on the parties being suspended when
  * it is executed, then any of the threads in the party could execute that
@@ -111,7 +112,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * {@link #await} returns the arrival index of that thread at the barrier.
  * You can then choose which thread should execute the barrier action, for
  * example:
- *  <pre> {@code
+ * <pre> {@code
  * if (barrier.await() == 0) {
  *   // log the completion of this iteration
  * }}</pre>
@@ -131,10 +132,11 @@ import java.util.concurrent.locks.ReentrantLock;
  * <i>happen-before</i> actions following a successful return from the
  * corresponding {@code await()} in other threads.
  *
- * @since 1.5
  * @see CountDownLatch
+ * @see Phaser
  *
  * @author Doug Lea
+ * @since 1.5
  */
 public class CyclicBarrier {
     /**
@@ -149,7 +151,8 @@ public class CyclicBarrier {
      * but no subsequent reset.
      */
     private static class Generation {
-        boolean broken = false;
+        Generation() {}                 // prevent access constructor creation
+        boolean broken;                 // initially false
     }
 
     /** The lock for guarding barrier entry */
@@ -158,7 +161,7 @@ public class CyclicBarrier {
     private final Condition trip = lock.newCondition();
     /** The number of parties */
     private final int parties;
-    /* The command to run when tripped */
+    /** The command to run when tripped */
     private final Runnable barrierCommand;
     /** The current generation */
     private Generation generation = new Generation();
@@ -213,18 +216,17 @@ public class CyclicBarrier {
 
             int index = --count;
             if (index == 0) {  // tripped
-                boolean ranAction = false;
-                try {
-                    final Runnable command = barrierCommand;
-                    if (command != null)
+                Runnable command = barrierCommand;
+                if (command != null) {
+                    try {
                         command.run();
-                    ranAction = true;
-                    nextGeneration();
-                    return 0;
-                } finally {
-                    if (!ranAction)
+                    } catch (Throwable ex) {
                         breakBarrier();
+                        throw ex;
+                    }
                 }
+                nextGeneration();
+                return 0;
             }
 
             // loop until tripped, broken, interrupted, or timed out

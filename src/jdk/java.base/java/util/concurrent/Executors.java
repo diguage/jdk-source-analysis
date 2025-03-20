@@ -34,14 +34,19 @@
  */
 
 package java.util.concurrent;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+
+import static java.lang.ref.Reference.reachabilityFence;
+import java.lang.ref.Cleaner.Cleanable;
 import java.security.AccessControlContext;
+import java.security.AccessControlException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.security.PrivilegedExceptionAction;
 import java.security.PrivilegedActionException;
-import java.security.AccessControlException;
+import java.security.PrivilegedExceptionAction;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import jdk.internal.ref.CleanerFactory;
 import sun.security.util.SecurityConstants;
 
 /**
@@ -51,18 +56,18 @@ import sun.security.util.SecurityConstants;
  * package. This class supports the following kinds of methods:
  *
  * <ul>
- *   <li> Methods that create and return an {@link ExecutorService}
- *        set up with commonly useful configuration settings.
- *   <li> Methods that create and return a {@link ScheduledExecutorService}
- *        set up with commonly useful configuration settings.
- *   <li> Methods that create and return a "wrapped" ExecutorService, that
- *        disables reconfiguration by making implementation-specific methods
- *        inaccessible.
- *   <li> Methods that create and return a {@link ThreadFactory}
- *        that sets newly created threads to a known state.
- *   <li> Methods that create and return a {@link Callable}
- *        out of other closure-like forms, so they can be used
- *        in execution methods requiring {@code Callable}.
+ *   <li>Methods that create and return an {@link ExecutorService}
+ *       set up with commonly useful configuration settings.
+ *   <li>Methods that create and return a {@link ScheduledExecutorService}
+ *       set up with commonly useful configuration settings.
+ *   <li>Methods that create and return a "wrapped" ExecutorService, that
+ *       disables reconfiguration by making implementation-specific methods
+ *       inaccessible.
+ *   <li>Methods that create and return a {@link ThreadFactory}
+ *       that sets newly created threads to a known state.
+ *   <li>Methods that create and return a {@link Callable}
+ *       out of other closure-like forms, so they can be used
+ *       in execution methods requiring {@code Callable}.
  * </ul>
  *
  * @since 1.5
@@ -114,9 +119,10 @@ public class Executors {
     }
 
     /**
-     * Creates a work-stealing thread pool using all
-     * {@link Runtime#availableProcessors available processors}
+     * Creates a work-stealing thread pool using the number of
+     * {@linkplain Runtime#availableProcessors available processors}
      * as its target parallelism level.
+     *
      * @return the newly created thread pool
      * @see #newWorkStealingPool(int)
      * @since 1.8
@@ -168,10 +174,7 @@ public class Executors {
      * @return the newly created single-threaded Executor
      */
     public static ExecutorService newSingleThreadExecutor() {
-        return new FinalizableDelegatedExecutorService
-            (new ThreadPoolExecutor(1, 1,
-                                    0L, TimeUnit.MILLISECONDS,
-                                    new LinkedBlockingQueue<Runnable>()));
+        return newSingleThreadExecutor(defaultThreadFactory());
     }
 
     /**
@@ -182,14 +185,12 @@ public class Executors {
      * returned executor is guaranteed not to be reconfigurable to use
      * additional threads.
      *
-     * @param threadFactory the factory to use when creating new
-     * threads
-     *
+     * @param threadFactory the factory to use when creating new threads
      * @return the newly created single-threaded Executor
      * @throws NullPointerException if threadFactory is null
      */
     public static ExecutorService newSingleThreadExecutor(ThreadFactory threadFactory) {
-        return new FinalizableDelegatedExecutorService
+        return new AutoShutdownDelegatedExecutorService
             (new ThreadPoolExecutor(1, 1,
                                     0L, TimeUnit.MILLISECONDS,
                                     new LinkedBlockingQueue<Runnable>(),
@@ -223,6 +224,7 @@ public class Executors {
      * will reuse previously constructed threads when they are
      * available, and uses the provided
      * ThreadFactory to create new threads when needed.
+     *
      * @param threadFactory the factory to use when creating new threads
      * @return the newly created thread pool
      * @throws NullPointerException if threadFactory is null
@@ -232,6 +234,40 @@ public class Executors {
                                       60L, TimeUnit.SECONDS,
                                       new SynchronousQueue<Runnable>(),
                                       threadFactory);
+    }
+
+    /**
+     * Creates an Executor that starts a new Thread for each task.
+     * The number of threads created by the Executor is unbounded.
+     *
+     * <p> Invoking {@link Future#cancel(boolean) cancel(true)} on a {@link
+     * Future Future} representing the pending result of a task submitted to
+     * the Executor will {@link Thread#interrupt() interrupt} the thread
+     * executing the task.
+     *
+     * @param threadFactory the factory to use when creating new threads
+     * @return a new executor that creates a new Thread for each task
+     * @throws NullPointerException if threadFactory is null
+     * @since 21
+     */
+    public static ExecutorService newThreadPerTaskExecutor(ThreadFactory threadFactory) {
+        return ThreadPerTaskExecutor.create(threadFactory);
+    }
+
+    /**
+     * Creates an Executor that starts a new virtual Thread for each task.
+     * The number of threads created by the Executor is unbounded.
+     *
+     * <p> This method is equivalent to invoking
+     * {@link #newThreadPerTaskExecutor(ThreadFactory)} with a thread factory
+     * that creates virtual threads.
+     *
+     * @return a new executor that creates a new virtual Thread for each task
+     * @since 21
+     */
+    public static ExecutorService newVirtualThreadPerTaskExecutor() {
+        ThreadFactory factory = Thread.ofVirtual().factory();
+        return newThreadPerTaskExecutor(factory);
     }
 
     /**
@@ -245,6 +281,7 @@ public class Executors {
      * given time. Unlike the otherwise equivalent
      * {@code newScheduledThreadPool(1)} the returned executor is
      * guaranteed not to be reconfigurable to use additional threads.
+     *
      * @return the newly created scheduled executor
      */
     public static ScheduledExecutorService newSingleThreadScheduledExecutor() {
@@ -263,9 +300,9 @@ public class Executors {
      * equivalent {@code newScheduledThreadPool(1, threadFactory)}
      * the returned executor is guaranteed not to be reconfigurable to
      * use additional threads.
-     * @param threadFactory the factory to use when creating new
-     * threads
-     * @return a newly created scheduled executor
+     *
+     * @param threadFactory the factory to use when creating new threads
+     * @return the newly created scheduled executor
      * @throws NullPointerException if threadFactory is null
      */
     public static ScheduledExecutorService newSingleThreadScheduledExecutor(ThreadFactory threadFactory) {
@@ -278,7 +315,7 @@ public class Executors {
      * given delay, or to execute periodically.
      * @param corePoolSize the number of threads to keep in the pool,
      * even if they are idle
-     * @return a newly created scheduled thread pool
+     * @return the newly created scheduled thread pool
      * @throws IllegalArgumentException if {@code corePoolSize < 0}
      */
     public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize) {
@@ -292,7 +329,7 @@ public class Executors {
      * even if they are idle
      * @param threadFactory the factory to use when the executor
      * creates a new thread
-     * @return a newly created scheduled thread pool
+     * @return the newly created scheduled thread pool
      * @throws IllegalArgumentException if {@code corePoolSize < 0}
      * @throws NullPointerException if threadFactory is null
      */
@@ -385,7 +422,15 @@ public class Executors {
      * @throws AccessControlException if the current access control
      * context does not have permission to both get and set context
      * class loader
+     *
+     * @deprecated This method is only useful in conjunction with
+     *       {@linkplain SecurityManager the Security Manager}, which is
+     *       deprecated and subject to removal in a future release.
+     *       Consequently, this method is also deprecated and subject to
+     *       removal. There is no replacement for the Security Manager or this
+     *       method.
      */
+    @Deprecated(since="17", forRemoval=true)
     public static ThreadFactory privilegedThreadFactory() {
         return new PrivilegedThreadFactory();
     }
@@ -462,7 +507,15 @@ public class Executors {
      * @param <T> the type of the callable's result
      * @return a callable object
      * @throws NullPointerException if callable null
+     *
+     * @deprecated This method is only useful in conjunction with
+     *       {@linkplain SecurityManager the Security Manager}, which is
+     *       deprecated and subject to removal in a future release.
+     *       Consequently, this method is also deprecated and subject to
+     *       removal. There is no replacement for the Security Manager or this
+     *       method.
      */
+    @Deprecated(since="17", forRemoval=true)
     public static <T> Callable<T> privilegedCallable(Callable<T> callable) {
         if (callable == null)
             throw new NullPointerException();
@@ -488,7 +541,15 @@ public class Executors {
      * @throws AccessControlException if the current access control
      * context does not have permission to both set and get context
      * class loader
+     *
+     * @deprecated This method is only useful in conjunction with
+     *       {@linkplain SecurityManager the Security Manager}, which is
+     *       deprecated and subject to removal in a future release.
+     *       Consequently, this method is also deprecated and subject to
+     *       removal. There is no replacement for the Security Manager or this
+     *       method.
      */
+    @Deprecated(since="17", forRemoval=true)
     public static <T> Callable<T> privilegedCallableUsingCurrentClassLoader(Callable<T> callable) {
         if (callable == null)
             throw new NullPointerException();
@@ -498,11 +559,11 @@ public class Executors {
     // Non-public classes supporting the public methods
 
     /**
-     * A callable that runs given task and returns given result
+     * A callable that runs given task and returns given result.
      */
-    static final class RunnableAdapter<T> implements Callable<T> {
-        final Runnable task;
-        final T result;
+    private static final class RunnableAdapter<T> implements Callable<T> {
+        private final Runnable task;
+        private final T result;
         RunnableAdapter(Runnable task, T result) {
             this.task = task;
             this.result = result;
@@ -511,20 +572,26 @@ public class Executors {
             task.run();
             return result;
         }
+        public String toString() {
+            return super.toString() + "[Wrapped task = " + task + "]";
+        }
     }
 
     /**
-     * A callable that runs under established access control settings
+     * A callable that runs under established access control settings.
      */
-    static final class PrivilegedCallable<T> implements Callable<T> {
-        private final Callable<T> task;
-        private final AccessControlContext acc;
+    private static final class PrivilegedCallable<T> implements Callable<T> {
+        final Callable<T> task;
+        @SuppressWarnings("removal")
+        final AccessControlContext acc;
 
+        @SuppressWarnings("removal")
         PrivilegedCallable(Callable<T> task) {
             this.task = task;
             this.acc = AccessController.getContext();
         }
 
+        @SuppressWarnings("removal")
         public T call() throws Exception {
             try {
                 return AccessController.doPrivileged(
@@ -537,17 +604,24 @@ public class Executors {
                 throw e.getException();
             }
         }
+
+        public String toString() {
+            return super.toString() + "[Wrapped task = " + task + "]";
+        }
     }
 
     /**
      * A callable that runs under established access control settings and
-     * current ClassLoader
+     * current ClassLoader.
      */
-    static final class PrivilegedCallableUsingCurrentClassLoader<T> implements Callable<T> {
-        private final Callable<T> task;
-        private final AccessControlContext acc;
-        private final ClassLoader ccl;
+    private static final class PrivilegedCallableUsingCurrentClassLoader<T>
+            implements Callable<T> {
+        final Callable<T> task;
+        @SuppressWarnings("removal")
+        final AccessControlContext acc;
+        final ClassLoader ccl;
 
+        @SuppressWarnings("removal")
         PrivilegedCallableUsingCurrentClassLoader(Callable<T> task) {
             SecurityManager sm = System.getSecurityManager();
             if (sm != null) {
@@ -565,6 +639,7 @@ public class Executors {
             this.ccl = Thread.currentThread().getContextClassLoader();
         }
 
+        @SuppressWarnings("removal")
         public T call() throws Exception {
             try {
                 return AccessController.doPrivileged(
@@ -588,18 +663,23 @@ public class Executors {
                 throw e.getException();
             }
         }
+
+        public String toString() {
+            return super.toString() + "[Wrapped task = " + task + "]";
+        }
     }
 
     /**
-     * The default thread factory
+     * The default thread factory.
      */
-    static class DefaultThreadFactory implements ThreadFactory {
+    private static class DefaultThreadFactory implements ThreadFactory {
         private static final AtomicInteger poolNumber = new AtomicInteger(1);
         private final ThreadGroup group;
         private final AtomicInteger threadNumber = new AtomicInteger(1);
         private final String namePrefix;
 
         DefaultThreadFactory() {
+            @SuppressWarnings("removal")
             SecurityManager s = System.getSecurityManager();
             group = (s != null) ? s.getThreadGroup() :
                                   Thread.currentThread().getThreadGroup();
@@ -621,12 +701,14 @@ public class Executors {
     }
 
     /**
-     * Thread factory capturing access control context and class loader
+     * Thread factory capturing access control context and class loader.
      */
-    static class PrivilegedThreadFactory extends DefaultThreadFactory {
-        private final AccessControlContext acc;
-        private final ClassLoader ccl;
+    private static class PrivilegedThreadFactory extends DefaultThreadFactory {
+        @SuppressWarnings("removal")
+        final AccessControlContext acc;
+        final ClassLoader ccl;
 
+        @SuppressWarnings("removal")
         PrivilegedThreadFactory() {
             super();
             SecurityManager sm = System.getSecurityManager();
@@ -645,8 +727,9 @@ public class Executors {
 
         public Thread newThread(final Runnable r) {
             return super.newThread(new Runnable() {
+                @SuppressWarnings("removal")
                 public void run() {
-                    AccessController.doPrivileged(new PrivilegedAction<Void>() {
+                    AccessController.doPrivileged(new PrivilegedAction<>() {
                         public Void run() {
                             Thread.currentThread().setContextClassLoader(ccl);
                             r.run();
@@ -662,54 +745,106 @@ public class Executors {
      * A wrapper class that exposes only the ExecutorService methods
      * of an ExecutorService implementation.
      */
-    static class DelegatedExecutorService extends AbstractExecutorService {
+    private static class DelegatedExecutorService
+            implements ExecutorService {
         private final ExecutorService e;
         DelegatedExecutorService(ExecutorService executor) { e = executor; }
-        public void execute(Runnable command) { e.execute(command); }
-        public void shutdown() { e.shutdown(); }
-        public List<Runnable> shutdownNow() { return e.shutdownNow(); }
-        public boolean isShutdown() { return e.isShutdown(); }
-        public boolean isTerminated() { return e.isTerminated(); }
+        public void execute(Runnable command) {
+            try {
+                e.execute(command);
+            } finally { reachabilityFence(this); }
+        }
+        public void shutdown() {
+            try {
+                e.shutdown();
+            } finally { reachabilityFence(this); }
+        }
+        public List<Runnable> shutdownNow() {
+            try {
+                return e.shutdownNow();
+            } finally { reachabilityFence(this); }
+        }
+        public boolean isShutdown() {
+            try {
+                return e.isShutdown();
+            } finally { reachabilityFence(this); }
+        }
+        public boolean isTerminated() {
+            try {
+                return e.isTerminated();
+            } finally { reachabilityFence(this); }
+        }
         public boolean awaitTermination(long timeout, TimeUnit unit)
             throws InterruptedException {
-            return e.awaitTermination(timeout, unit);
+            try {
+                return e.awaitTermination(timeout, unit);
+            } finally { reachabilityFence(this); }
         }
         public Future<?> submit(Runnable task) {
-            return e.submit(task);
+            try {
+                return e.submit(task);
+            } finally { reachabilityFence(this); }
         }
         public <T> Future<T> submit(Callable<T> task) {
-            return e.submit(task);
+            try {
+                return e.submit(task);
+            } finally { reachabilityFence(this); }
         }
         public <T> Future<T> submit(Runnable task, T result) {
-            return e.submit(task, result);
+            try {
+                return e.submit(task, result);
+            } finally { reachabilityFence(this); }
         }
         public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks)
             throws InterruptedException {
-            return e.invokeAll(tasks);
+            try {
+                return e.invokeAll(tasks);
+            } finally { reachabilityFence(this); }
         }
         public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks,
                                              long timeout, TimeUnit unit)
             throws InterruptedException {
-            return e.invokeAll(tasks, timeout, unit);
+            try {
+                return e.invokeAll(tasks, timeout, unit);
+            } finally { reachabilityFence(this); }
         }
         public <T> T invokeAny(Collection<? extends Callable<T>> tasks)
             throws InterruptedException, ExecutionException {
-            return e.invokeAny(tasks);
+            try {
+                return e.invokeAny(tasks);
+            } finally { reachabilityFence(this); }
         }
         public <T> T invokeAny(Collection<? extends Callable<T>> tasks,
                                long timeout, TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException {
-            return e.invokeAny(tasks, timeout, unit);
+            try {
+                return e.invokeAny(tasks, timeout, unit);
+            } finally { reachabilityFence(this); }
         }
     }
 
-    static class FinalizableDelegatedExecutorService
-        extends DelegatedExecutorService {
-        FinalizableDelegatedExecutorService(ExecutorService executor) {
+    /**
+     * A DelegatedExecutorService that uses a Cleaner to shut down the underlying
+     * ExecutorService when the wrapper becomes phantom reachable.
+     */
+    private static class AutoShutdownDelegatedExecutorService
+            extends DelegatedExecutorService {
+        private final Cleanable cleanable;
+        AutoShutdownDelegatedExecutorService(ExecutorService executor) {
             super(executor);
+            Runnable action = () -> {
+                if (!executor.isShutdown()) {
+                    PrivilegedAction<Void> pa = () -> { executor.shutdown(); return null; };
+                    @SuppressWarnings("removal")
+                    var ignore = AccessController.doPrivileged(pa);
+                }
+            };
+            cleanable = CleanerFactory.cleaner().register(this, action);
         }
-        protected void finalize() {
+        @Override
+        public void shutdown() {
             super.shutdown();
+            cleanable.clean();  // unregisters the cleanable
         }
     }
 
@@ -717,7 +852,7 @@ public class Executors {
      * A wrapper class that exposes only the ScheduledExecutorService
      * methods of a ScheduledExecutorService implementation.
      */
-    static class DelegatedScheduledExecutorService
+    private static class DelegatedScheduledExecutorService
             extends DelegatedExecutorService
             implements ScheduledExecutorService {
         private final ScheduledExecutorService e;

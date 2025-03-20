@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2021, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -28,7 +28,6 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -58,7 +57,7 @@ class StreamSpliterators {
      * <p>A wrapping spliterator produced from a sequential stream
      * cannot be split if there are stateful operations present.
      */
-    private static abstract class AbstractWrappingSpliterator<P_IN, P_OUT,
+    private abstract static class AbstractWrappingSpliterator<P_IN, P_OUT,
                                                               T_BUFFER extends AbstractSpinedBuffer>
             implements Spliterator<P_OUT> {
 
@@ -104,7 +103,7 @@ class StreamSpliterators {
         T_BUFFER buffer;
 
         /**
-         * True if full traversal has occurred (with possible cancelation).
+         * True if full traversal has occurred (with possible cancellation).
          * If doing a partial traversal, there may be still elements in buffer.
          */
         boolean finished;
@@ -187,7 +186,7 @@ class StreamSpliterators {
 
         @Override
         public Spliterator<P_OUT> trySplit() {
-            if (isParallel && !finished) {
+            if (isParallel && buffer == null && !finished) {
                 init();
 
                 Spliterator<P_IN> split = spliterator.trySplit();
@@ -218,19 +217,17 @@ class StreamSpliterators {
 
         @Override
         public final long estimateSize() {
-            init();
+            long exactSizeIfKnown = getExactSizeIfKnown();
             // Use the estimate of the wrapped spliterator
             // Note this may not be accurate if there are filter/flatMap
             // operations filtering or adding elements to the stream
-            return spliterator.estimateSize();
+            return exactSizeIfKnown == -1 ? spliterator.estimateSize() : exactSizeIfKnown;
         }
 
         @Override
         public final long getExactSizeIfKnown() {
             init();
-            return StreamOpFlag.SIZED.isKnown(ph.getStreamAndOpFlags())
-                   ? spliterator.getExactSizeIfKnown()
-                   : -1;
+            return ph.exactOutputSizeIfKnown(spliterator);
         }
 
         @Override
@@ -575,6 +572,7 @@ class StreamSpliterators {
             }
         }
 
+        @SuppressWarnings("overloads")
         static final class OfInt
                 extends OfPrimitive<Integer, IntConsumer, Spliterator.OfInt>
                 implements Spliterator.OfInt {
@@ -584,6 +582,7 @@ class StreamSpliterators {
             }
         }
 
+        @SuppressWarnings("overloads")
         static final class OfLong
                 extends OfPrimitive<Long, LongConsumer, Spliterator.OfLong>
                 implements Spliterator.OfLong {
@@ -593,6 +592,7 @@ class StreamSpliterators {
             }
         }
 
+        @SuppressWarnings("overloads")
         static final class OfDouble
                 extends OfPrimitive<Double, DoubleConsumer, Spliterator.OfDouble>
                 implements Spliterator.OfDouble {
@@ -608,7 +608,7 @@ class StreamSpliterators {
      * {@code SUBSIZED}.
      *
      */
-    static abstract class SliceSpliterator<T, T_SPLITR extends Spliterator<T>> {
+    abstract static class SliceSpliterator<T, T_SPLITR extends Spliterator<T>> {
         // The start index of the slice
         final long sliceOrigin;
         // One past the last index of the slice
@@ -754,7 +754,7 @@ class StreamSpliterators {
             }
         }
 
-        static abstract class OfPrimitive<T,
+        abstract static class OfPrimitive<T,
                 T_SPLITR extends Spliterator.OfPrimitive<T, T_CONS, T_SPLITR>,
                 T_CONS>
                 extends SliceSpliterator<T, T_SPLITR>
@@ -818,6 +818,7 @@ class StreamSpliterators {
             protected abstract T_CONS emptyConsumer();
         }
 
+        @SuppressWarnings("overloads")
         static final class OfInt extends OfPrimitive<Integer, Spliterator.OfInt, IntConsumer>
                 implements Spliterator.OfInt {
             OfInt(Spliterator.OfInt s, long sliceOrigin, long sliceFence) {
@@ -842,6 +843,7 @@ class StreamSpliterators {
             }
         }
 
+        @SuppressWarnings("overloads")
         static final class OfLong extends OfPrimitive<Long, Spliterator.OfLong, LongConsumer>
                 implements Spliterator.OfLong {
             OfLong(Spliterator.OfLong s, long sliceOrigin, long sliceFence) {
@@ -866,6 +868,7 @@ class StreamSpliterators {
             }
         }
 
+        @SuppressWarnings("overloads")
         static final class OfDouble extends OfPrimitive<Double, Spliterator.OfDouble, DoubleConsumer>
                 implements Spliterator.OfDouble {
             OfDouble(Spliterator.OfDouble s, long sliceOrigin, long sliceFence) {
@@ -900,7 +903,7 @@ class StreamSpliterators {
      * collected to a {@code Node}. It is the order of the pipeline stage
      * that governs whether this slice spliterator is to be used or not.
      */
-    static abstract class UnorderedSliceSpliterator<T, T_SPLITR extends Spliterator<T>> {
+    abstract static class UnorderedSliceSpliterator<T, T_SPLITR extends Spliterator<T>> {
         static final int CHUNK_SIZE = 1 << 7;
 
         // The spliterator to slice
@@ -1065,7 +1068,7 @@ class StreamSpliterators {
          * @param <T_BUFF> the type of the spined buffer. Must also be a type of
          *        {@code T_CONS}.
          */
-        static abstract class OfPrimitive<
+        abstract static class OfPrimitive<
                 T,
                 T_CONS,
                 T_BUFF extends ArrayBuffer.OfPrimitive<T_CONS>,
@@ -1131,6 +1134,7 @@ class StreamSpliterators {
             protected abstract T_BUFF bufferCreate(int initialCapacity);
         }
 
+        @SuppressWarnings("overloads")
         static final class OfInt
                 extends OfPrimitive<Integer, IntConsumer, ArrayBuffer.OfInt, Spliterator.OfInt>
                 implements Spliterator.OfInt, IntConsumer {
@@ -1166,6 +1170,7 @@ class StreamSpliterators {
             }
         }
 
+        @SuppressWarnings("overloads")
         static final class OfLong
                 extends OfPrimitive<Long, LongConsumer, ArrayBuffer.OfLong, Spliterator.OfLong>
                 implements Spliterator.OfLong, LongConsumer {
@@ -1201,6 +1206,7 @@ class StreamSpliterators {
             }
         }
 
+        @SuppressWarnings("overloads")
         static final class OfDouble
                 extends OfPrimitive<Double, DoubleConsumer, ArrayBuffer.OfDouble, Spliterator.OfDouble>
                 implements Spliterator.OfDouble, DoubleConsumer {
@@ -1329,7 +1335,7 @@ class StreamSpliterators {
      * The {@code tryAdvance} method always returns true.
      *
      */
-    static abstract class InfiniteSupplyingSpliterator<T> implements Spliterator<T> {
+    abstract static class InfiniteSupplyingSpliterator<T> implements Spliterator<T> {
         long estimate;
 
         protected InfiniteSupplyingSpliterator(long estimate) {
@@ -1347,9 +1353,9 @@ class StreamSpliterators {
         }
 
         static final class OfRef<T> extends InfiniteSupplyingSpliterator<T> {
-            final Supplier<T> s;
+            final Supplier<? extends T> s;
 
-            OfRef(long size, Supplier<T> s) {
+            OfRef(long size, Supplier<? extends T> s) {
                 super(size);
                 this.s = s;
             }
@@ -1447,7 +1453,7 @@ class StreamSpliterators {
     }
 
     // @@@ Consolidate with Node.Builder
-    static abstract class ArrayBuffer {
+    abstract static class ArrayBuffer {
         int index;
 
         void reset() {
@@ -1475,7 +1481,7 @@ class StreamSpliterators {
             }
         }
 
-        static abstract class OfPrimitive<T_CONS> extends ArrayBuffer {
+        abstract static class OfPrimitive<T_CONS> extends ArrayBuffer {
             int index;
 
             @Override

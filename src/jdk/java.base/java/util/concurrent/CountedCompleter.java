@@ -35,6 +35,8 @@
 
 package java.util.concurrent;
 
+import jdk.internal.misc.Unsafe;
+
 /**
  * A {@link ForkJoinTask} with a completion action performed when
  * triggered and there are no remaining pending actions.
@@ -54,8 +56,7 @@ package java.util.concurrent;
  * decremented; otherwise, the completion action is performed, and if
  * this completer itself has a completer, the process is continued
  * with its completer.  As is the case with related synchronization
- * components such as {@link java.util.concurrent.Phaser Phaser} and
- * {@link java.util.concurrent.Semaphore Semaphore}, these methods
+ * components such as {@link Phaser} and {@link Semaphore}, these methods
  * affect only internal counts; they do not establish any further
  * internal bookkeeping. In particular, the identities of pending
  * tasks are not maintained. As illustrated below, you can create
@@ -117,100 +118,114 @@ package java.util.concurrent;
  * to complete for some elements than others, either because of
  * intrinsic variation (for example I/O) or auxiliary effects such as
  * garbage collection.  Because CountedCompleters provide their own
- * continuations, other threads need not block waiting to perform
- * them.
+ * continuations, other tasks need not block waiting to perform them.
  *
- * <p>For example, here is an initial version of a class that uses
- * divide-by-two recursive decomposition to divide work into single
- * pieces (leaf tasks). Even when work is split into individual calls,
- * tree-based techniques are usually preferable to directly forking
- * leaf tasks, because they reduce inter-thread communication and
- * improve load balancing. In the recursive case, the second of each
- * pair of subtasks to finish triggers completion of its parent
+ * <p>For example, here is an initial version of a utility method that
+ * uses divide-by-two recursive decomposition to divide work into
+ * single pieces (leaf tasks). Even when work is split into individual
+ * calls, tree-based techniques are usually preferable to directly
+ * forking leaf tasks, because they reduce inter-thread communication
+ * and improve load balancing. In the recursive case, the second of
+ * each pair of subtasks to finish triggers completion of their parent
  * (because no result combination is performed, the default no-op
  * implementation of method {@code onCompletion} is not overridden).
- * A static utility method sets up the base task and invokes it
- * (here, implicitly using the {@link ForkJoinPool#commonPool()}).
+ * The utility method sets up the root task and invokes it (here,
+ * implicitly using the {@link ForkJoinPool#commonPool()}).  It is
+ * straightforward and reliable (but not optimal) to always set the
+ * pending count to the number of child tasks and call {@code
+ * tryComplete()} immediately before returning.
  *
  * <pre> {@code
- * class MyOperation<E> { void apply(E e) { ... }  }
- *
- * class ForEach<E> extends CountedCompleter<Void> {
- *
- *   public static <E> void forEach(E[] array, MyOperation<E> op) {
- *     new ForEach<E>(null, array, op, 0, array.length).invoke();
- *   }
- *
- *   final E[] array; final MyOperation<E> op; final int lo, hi;
- *   ForEach(CountedCompleter<?> p, E[] array, MyOperation<E> op, int lo, int hi) {
- *     super(p);
- *     this.array = array; this.op = op; this.lo = lo; this.hi = hi;
- *   }
- *
- *   public void compute() { // version 1
- *     if (hi - lo >= 2) {
- *       int mid = (lo + hi) >>> 1;
- *       setPendingCount(2); // must set pending count before fork
- *       new ForEach(this, array, op, mid, hi).fork(); // right child
- *       new ForEach(this, array, op, lo, mid).fork(); // left child
+ * public static <E> void forEach(E[] array, Consumer<E> action) {
+ *   class Task extends CountedCompleter<Void> {
+ *     final int lo, hi;
+ *     Task(Task parent, int lo, int hi) {
+ *       super(parent); this.lo = lo; this.hi = hi;
  *     }
- *     else if (hi > lo)
- *       op.apply(array[lo]);
- *     tryComplete();
+ *
+ *     public void compute() {
+ *       if (hi - lo >= 2) {
+ *         int mid = (lo + hi) >>> 1;
+ *         // must set pending count before fork
+ *         setPendingCount(2);
+ *         new Task(this, mid, hi).fork(); // right child
+ *         new Task(this, lo, mid).fork(); // left child
+ *       }
+ *       else if (hi > lo)
+ *         action.accept(array[lo]);
+ *       tryComplete();
+ *     }
  *   }
+ *   new Task(null, 0, array.length).invoke();
  * }}</pre>
  *
  * This design can be improved by noticing that in the recursive case,
  * the task has nothing to do after forking its right task, so can
  * directly invoke its left task before returning. (This is an analog
- * of tail recursion removal.)  Also, because the task returns upon
- * executing its left task (rather than falling through to invoke
- * {@code tryComplete}) the pending count is set to one:
+ * of tail recursion removal.)  Also, when the last action in a task
+ * is to fork or invoke a subtask (a "tail call"), the call to {@code
+ * tryComplete()} can be optimized away, at the cost of making the
+ * pending count look "off by one".
  *
  * <pre> {@code
- * class ForEach<E> ...
- *   public void compute() { // version 2
- *     if (hi - lo >= 2) {
- *       int mid = (lo + hi) >>> 1;
- *       setPendingCount(1); // only one pending
- *       new ForEach(this, array, op, mid, hi).fork(); // right child
- *       new ForEach(this, array, op, lo, mid).compute(); // direct invoke
- *     }
- *     else {
- *       if (hi > lo)
- *         op.apply(array[lo]);
- *       tryComplete();
- *     }
- *   }
- * }</pre>
+ *     public void compute() {
+ *       if (hi - lo >= 2) {
+ *         int mid = (lo + hi) >>> 1;
+ *         setPendingCount(1); // looks off by one, but correct!
+ *         new Task(this, mid, hi).fork(); // right child
+ *         new Task(this, lo, mid).compute(); // direct invoke
+ *       } else {
+ *         if (hi > lo)
+ *           action.accept(array[lo]);
+ *         tryComplete();
+ *       }
+ *     }}</pre>
  *
- * As a further improvement, notice that the left task need not even exist.
- * Instead of creating a new one, we can iterate using the original task,
+ * As a further optimization, notice that the left task need not even exist.
+ * Instead of creating a new one, we can continue using the original task,
  * and add a pending count for each fork.  Additionally, because no task
  * in this tree implements an {@link #onCompletion(CountedCompleter)} method,
- * {@code tryComplete()} can be replaced with {@link #propagateCompletion}.
+ * {@code tryComplete} can be replaced with {@link #propagateCompletion}.
  *
  * <pre> {@code
- * class ForEach<E> ...
- *   public void compute() { // version 3
- *     int l = lo,  h = hi;
- *     while (h - l >= 2) {
- *       int mid = (l + h) >>> 1;
- *       addToPendingCount(1);
- *       new ForEach(this, array, op, mid, h).fork(); // right child
- *       h = mid;
- *     }
- *     if (h > l)
- *       op.apply(array[l]);
- *     propagateCompletion();
- *   }
- * }</pre>
+ *     public void compute() {
+ *       int n = hi - lo;
+ *       for (; n >= 2; n /= 2) {
+ *         addToPendingCount(1);
+ *         new Task(this, lo + n/2, lo + n).fork();
+ *       }
+ *       if (n > 0)
+ *         action.accept(array[lo]);
+ *       propagateCompletion();
+ *     }}</pre>
  *
- * Additional improvements of such classes might entail precomputing
- * pending counts so that they can be established in constructors,
- * specializing classes for leaf steps, subdividing by say, four,
- * instead of two per iteration, and using an adaptive threshold
- * instead of always subdividing down to single elements.
+ * When pending counts can be precomputed, they can be established in
+ * the constructor:
+ *
+ * <pre> {@code
+ * public static <E> void forEach(E[] array, Consumer<E> action) {
+ *   class Task extends CountedCompleter<Void> {
+ *     final int lo, hi;
+ *     Task(Task parent, int lo, int hi) {
+ *       super(parent, 31 - Integer.numberOfLeadingZeros(hi - lo));
+ *       this.lo = lo; this.hi = hi;
+ *     }
+ *
+ *     public void compute() {
+ *       for (int n = hi - lo; n >= 2; n /= 2)
+ *         new Task(this, lo + n/2, lo + n).fork();
+ *       action.accept(array[lo]);
+ *       propagateCompletion();
+ *     }
+ *   }
+ *   if (array.length > 0)
+ *     new Task(null, 0, array.length).invoke();
+ * }}</pre>
+ *
+ * Additional optimizations of such classes might entail specializing
+ * classes for leaf steps, subdividing by say, four, instead of two
+ * per iteration, and using an adaptive threshold instead of always
+ * subdividing down to single elements.
  *
  * <p><b>Searching.</b> A tree of CountedCompleters can search for a
  * value or property in different parts of a data structure, and
@@ -233,7 +248,7 @@ package java.util.concurrent;
  *   }
  *   public E getRawResult() { return result.get(); }
  *   public void compute() { // similar to ForEach version 3
- *     int l = lo,  h = hi;
+ *     int l = lo, h = hi;
  *     while (result.get() == null && h >= l) {
  *       if (h - l >= 2) {
  *         int mid = (l + h) >>> 1;
@@ -258,9 +273,9 @@ package java.util.concurrent;
  * }}</pre>
  *
  * In this example, as well as others in which tasks have no other
- * effects except to compareAndSet a common result, the trailing
- * unconditional invocation of {@code tryComplete} could be made
- * conditional ({@code if (result.get() == null) tryComplete();})
+ * effects except to {@code compareAndSet} a common result, the
+ * trailing unconditional invocation of {@code tryComplete} could be
+ * made conditional ({@code if (result.get() == null) tryComplete();})
  * because no further bookkeeping is required to manage completions
  * once the root task completes.
  *
@@ -341,7 +356,7 @@ package java.util.concurrent;
  * within this method to ensure thread safety of accesses to fields of
  * this task or other completed tasks.
  *
- * <p><b>Completion Traversals</b>. If using {@code onCompletion} to
+ * <p><b>Completion Traversals.</b> If using {@code onCompletion} to
  * process completions is inapplicable or inconvenient, you can use
  * methods {@link #firstComplete} and {@link #nextComplete} to create
  * custom traversals.  For example, to define a MapReducer that only
@@ -363,7 +378,7 @@ package java.util.concurrent;
  *     this.next = next;
  *   }
  *   public void compute() {
- *     int l = lo,  h = hi;
+ *     int l = lo, h = hi;
  *     while (h - l >= 2) {
  *       int mid = (l + h) >>> 1;
  *       addToPendingCount(1);
@@ -374,7 +389,7 @@ package java.util.concurrent;
  *       result = mapper.apply(array[l]);
  *     // process completions by reducing along and advancing subtask links
  *     for (CountedCompleter<?> c = firstComplete(); c != null; c = c.nextComplete()) {
- *       for (MapReducer t = (MapReducer)c, s = t.forks;  s != null; s = t.forks = s.next)
+ *       for (MapReducer t = (MapReducer)c, s = t.forks; s != null; s = t.forks = s.next)
  *         t.result = reducer.apply(t.result, s.result);
  *     }
  *   }
@@ -402,8 +417,9 @@ package java.util.concurrent;
  * // sample use:
  * PacketSender p = new PacketSender();
  * new HeaderBuilder(p, ...).fork();
- * new BodyBuilder(p, ...).fork();
- * }</pre>
+ * new BodyBuilder(p, ...).fork();}</pre>
+ *
+ * @param <T> the type of the result of the completer
  *
  * @since 1.8
  * @author Doug Lea
@@ -535,7 +551,12 @@ public abstract class CountedCompleter<T> extends ForkJoinTask<T> {
      * @return {@code true} if successful
      */
     public final boolean compareAndSetPendingCount(int expected, int count) {
-        return U.compareAndSwapInt(this, PENDING, expected, count);
+        return U.compareAndSetInt(this, PENDING, expected, count);
+    }
+
+    // internal-only weak version
+    final boolean weakCompareAndSetPendingCount(int expected, int count) {
+        return U.weakCompareAndSetInt(this, PENDING, expected, count);
     }
 
     /**
@@ -547,7 +568,7 @@ public abstract class CountedCompleter<T> extends ForkJoinTask<T> {
     public final int decrementPendingCountUnlessZero() {
         int c;
         do {} while ((c = pending) != 0 &&
-                     !U.compareAndSwapInt(this, PENDING, c, c - 1));
+                     !weakCompareAndSetPendingCount(c, c - 1));
         return c;
     }
 
@@ -580,7 +601,7 @@ public abstract class CountedCompleter<T> extends ForkJoinTask<T> {
                     return;
                 }
             }
-            else if (U.compareAndSwapInt(a, PENDING, c, c - 1))
+            else if (a.weakCompareAndSetPendingCount(c, c - 1))
                 return;
         }
     }
@@ -595,7 +616,7 @@ public abstract class CountedCompleter<T> extends ForkJoinTask<T> {
      * not, be invoked for each completer in a computation.
      */
     public final void propagateCompletion() {
-        CountedCompleter<?> a = this, s = a;
+        CountedCompleter<?> a = this, s;
         for (int c;;) {
             if ((c = a.pending) == 0) {
                 if ((a = (s = a).completer) == null) {
@@ -603,7 +624,7 @@ public abstract class CountedCompleter<T> extends ForkJoinTask<T> {
                     return;
                 }
             }
-            else if (U.compareAndSwapInt(a, PENDING, c, c - 1))
+            else if (a.weakCompareAndSetPendingCount(c, c - 1))
                 return;
         }
     }
@@ -623,7 +644,7 @@ public abstract class CountedCompleter<T> extends ForkJoinTask<T> {
      * any one (versus all) of several subtask results are obtained.
      * However, in the common (and recommended) case in which {@code
      * setRawResult} is not overridden, this effect can be obtained
-     * more simply using {@code quietlyCompleteRoot();}.
+     * more simply using {@link #quietlyCompleteRoot()}.
      *
      * @param rawResult the raw result
      */
@@ -638,9 +659,9 @@ public abstract class CountedCompleter<T> extends ForkJoinTask<T> {
 
     /**
      * If this task's pending count is zero, returns this task;
-     * otherwise decrements its pending count and returns {@code
-     * null}. This method is designed to be used with {@link
-     * #nextComplete} in completion traversal loops.
+     * otherwise decrements its pending count and returns {@code null}.
+     * This method is designed to be used with {@link #nextComplete} in
+     * completion traversal loops.
      *
      * @return this task, if pending count was zero, else {@code null}
      */
@@ -648,7 +669,7 @@ public abstract class CountedCompleter<T> extends ForkJoinTask<T> {
         for (int c;;) {
             if ((c = pending) == 0)
                 return this;
-            else if (U.compareAndSwapInt(this, PENDING, c, c - 1))
+            else if (weakCompareAndSetPendingCount(c, c - 1))
                 return null;
         }
     }
@@ -703,37 +724,39 @@ public abstract class CountedCompleter<T> extends ForkJoinTask<T> {
      *                 processed.
      */
     public final void helpComplete(int maxTasks) {
-        Thread t; ForkJoinWorkerThread wt;
-        if (maxTasks > 0 && status >= 0) {
-            if ((t = Thread.currentThread()) instanceof ForkJoinWorkerThread)
-                (wt = (ForkJoinWorkerThread)t).pool.
-                    helpComplete(wt.workQueue, this, maxTasks);
-            else
-                ForkJoinPool.common.externalHelpComplete(this, maxTasks);
-        }
+        ForkJoinPool.WorkQueue q; Thread t; boolean owned;
+        if (owned = (t = Thread.currentThread()) instanceof ForkJoinWorkerThread)
+            q = ((ForkJoinWorkerThread)t).workQueue;
+        else
+            q = ForkJoinPool.commonQueue();
+        if (q != null && maxTasks > 0)
+            q.helpComplete(this, owned, maxTasks);
     }
+    // ForkJoinTask overrides
 
     /**
      * Supports ForkJoinTask exception propagation.
      */
-    void internalPropagateException(Throwable ex) {
-        CountedCompleter<?> a = this, s = a;
-        while (a.onExceptionalCompletion(ex, s) &&
-               (a = (s = a).completer) != null && a.status >= 0 &&
-               a.recordExceptionalCompletion(ex) == EXCEPTIONAL)
-            ;
+    @Override
+    final int trySetException(Throwable ex) {
+        CountedCompleter<?> a = this, p = a;
+        do {} while (isExceptionalStatus(a.trySetThrown(ex)) &&
+                     a.onExceptionalCompletion(ex, p) &&
+                     (a = (p = a).completer) != null && a.status >= 0);
+        return status;
     }
 
     /**
      * Implements execution conventions for CountedCompleters.
      */
+    @Override
     protected final boolean exec() {
         compute();
         return false;
     }
 
     /**
-     * Returns the result of the computation. By default
+     * Returns the result of the computation.  By default,
      * returns {@code null}, which is appropriate for {@code Void}
      * actions, but in other cases should be overridden, almost
      * always to return a field or function of a field that
@@ -741,6 +764,7 @@ public abstract class CountedCompleter<T> extends ForkJoinTask<T> {
      *
      * @return the result of the computation
      */
+    @Override
     public T getRawResult() { return null; }
 
     /**
@@ -750,18 +774,19 @@ public abstract class CountedCompleter<T> extends ForkJoinTask<T> {
      * overridden to update existing objects or fields, then it must
      * in general be defined to be thread-safe.
      */
+    @Override
     protected void setRawResult(T t) { }
 
-    // Unsafe mechanics
-    private static final sun.misc.Unsafe U;
+    /*
+     * This class uses jdk-internal Unsafe for atomics and special
+     * memory modes, rather than VarHandles, to avoid initialization
+     * dependencies in other jdk components that require early
+     * parallelism.
+     */
+    private static final Unsafe U;
     private static final long PENDING;
     static {
-        try {
-            U = sun.misc.Unsafe.getUnsafe();
-            PENDING = U.objectFieldOffset
-                (CountedCompleter.class.getDeclaredField("pending"));
-        } catch (Exception e) {
-            throw new Error(e);
-        }
+        U = Unsafe.getUnsafe();
+        PENDING = U.objectFieldOffset(CountedCompleter.class, "pending");
     }
 }

@@ -34,6 +34,7 @@
  */
 
 package java.util.concurrent.atomic;
+
 import java.io.Serializable;
 
 /**
@@ -57,7 +58,7 @@ import java.io.Serializable;
  * frequency map (a form of histogram or multiset). For example, to
  * add a count to a {@code ConcurrentHashMap<String,LongAdder> freqs},
  * initializing if not already present, you can use {@code
- * freqs.computeIfAbsent(k -> new LongAdder()).increment();}
+ * freqs.computeIfAbsent(key, k -> new LongAdder()).increment();}
  *
  * <p>This class extends {@link Number}, but does <em>not</em> define
  * methods such as {@code equals}, {@code hashCode} and {@code
@@ -82,13 +83,14 @@ public class LongAdder extends Striped64 implements Serializable {
      * @param x the value to add
      */
     public void add(long x) {
-        Cell[] as; long b, v; int m; Cell a;
-        if ((as = cells) != null || !casBase(b = base, b + x)) {
+        Cell[] cs; long b, v; int m; Cell c;
+        if ((cs = cells) != null || !casBase(b = base, b + x)) {
+            int index = getProbe();
             boolean uncontended = true;
-            if (as == null || (m = as.length - 1) < 0 ||
-                (a = as[getProbe() & m]) == null ||
-                !(uncontended = a.cas(v = a.value, v + x)))
-                longAccumulate(x, null, uncontended);
+            if (cs == null || (m = cs.length - 1) < 0 ||
+                (c = cs[index & m]) == null ||
+                !(uncontended = c.cas(v = c.value, v + x)))
+                longAccumulate(x, null, uncontended, index);
         }
     }
 
@@ -116,13 +118,12 @@ public class LongAdder extends Striped64 implements Serializable {
      * @return the sum
      */
     public long sum() {
-        Cell[] as = cells; Cell a;
+        Cell[] cs = cells;
         long sum = base;
-        if (as != null) {
-            for (int i = 0; i < as.length; ++i) {
-                if ((a = as[i]) != null)
-                    sum += a.value;
-            }
+        if (cs != null) {
+            for (Cell c : cs)
+                if (c != null)
+                    sum += c.value;
         }
         return sum;
     }
@@ -135,13 +136,12 @@ public class LongAdder extends Striped64 implements Serializable {
      * known that no threads are concurrently updating.
      */
     public void reset() {
-        Cell[] as = cells; Cell a;
+        Cell[] cs = cells;
         base = 0L;
-        if (as != null) {
-            for (int i = 0; i < as.length; ++i) {
-                if ((a = as[i]) != null)
-                    a.value = 0L;
-            }
+        if (cs != null) {
+            for (Cell c : cs)
+                if (c != null)
+                    c.reset();
         }
     }
 
@@ -156,15 +156,12 @@ public class LongAdder extends Striped64 implements Serializable {
      * @return the sum
      */
     public long sumThenReset() {
-        Cell[] as = cells; Cell a;
-        long sum = base;
-        base = 0L;
-        if (as != null) {
-            for (int i = 0; i < as.length; ++i) {
-                if ((a = as[i]) != null) {
-                    sum += a.value;
-                    a.value = 0L;
-                }
+        Cell[] cs = cells;
+        long sum = getAndSetBase(0L);
+        if (cs != null) {
+            for (Cell c : cs) {
+                if (c != null)
+                    sum += c.getAndSet(0L);
             }
         }
         return sum;
@@ -230,11 +227,11 @@ public class LongAdder extends Striped64 implements Serializable {
         }
 
         /**
-         * Return a {@code LongAdder} object with initial state
+         * Returns a {@code LongAdder} object with initial state
          * held by this proxy.
          *
          * @return a {@code LongAdder} object with initial state
-         * held by this proxy.
+         * held by this proxy
          */
         private Object readResolve() {
             LongAdder a = new LongAdder();
@@ -245,7 +242,7 @@ public class LongAdder extends Striped64 implements Serializable {
 
     /**
      * Returns a
-     * <a href="../../../../serialized-form.html#java.util.concurrent.atomic.LongAdder.SerializationProxy">
+     * <a href="{@docRoot}/serialized-form.html#java.util.concurrent.atomic.LongAdder.SerializationProxy">
      * SerializationProxy</a>
      * representing the state of this instance.
      *

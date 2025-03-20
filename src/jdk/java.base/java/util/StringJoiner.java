@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2021, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,6 +23,9 @@
  * questions.
  */
 package java.util;
+
+import jdk.internal.access.JavaLangAccess;
+import jdk.internal.access.SharedSecrets;
 
 /**
  * {@code StringJoiner} is used to construct a sequence of characters separated
@@ -63,23 +66,25 @@ package java.util;
  * @since  1.8
 */
 public final class StringJoiner {
+    private static final String[] EMPTY_STRING_ARRAY = new String[0];
+
     private final String prefix;
     private final String delimiter;
     private final String suffix;
 
-    /*
-     * StringBuilder value -- at any time, the characters constructed from the
-     * prefix, the added element separated by the delimiter, but without the
-     * suffix, so that we can more easily add elements without having to jigger
-     * the suffix each time.
-     */
-    private StringBuilder value;
+    /** Contains all the string components added so far. */
+    private String[] elts;
 
-    /*
-     * By default, the string consisting of prefix+suffix, returned by
-     * toString(), or properties of value, when no elements have yet been added,
-     * i.e. when it is empty.  This may be overridden by the user to be some
-     * other value including the empty String.
+    /** The number of string components added so far. */
+    private int size;
+
+    /** Total length in chars so far, excluding prefix and suffix. */
+    private int len;
+
+    /**
+     * When overridden by the user to be non-null via {@link #setEmptyValue(CharSequence)},
+     * the string returned by toString() when no elements have yet been added.
+     * When null, prefix + suffix is used as the empty value.
      */
     private String emptyValue;
 
@@ -125,7 +130,7 @@ public final class StringJoiner {
         this.prefix = prefix.toString();
         this.delimiter = delimiter.toString();
         this.suffix = suffix.toString();
-        this.emptyValue = this.prefix + this.suffix;
+        checkAddLength(0, 0);
     }
 
     /**
@@ -152,25 +157,21 @@ public final class StringJoiner {
      * Returns the current value, consisting of the {@code prefix}, the values
      * added so far separated by the {@code delimiter}, and the {@code suffix},
      * unless no elements have been added in which case, the
-     * {@code prefix + suffix} or the {@code emptyValue} characters are returned
+     * {@code prefix + suffix} or the {@code emptyValue} characters are returned.
      *
      * @return the string representation of this {@code StringJoiner}
      */
     @Override
     public String toString() {
-        if (value == null) {
-            return emptyValue;
-        } else {
-            if (suffix.equals("")) {
-                return value.toString();
-            } else {
-                int initialLength = value.length();
-                String result = value.append(suffix).toString();
-                // reset value to pre-append initialLength
-                value.setLength(initialLength);
-                return result;
+        final int size = this.size;
+        var elts = this.elts;
+        if (size == 0) {
+            if (emptyValue != null) {
+                return emptyValue;
             }
+            elts = EMPTY_STRING_ARRAY;
         }
+        return JLA.join(prefix, suffix, delimiter, elts, size);
     }
 
     /**
@@ -182,8 +183,26 @@ public final class StringJoiner {
      * @return a reference to this {@code StringJoiner}
      */
     public StringJoiner add(CharSequence newElement) {
-        prepareBuilder().append(newElement);
+        final String elt = String.valueOf(newElement);
+        if (elts == null) {
+            elts = new String[8];
+        } else {
+            if (size == elts.length)
+                elts = Arrays.copyOf(elts, 2 * size);
+            len = checkAddLength(len, delimiter.length());
+        }
+        len = checkAddLength(len, elt.length());
+        elts[size++] = elt;
         return this;
+    }
+
+    private int checkAddLength(int oldLen, int inc) {
+        long newLen = (long)oldLen + (long)inc;
+        long tmpLen = newLen + (long)prefix.length() + (long)suffix.length();
+        if (tmpLen != (int)tmpLen) {
+            throw new OutOfMemoryError("Requested array size exceeds VM limit");
+        }
+        return (int)newLen;
     }
 
     /**
@@ -207,24 +226,20 @@ public final class StringJoiner {
      */
     public StringJoiner merge(StringJoiner other) {
         Objects.requireNonNull(other);
-        if (other.value != null) {
-            final int length = other.value.length();
-            // lock the length so that we can seize the data to be appended
-            // before initiate copying to avoid interference, especially when
-            // merge 'this'
-            StringBuilder builder = prepareBuilder();
-            builder.append(other.value, other.prefix.length(), length);
+        if (other.size == 0) {
+            return this;
         }
-        return this;
+        other.compactElts();
+        return add(other.elts[0]);
     }
 
-    private StringBuilder prepareBuilder() {
-        if (value != null) {
-            value.append(delimiter);
-        } else {
-            value = new StringBuilder().append(prefix);
+    private void compactElts() {
+        int sz = size;
+        if (sz > 1) {
+            elts[0] = JLA.join("", "", delimiter, elts, sz);
+            Arrays.fill(elts, 1, sz, null);
+            size = 1;
         }
-        return value;
     }
 
     /**
@@ -238,10 +253,9 @@ public final class StringJoiner {
      * @return the length of the current value of {@code StringJoiner}
      */
     public int length() {
-        // Remember that we never actually append the suffix unless we return
-        // the full (present) value or some sub-string or length of it, so that
-        // we can add on more if we need to.
-        return (value != null ? value.length() + suffix.length() :
-                emptyValue.length());
+        return (size == 0 && emptyValue != null) ? emptyValue.length() :
+            len + prefix.length() + suffix.length();
     }
+
+    private static final JavaLangAccess JLA = SharedSecrets.getJavaLangAccess();
 }

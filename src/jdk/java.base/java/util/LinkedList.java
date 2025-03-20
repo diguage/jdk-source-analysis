@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,7 +25,14 @@
 
 package java.util;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.function.Consumer;
+import java.util.function.IntFunction;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
 
 /**
  * Doubly-linked list implementation of the {@code List} and {@code Deque}
@@ -70,7 +77,7 @@ import java.util.function.Consumer;
  * should be used only to detect bugs.</i>
  *
  * <p>This class is a member of the
- * <a href="{@docRoot}/../technotes/guides/collections/index.html">
+ * <a href="{@docRoot}/java.base/java/util/package-summary.html#CollectionsFramework">
  * Java Collections Framework</a>.
  *
  * @author  Josh Bloch
@@ -88,17 +95,21 @@ public class LinkedList<E>
 
     /**
      * Pointer to first node.
-     * Invariant: (first == null && last == null) ||
-     *            (first.prev == null && first.item != null)
      */
     transient Node<E> first;
 
     /**
      * Pointer to last node.
-     * Invariant: (first == null && last == null) ||
-     *            (last.next == null && last.item != null)
      */
     transient Node<E> last;
+
+    /*
+    void dataStructureInvariants() {
+        assert (size == 0)
+            ? (first == null && last == null)
+            : (first.prev == null && last.next == null);
+    }
+    */
 
     /**
      * Constructs an empty list.
@@ -308,13 +319,13 @@ public class LinkedList<E>
      * Returns {@code true} if this list contains the specified element.
      * More formally, returns {@code true} if and only if this list contains
      * at least one element {@code e} such that
-     * <tt>(o==null&nbsp;?&nbsp;e==null&nbsp;:&nbsp;o.equals(e))</tt>.
+     * {@code Objects.equals(o, e)}.
      *
      * @param o element whose presence in this list is to be tested
      * @return {@code true} if this list contains the specified element
      */
     public boolean contains(Object o) {
-        return indexOf(o) != -1;
+        return indexOf(o) >= 0;
     }
 
     /**
@@ -344,7 +355,7 @@ public class LinkedList<E>
      * if it is present.  If this list does not contain the element, it is
      * unchanged.  More formally, removes the element with the lowest index
      * {@code i} such that
-     * <tt>(o==null&nbsp;?&nbsp;get(i)==null&nbsp;:&nbsp;o.equals(get(i)))</tt>
+     * {@code Objects.equals(o, get(i))}
      * (if such an element exists).  Returns {@code true} if this list
      * contained the specified element (or equivalently, if this list
      * changed as a result of the call).
@@ -585,7 +596,7 @@ public class LinkedList<E>
      * Returns the index of the first occurrence of the specified element
      * in this list, or -1 if this list does not contain the element.
      * More formally, returns the lowest index {@code i} such that
-     * <tt>(o==null&nbsp;?&nbsp;get(i)==null&nbsp;:&nbsp;o.equals(get(i)))</tt>,
+     * {@code Objects.equals(o, get(i))},
      * or -1 if there is no such index.
      *
      * @param o element to search for
@@ -614,7 +625,7 @@ public class LinkedList<E>
      * Returns the index of the last occurrence of the specified element
      * in this list, or -1 if this list does not contain the element.
      * More formally, returns the highest index {@code i} such that
-     * <tt>(o==null&nbsp;?&nbsp;get(i)==null&nbsp;:&nbsp;o.equals(get(i)))</tt>,
+     * {@code Objects.equals(o, get(i))},
      * or -1 if there is no such index.
      *
      * @param o element to search for
@@ -1108,6 +1119,7 @@ public class LinkedList<E>
         return a;
     }
 
+    @java.io.Serial
     private static final long serialVersionUID = 876323262645176354L;
 
     /**
@@ -1118,6 +1130,7 @@ public class LinkedList<E>
      *             contains) is emitted (int), followed by all of its
      *             elements (each an Object) in the proper order.
      */
+    @java.io.Serial
     private void writeObject(java.io.ObjectOutputStream s)
         throws java.io.IOException {
         // Write out any hidden serialization magic
@@ -1136,6 +1149,7 @@ public class LinkedList<E>
      * (that is, deserializes it).
      */
     @SuppressWarnings("unchecked")
+    @java.io.Serial
     private void readObject(java.io.ObjectInputStream s)
         throws java.io.IOException, ClassNotFoundException {
         // Read in any hidden serialization magic
@@ -1167,7 +1181,7 @@ public class LinkedList<E>
      */
     @Override
     public Spliterator<E> spliterator() {
-        return new LLSpliterator<E>(this, -1, 0);
+        return new LLSpliterator<>(this, -1, 0);
     }
 
     /** A customized variant of Spliterators.IteratorSpliterator */
@@ -1259,4 +1273,267 @@ public class LinkedList<E>
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Modifications to the reversed view are permitted and will be propagated to this list.
+     * In addition, modifications to this list will be visible in the reversed view.
+     *
+     * @return {@inheritDoc}
+     * @since 21
+     */
+    public LinkedList<E> reversed() {
+        return new ReverseOrderLinkedListView<>(this, super.reversed(), Deque.super.reversed());
+    }
+
+    // all operations are delegated to the reverse-ordered views.
+    // TODO audit all overridden methods
+    @SuppressWarnings("serial")
+    static class ReverseOrderLinkedListView<E> extends LinkedList<E> implements java.io.Externalizable {
+        final LinkedList<E> list;
+        final List<E> rlist;
+        final Deque<E> rdeque;
+
+        ReverseOrderLinkedListView(LinkedList<E> list, List<E> rlist, Deque<E> rdeque) {
+            this.list = list;
+            this.rlist = rlist;
+            this.rdeque = rdeque;
+        }
+
+        public String toString() {
+            return rlist.toString();
+        }
+
+        public boolean retainAll(Collection<?> c) {
+            return rlist.retainAll(c);
+        }
+
+        public boolean removeAll(Collection<?> c) {
+            return rlist.removeAll(c);
+        }
+
+        public boolean containsAll(Collection<?> c) {
+            return rlist.containsAll(c);
+        }
+
+        public boolean isEmpty() {
+            return rlist.isEmpty();
+        }
+
+        public Stream<E> parallelStream() {
+            return rlist.parallelStream();
+        }
+
+        public Stream<E> stream() {
+            return rlist.stream();
+        }
+
+        public boolean removeIf(Predicate<? super E> filter) {
+            return rlist.removeIf(filter);
+        }
+
+        public <T> T[] toArray(IntFunction<T[]> generator) {
+            return rlist.toArray(generator);
+        }
+
+        public void forEach(Consumer<? super E> action) {
+            rlist.forEach(action);
+        }
+
+        public Iterator<E> iterator() {
+            return rlist.iterator();
+        }
+
+        public int hashCode() {
+            return rlist.hashCode();
+        }
+
+        public boolean equals(Object o) {
+            return rlist.equals(o);
+        }
+
+        public List<E> subList(int fromIndex, int toIndex) {
+            return rlist.subList(fromIndex, toIndex);
+        }
+
+        public ListIterator<E> listIterator() {
+            return rlist.listIterator();
+        }
+
+        public void sort(Comparator<? super E> c) {
+            rlist.sort(c);
+        }
+
+        public void replaceAll(UnaryOperator<E> operator) {
+            rlist.replaceAll(operator);
+        }
+
+        public LinkedList<E> reversed() {
+            return list;
+        }
+
+        public Spliterator<E> spliterator() {
+            return rlist.spliterator();
+        }
+
+        public <T> T[] toArray(T[] a) {
+            return rlist.toArray(a);
+        }
+
+        public Object[] toArray() {
+            return rlist.toArray();
+        }
+
+        public Iterator<E> descendingIterator() {
+            return rdeque.descendingIterator();
+        }
+
+        public ListIterator<E> listIterator(int index) {
+            return rlist.listIterator(index);
+        }
+
+        public boolean removeLastOccurrence(Object o) {
+            return rdeque.removeLastOccurrence(o);
+        }
+
+        public boolean removeFirstOccurrence(Object o) {
+            return rdeque.removeFirstOccurrence(o);
+        }
+
+        public E pop() {
+            return rdeque.pop();
+        }
+
+        public void push(E e) {
+            rdeque.push(e);
+        }
+
+        public E pollLast() {
+            return rdeque.pollLast();
+        }
+
+        public E pollFirst() {
+            return rdeque.pollFirst();
+        }
+
+        public E peekLast() {
+            return rdeque.peekLast();
+        }
+
+        public E peekFirst() {
+            return rdeque.peekFirst();
+        }
+
+        public boolean offerLast(E e) {
+            return rdeque.offerLast(e);
+        }
+
+        public boolean offerFirst(E e) {
+            return rdeque.offerFirst(e);
+        }
+
+        public boolean offer(E e) {
+            return rdeque.offer(e);
+        }
+
+        public E remove() {
+            return rdeque.remove();
+        }
+
+        public E poll() {
+            return rdeque.poll();
+        }
+
+        public E element() {
+            return rdeque.element();
+        }
+
+        public E peek() {
+            return rdeque.peek();
+        }
+
+        public int lastIndexOf(Object o) {
+            return rlist.lastIndexOf(o);
+        }
+
+        public int indexOf(Object o) {
+            return rlist.indexOf(o);
+        }
+
+        public E remove(int index) {
+            return rlist.remove(index);
+        }
+
+        public void add(int index, E element) {
+            rlist.add(index, element);
+        }
+
+        public E set(int index, E element) {
+            return rlist.set(index, element);
+        }
+
+        public E get(int index) {
+            return rlist.get(index);
+        }
+
+        public void clear() {
+            rlist.clear();
+        }
+
+        public boolean addAll(int index, Collection<? extends E> c) {
+            return rlist.addAll(index, c);
+        }
+
+        public boolean addAll(Collection<? extends E> c) {
+            return rlist.addAll(c);
+        }
+
+        public boolean remove(Object o) {
+            return rlist.remove(o);
+        }
+
+        public boolean add(E e) {
+            return rlist.add(e);
+        }
+
+        public int size() {
+            return rlist.size();
+        }
+
+        public boolean contains(Object o) {
+            return rlist.contains(o);
+        }
+
+        public void addLast(E e) {
+            rdeque.addLast(e);
+        }
+
+        public void addFirst(E e) {
+            rdeque.addFirst(e);
+        }
+
+        public E removeLast() {
+            return rdeque.removeLast();
+        }
+
+        public E removeFirst() {
+            return rdeque.removeFirst();
+        }
+
+        public E getLast() {
+            return rdeque.getLast();
+        }
+
+        public E getFirst() {
+            return rdeque.getFirst();
+        }
+
+        public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+            throw new java.io.InvalidObjectException("not serializable");
+        }
+
+        public void writeExternal(ObjectOutput out) throws IOException {
+            throw new java.io.InvalidObjectException("not serializable");
+        }
+    }
 }

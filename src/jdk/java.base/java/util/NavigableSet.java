@@ -37,26 +37,30 @@ package java.util;
 
 /**
  * A {@link SortedSet} extended with navigation methods reporting
- * closest matches for given search targets. Methods {@code lower},
- * {@code floor}, {@code ceiling}, and {@code higher} return elements
+ * closest matches for given search targets. Methods {@link #lower},
+ * {@link #floor}, {@link #ceiling}, and {@link #higher} return elements
  * respectively less than, less than or equal, greater than or equal,
  * and greater than a given element, returning {@code null} if there
- * is no such element.  A {@code NavigableSet} may be accessed and
- * traversed in either ascending or descending order.  The {@code
- * descendingSet} method returns a view of the set with the senses of
- * all relational and directional methods inverted. The performance of
- * ascending operations and views is likely to be faster than that of
- * descending ones.  This interface additionally defines methods
- * {@code pollFirst} and {@code pollLast} that return and remove the
- * lowest and highest element, if one exists, else returning {@code
- * null}.  Methods {@code subSet}, {@code headSet},
- * and {@code tailSet} differ from the like-named {@code
- * SortedSet} methods in accepting additional arguments describing
- * whether lower and upper bounds are inclusive versus exclusive.
- * Subsets of any {@code NavigableSet} must implement the {@code
- * NavigableSet} interface.
+ * is no such element.
  *
- * <p> The return values of navigation methods may be ambiguous in
+ * <p>A {@code NavigableSet} may be accessed and traversed in either
+ * ascending or descending order.  The {@link #descendingSet} method
+ * returns a view of the set with the senses of all relational and
+ * directional methods inverted. The performance of ascending
+ * operations and views is likely to be faster than that of descending
+ * ones.  This interface additionally defines methods {@link
+ * #pollFirst} and {@link #pollLast} that return and remove the lowest
+ * and highest element, if one exists, else returning {@code null}.
+ * Methods
+ * {@link #subSet(Object, boolean, Object, boolean) subSet(E, boolean, E, boolean)},
+ * {@link #headSet(Object, boolean) headSet(E, boolean)}, and
+ * {@link #tailSet(Object, boolean) tailSet(E, boolean)}
+ * differ from the like-named {@code SortedSet} methods in accepting
+ * additional arguments describing whether lower and upper bounds are
+ * inclusive versus exclusive.  Subsets of any {@code NavigableSet}
+ * must implement the {@code NavigableSet} interface.
+ *
+ * <p>The return values of navigation methods may be ambiguous in
  * implementations that permit {@code null} elements. However, even
  * in this case the result can be disambiguated by checking
  * {@code contains(null)}. To avoid such issues, implementations of
@@ -75,7 +79,7 @@ package java.util;
  * {@code NavigableSet}.
  *
  * <p>This interface is a member of the
- * <a href="{@docRoot}/../technotes/guides/collections/index.html">
+ * <a href="{@docRoot}/java.base/java/util/package-summary.html#CollectionsFramework">
  * Java Collections Framework</a>.
  *
  * @author Doug Lea
@@ -172,7 +176,7 @@ public interface NavigableSet<E> extends SortedSet<E> {
      * the iteration are undefined.
      *
      * <p>The returned set has an ordering equivalent to
-     * <tt>{@link Collections#reverseOrder(Comparator) Collections.reverseOrder}(comparator())</tt>.
+     * {@link Collections#reverseOrder(Comparator) Collections.reverseOrder}{@code (comparator())}.
      * The expression {@code s.descendingSet().descendingSet()} returns a
      * view of {@code s} essentially equivalent to {@code s}.
      *
@@ -316,4 +320,58 @@ public interface NavigableSet<E> extends SortedSet<E> {
      * @throws IllegalArgumentException {@inheritDoc}
      */
     SortedSet<E> tailSet(E fromElement);
+
+    /**
+     * {@inheritDoc}
+     *
+     * @implSpec
+     * If this set is not empty, the implementation in this interface returns the result of calling
+     * the {@code pollFirst} method. Otherwise, it throws {@code NoSuchElementException}.
+     *
+     * @throws NoSuchElementException {@inheritDoc}
+     * @throws UnsupportedOperationException {@inheritDoc}
+     * @since 21
+     */
+    default E removeFirst() {
+        if (this.isEmpty()) {
+            throw new NoSuchElementException();
+        } else {
+            return this.pollFirst();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @implSpec
+     * If this set is not empty, the implementation in this interface returns the result of calling
+     * the {@code pollLast} method. Otherwise, it throws {@code NoSuchElementException}.
+     *
+     * @throws NoSuchElementException {@inheritDoc}
+     * @throws UnsupportedOperationException {@inheritDoc}
+     * @since 21
+     */
+    default E removeLast() {
+        if (this.isEmpty()) {
+            throw new NoSuchElementException();
+        } else {
+            return this.pollLast();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This method is equivalent to {@link #descendingSet descendingSet}.
+     *
+     * @implSpec
+     * The implementation in this interface returns the result of calling the
+     * {@code descendingSet} method.
+     *
+     * @return a reverse-ordered view of this collection, as a {@code NavigableSet}
+     * @since 21
+     */
+    default NavigableSet<E> reversed() {
+        return this.descendingSet();
+    }
 }

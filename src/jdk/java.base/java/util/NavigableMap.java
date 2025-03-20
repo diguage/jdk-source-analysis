@@ -38,38 +38,46 @@ package java.util;
 /**
  * A {@link SortedMap} extended with navigation methods returning the
  * closest matches for given search targets. Methods
- * {@code lowerEntry}, {@code floorEntry}, {@code ceilingEntry},
- * and {@code higherEntry} return {@code Map.Entry} objects
+ * {@link #lowerEntry}, {@link #floorEntry}, {@link #ceilingEntry},
+ * and {@link #higherEntry} return {@code Map.Entry} objects
  * associated with keys respectively less than, less than or equal,
  * greater than or equal, and greater than a given key, returning
  * {@code null} if there is no such key.  Similarly, methods
- * {@code lowerKey}, {@code floorKey}, {@code ceilingKey}, and
- * {@code higherKey} return only the associated keys. All of these
+ * {@link #lowerKey}, {@link #floorKey}, {@link #ceilingKey}, and
+ * {@link #higherKey} return only the associated keys. All of these
  * methods are designed for locating, not traversing entries.
  *
  * <p>A {@code NavigableMap} may be accessed and traversed in either
- * ascending or descending key order.  The {@code descendingMap}
+ * ascending or descending key order.  The {@link #descendingMap}
  * method returns a view of the map with the senses of all relational
  * and directional methods inverted. The performance of ascending
  * operations and views is likely to be faster than that of descending
- * ones.  Methods {@code subMap}, {@code headMap},
- * and {@code tailMap} differ from the like-named {@code
- * SortedMap} methods in accepting additional arguments describing
- * whether lower and upper bounds are inclusive versus exclusive.
- * Submaps of any {@code NavigableMap} must implement the {@code
- * NavigableMap} interface.
+ * ones.  Methods
+ * {@link #subMap(Object, boolean, Object, boolean) subMap(K, boolean, K, boolean)},
+ * {@link #headMap(Object, boolean) headMap(K, boolean)}, and
+ * {@link #tailMap(Object, boolean) tailMap(K, boolean)}
+ * differ from the like-named {@code SortedMap} methods in accepting
+ * additional arguments describing whether lower and upper bounds are
+ * inclusive versus exclusive.  Submaps of any {@code NavigableMap}
+ * must implement the {@code NavigableMap} interface.
  *
- * <p>This interface additionally defines methods {@code firstEntry},
- * {@code pollFirstEntry}, {@code lastEntry}, and
- * {@code pollLastEntry} that return and/or remove the least and
+ * <p>This interface additionally defines methods {@link #firstEntry},
+ * {@link #pollFirstEntry}, {@link #lastEntry}, and
+ * {@link #pollLastEntry} that return and/or remove the least and
  * greatest mappings, if any exist, else returning {@code null}.
  *
- * <p>Implementations of entry-returning methods are expected to
- * return {@code Map.Entry} pairs representing snapshots of mappings
- * at the time they were produced, and thus generally do <em>not</em>
- * support the optional {@code Entry.setValue} method. Note however
- * that it is possible to change mappings in the associated map using
- * method {@code put}.
+ * <p>The methods
+ * {@link #ceilingEntry},
+ * {@link #firstEntry},
+ * {@link #floorEntry},
+ * {@link #higherEntry},
+ * {@link #lastEntry},
+ * {@link #lowerEntry},
+ * {@link #pollFirstEntry}, and
+ * {@link #pollLastEntry}
+ * return {@link Map.Entry} instances that represent snapshots of mappings as
+ * of the time of the call. They do <em>not</em> support mutation of the
+ * underlying map via the optional {@link Map.Entry#setValue setValue} method.
  *
  * <p>Methods
  * {@link #subMap(Object, Object) subMap(K, K)},
@@ -80,10 +88,10 @@ package java.util;
  * implement {@code NavigableMap}, but extensions and implementations
  * of this interface are encouraged to override these methods to return
  * {@code NavigableMap}.  Similarly,
- * {@link #keySet()} can be overriden to return {@code NavigableSet}.
+ * {@link #keySet()} can be overridden to return {@link NavigableSet}.
  *
  * <p>This interface is a member of the
- * <a href="{@docRoot}/../technotes/guides/collections/index.html">
+ * <a href="{@docRoot}/java.base/java/util/package-summary.html#CollectionsFramework">
  * Java Collections Framework</a>.
  *
  * @author Doug Lea
@@ -254,7 +262,7 @@ public interface NavigableMap<K,V> extends SortedMap<K,V> {
      * operation), the results of the iteration are undefined.
      *
      * <p>The returned map has an ordering equivalent to
-     * <tt>{@link Collections#reverseOrder(Comparator) Collections.reverseOrder}(comparator())</tt>.
+     * {@link Collections#reverseOrder(Comparator) Collections.reverseOrder}{@code (comparator())}.
      * The expression {@code m.descendingMap().descendingMap()} returns a
      * view of {@code m} essentially equivalent to {@code m}.
      *
@@ -421,4 +429,20 @@ public interface NavigableMap<K,V> extends SortedMap<K,V> {
      * @throws IllegalArgumentException {@inheritDoc}
      */
     SortedMap<K,V> tailMap(K fromKey);
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This method is equivalent to {@link #descendingMap descendingMap}.
+     *
+     * @implSpec
+     * The implementation in this interface returns the result of calling the
+     * {@code descendingMap} method.
+     *
+     * @return a reverse-ordered view of this map, as a {@code NavigableMap}
+     * @since 21
+     */
+    default NavigableMap<K, V> reversed() {
+        return this.descendingMap();
+    }
 }

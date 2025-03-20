@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2021, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,6 +26,7 @@ package java.util.stream;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Spliterator;
@@ -44,6 +45,7 @@ import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
+import jdk.internal.access.SharedSecrets;
 
 /**
  * Abstract base class for an intermediate pipeline stage or pipeline source
@@ -122,8 +124,10 @@ abstract class ReferencePipeline<P_IN, P_OUT>
     }
 
     @Override
-    final void forEachWithCancel(Spliterator<P_OUT> spliterator, Sink<P_OUT> sink) {
-        do { } while (!sink.cancellationRequested() && spliterator.tryAdvance(sink));
+    final boolean forEachWithCancel(Spliterator<P_OUT> spliterator, Sink<P_OUT> sink) {
+        boolean cancelled;
+        do { } while (!(cancelled = sink.cancellationRequested()) && spliterator.tryAdvance(sink));
+        return cancelled;
     }
 
     @Override
@@ -255,7 +259,7 @@ abstract class ReferencePipeline<P_IN, P_OUT>
                                      StreamOpFlag.NOT_SORTED | StreamOpFlag.NOT_DISTINCT | StreamOpFlag.NOT_SIZED) {
             @Override
             Sink<P_OUT> opWrapSink(int flags, Sink<R> sink) {
-                return new Sink.ChainedReference<P_OUT, R>(sink) {
+                return new Sink.ChainedReference<>(sink) {
                     // true if cancellationRequested() has been called
                     boolean cancellationRequestedCalled;
 
@@ -272,7 +276,7 @@ abstract class ReferencePipeline<P_IN, P_OUT>
                                     result.sequential().forEach(downstream);
                                 }
                                 else {
-                                    Spliterator<? extends R> s = result.sequential().spliterator();
+                                    var s = result.sequential().spliterator();
                                     do { } while (!downstream.cancellationRequested() && s.tryAdvance(downstream));
                                 }
                             }
@@ -320,7 +324,7 @@ abstract class ReferencePipeline<P_IN, P_OUT>
                                     result.sequential().forEach(downstreamAsInt);
                                 }
                                 else {
-                                    Spliterator.OfInt s = result.sequential().spliterator();
+                                    var s = result.sequential().spliterator();
                                     do { } while (!downstream.cancellationRequested() && s.tryAdvance(downstreamAsInt));
                                 }
                             }
@@ -364,7 +368,7 @@ abstract class ReferencePipeline<P_IN, P_OUT>
                                     result.sequential().forEach(downstreamAsDouble);
                                 }
                                 else {
-                                    Spliterator.OfDouble s = result.sequential().spliterator();
+                                    var s = result.sequential().spliterator();
                                     do { } while (!downstream.cancellationRequested() && s.tryAdvance(downstreamAsDouble));
                                 }
                             }
@@ -409,7 +413,7 @@ abstract class ReferencePipeline<P_IN, P_OUT>
                                     result.sequential().forEach(downstreamAsLong);
                                 }
                                 else {
-                                    Spliterator.OfLong s = result.sequential().spliterator();
+                                    var s = result.sequential().spliterator();
                                     do { } while (!downstream.cancellationRequested() && s.tryAdvance(downstreamAsLong));
                                 }
                             }
@@ -420,6 +424,103 @@ abstract class ReferencePipeline<P_IN, P_OUT>
                     public boolean cancellationRequested() {
                         cancellationRequestedCalled = true;
                         return downstream.cancellationRequested();
+                    }
+                };
+            }
+        };
+    }
+
+    @Override
+    public final <R> Stream<R> mapMulti(BiConsumer<? super P_OUT, ? super Consumer<R>> mapper) {
+        Objects.requireNonNull(mapper);
+        return new StatelessOp<>(this, StreamShape.REFERENCE,
+                StreamOpFlag.NOT_SORTED | StreamOpFlag.NOT_DISTINCT | StreamOpFlag.NOT_SIZED) {
+            @Override
+            Sink<P_OUT> opWrapSink(int flags, Sink<R> sink) {
+                return new Sink.ChainedReference<>(sink) {
+
+                    @Override
+                    public void begin(long size) {
+                        downstream.begin(-1);
+                    }
+
+                    @Override
+                    @SuppressWarnings("unchecked")
+                    public void accept(P_OUT u) {
+                        mapper.accept(u, (Consumer<R>) downstream);
+                    }
+                };
+            }
+        };
+    }
+
+    @Override
+    public final IntStream mapMultiToInt(BiConsumer<? super P_OUT, ? super IntConsumer> mapper) {
+        Objects.requireNonNull(mapper);
+        return new IntPipeline.StatelessOp<>(this, StreamShape.REFERENCE,
+                StreamOpFlag.NOT_SORTED | StreamOpFlag.NOT_DISTINCT | StreamOpFlag.NOT_SIZED) {
+            @Override
+            Sink<P_OUT> opWrapSink(int flags, Sink<Integer> sink) {
+                return new Sink.ChainedReference<>(sink) {
+
+                    @Override
+                    public void begin(long size) {
+                        downstream.begin(-1);
+                    }
+
+                    @Override
+                    @SuppressWarnings("unchecked")
+                    public void accept(P_OUT u) {
+                        mapper.accept(u, (IntConsumer)downstream);
+                    }
+                };
+            }
+        };
+    }
+
+    @Override
+    public final LongStream mapMultiToLong(BiConsumer<? super P_OUT, ? super LongConsumer> mapper) {
+        Objects.requireNonNull(mapper);
+        return new LongPipeline.StatelessOp<>(this, StreamShape.REFERENCE,
+                StreamOpFlag.NOT_SORTED | StreamOpFlag.NOT_DISTINCT | StreamOpFlag.NOT_SIZED) {
+            @Override
+            Sink<P_OUT> opWrapSink(int flags, Sink<Long> sink) {
+                return new Sink.ChainedReference<>(sink) {
+
+                    @Override
+                    public void begin(long size) {
+                        downstream.begin(-1);
+                    }
+
+                    @Override
+                    @SuppressWarnings("unchecked")
+                    public void accept(P_OUT u) {
+                        mapper.accept(u, (LongConsumer) downstream);
+                    }
+                };
+            }
+        };
+    }
+
+
+    @Override
+    public final DoubleStream mapMultiToDouble(BiConsumer<? super P_OUT, ? super DoubleConsumer> mapper) {
+        Objects.requireNonNull(mapper);
+        return new DoublePipeline.StatelessOp<>(this, StreamShape.REFERENCE,
+                StreamOpFlag.NOT_SORTED | StreamOpFlag.NOT_DISTINCT | StreamOpFlag.NOT_SIZED) {
+            @Override
+            Sink<P_OUT> opWrapSink(int flags, Sink<Double> sink) {
+                return new Sink.ChainedReference<>(sink) {
+
+                    @Override
+                    public void begin(long size) {
+                        downstream.begin(-1);
+                    }
+
+                    @Override
+                    @SuppressWarnings("unchecked")
+                    public void accept(P_OUT u) {
+                        mapper.accept(u, (DoubleConsumer) downstream);
                     }
                 };
             }
@@ -478,6 +579,16 @@ abstract class ReferencePipeline<P_IN, P_OUT>
             return SliceOps.makeRef(this, n, -1);
     }
 
+    @Override
+    public final Stream<P_OUT> takeWhile(Predicate<? super P_OUT> predicate) {
+        return WhileOps.makeTakeWhileRef(this, predicate);
+    }
+
+    @Override
+    public final Stream<P_OUT> dropWhile(Predicate<? super P_OUT> predicate) {
+        return WhileOps.makeDropWhileRef(this, predicate);
+    }
+
     // Terminal operations from Stream
 
     @Override
@@ -501,7 +612,7 @@ abstract class ReferencePipeline<P_IN, P_OUT>
         // Runtime checking will be performed when an element is stored in A[], thus if A is not a
         // super type of U an ArrayStoreException will be thrown.
         @SuppressWarnings("rawtypes")
-        IntFunction rawGenerator = (IntFunction) generator;
+        IntFunction rawGenerator = generator;
         return (A[]) Nodes.flatten(evaluateToArrayNode(rawGenerator), rawGenerator)
                               .asArray(rawGenerator);
     }
@@ -509,6 +620,11 @@ abstract class ReferencePipeline<P_IN, P_OUT>
     @Override
     public final Object[] toArray() {
         return toArray(Object[]::new);
+    }
+
+    @Override
+    public List<P_OUT> toList() {
+        return SharedSecrets.getJavaUtilCollectionAccess().listFromTrustedArrayNullsAllowed(this.toArray());
     }
 
     @Override
@@ -590,9 +706,8 @@ abstract class ReferencePipeline<P_IN, P_OUT>
 
     @Override
     public final long count() {
-        return mapToLong(e -> 1L).sum();
+        return evaluate(ReduceOps.makeRefCounting());
     }
-
 
     //
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -154,10 +154,12 @@ abstract class LongPipeline<E_IN>
     }
 
     @Override
-    final void forEachWithCancel(Spliterator<Long> spliterator, Sink<Long> sink) {
+    final boolean forEachWithCancel(Spliterator<Long> spliterator, Sink<Long> sink) {
         Spliterator.OfLong spl = adapt(spliterator);
         LongConsumer adaptedSink =  adapt(sink);
-        do { } while (!sink.cancellationRequested() && spl.tryAdvance(adaptedSink));
+        boolean cancelled;
+        do { } while (!(cancelled = sink.cancellationRequested()) && spl.tryAdvance(adaptedSink));
+        return cancelled;
     }
 
     @Override
@@ -165,6 +167,19 @@ abstract class LongPipeline<E_IN>
         return Nodes.longBuilder(exactSizeIfKnown);
     }
 
+    private <U> Stream<U> mapToObj(LongFunction<? extends U> mapper, int opFlags) {
+        return new ReferencePipeline.StatelessOp<Long, U>(this, StreamShape.LONG_VALUE, opFlags) {
+            @Override
+            Sink<Long> opWrapSink(int flags, Sink<U> sink) {
+                return new Sink.ChainedLong<U>(sink) {
+                    @Override
+                    public void accept(long t) {
+                        downstream.accept(mapper.apply(t));
+                    }
+                };
+            }
+        };
+    }
 
     // LongStream
 
@@ -182,8 +197,7 @@ abstract class LongPipeline<E_IN>
 
     @Override
     public final DoubleStream asDoubleStream() {
-        return new DoublePipeline.StatelessOp<Long>(this, StreamShape.LONG_VALUE,
-                                                    StreamOpFlag.NOT_SORTED | StreamOpFlag.NOT_DISTINCT) {
+        return new DoublePipeline.StatelessOp<Long>(this, StreamShape.LONG_VALUE, StreamOpFlag.NOT_DISTINCT) {
             @Override
             Sink<Long> opWrapSink(int flags, Sink<Double> sink) {
                 return new Sink.ChainedLong<Double>(sink) {
@@ -198,7 +212,7 @@ abstract class LongPipeline<E_IN>
 
     @Override
     public final Stream<Long> boxed() {
-        return mapToObj(Long::valueOf);
+        return mapToObj(Long::valueOf, 0);
     }
 
     @Override
@@ -221,18 +235,7 @@ abstract class LongPipeline<E_IN>
     @Override
     public final <U> Stream<U> mapToObj(LongFunction<? extends U> mapper) {
         Objects.requireNonNull(mapper);
-        return new ReferencePipeline.StatelessOp<Long, U>(this, StreamShape.LONG_VALUE,
-                                                          StreamOpFlag.NOT_SORTED | StreamOpFlag.NOT_DISTINCT) {
-            @Override
-            Sink<Long> opWrapSink(int flags, Sink<U> sink) {
-                return new Sink.ChainedLong<U>(sink) {
-                    @Override
-                    public void accept(long t) {
-                        downstream.accept(mapper.apply(t));
-                    }
-                };
-            }
-        };
+        return mapToObj(mapper, StreamOpFlag.NOT_SORTED | StreamOpFlag.NOT_DISTINCT);
     }
 
     @Override
@@ -296,7 +299,7 @@ abstract class LongPipeline<E_IN>
                                     result.sequential().forEach(downstreamAsLong);
                                 }
                                 else {
-                                    Spliterator.OfLong s = result.sequential().spliterator();
+                                    var s = result.sequential().spliterator();
                                     do { } while (!downstream.cancellationRequested() && s.tryAdvance(downstreamAsLong));
                                 }
                             }
@@ -311,6 +314,30 @@ abstract class LongPipeline<E_IN>
                         // downstream operation
                         cancellationRequestedCalled = true;
                         return downstream.cancellationRequested();
+                    }
+                };
+            }
+        };
+    }
+
+    @Override
+    public final LongStream mapMulti(LongMapMultiConsumer mapper) {
+        Objects.requireNonNull(mapper);
+        return new LongPipeline.StatelessOp<>(this, StreamShape.LONG_VALUE,
+                StreamOpFlag.NOT_SORTED | StreamOpFlag.NOT_DISTINCT | StreamOpFlag.NOT_SIZED) {
+            @Override
+            Sink<Long> opWrapSink(int flags, Sink<Long> sink) {
+                return new Sink.ChainedLong<>(sink) {
+
+                    @Override
+                    public void begin(long size) {
+                        downstream.begin(-1);
+                    }
+
+                    @Override
+                    @SuppressWarnings("unchecked")
+                    public void accept(long t) {
+                        mapper.accept(t, (LongConsumer) downstream);
                     }
                 };
             }
@@ -390,6 +417,16 @@ abstract class LongPipeline<E_IN>
     }
 
     @Override
+    public final LongStream takeWhile(LongPredicate predicate) {
+        return WhileOps.makeTakeWhileLong(this, predicate);
+    }
+
+    @Override
+    public final LongStream dropWhile(LongPredicate predicate) {
+        return WhileOps.makeDropWhileLong(this, predicate);
+    }
+
+    @Override
     public final LongStream sorted() {
         return SortedOps.makeLong(this);
     }
@@ -447,7 +484,7 @@ abstract class LongPipeline<E_IN>
 
     @Override
     public final long count() {
-        return map(e -> 1L).sum();
+        return evaluate(ReduceOps.makeLongCounting());
     }
 
     @Override

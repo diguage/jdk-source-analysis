@@ -34,6 +34,7 @@
  */
 
 package java.util.concurrent.atomic;
+
 import java.io.Serializable;
 import java.util.function.LongBinaryOperator;
 
@@ -58,16 +59,17 @@ import java.util.function.LongBinaryOperator;
  * applicable to functions for which the order of accumulation does
  * not matter. The supplied accumulator function should be
  * side-effect-free, since it may be re-applied when attempted updates
- * fail due to contention among threads. The function is applied with
- * the current value as its first argument, and the given update as
- * the second argument.  For example, to maintain a running maximum
- * value, you could supply {@code Long::max} along with {@code
- * Long.MIN_VALUE} as the identity.
+ * fail due to contention among threads. For predictable results, the
+ * accumulator function should be associative and commutative. The
+ * function is applied with an existing value (or identity) as one
+ * argument, and a given update as the other argument.  For example,
+ * to maintain a running maximum value, you could supply {@code
+ * Long::max} along with {@code Long.MIN_VALUE} as the identity.
  *
  * <p>Class {@link LongAdder} provides analogs of the functionality of
  * this class for the common special case of maintaining counts and
  * sums.  The call {@code new LongAdder()} is equivalent to {@code new
- * LongAccumulator((x, y) -> x + y, 0L}.
+ * LongAccumulator((x, y) -> x + y, 0L)}.
  *
  * <p>This class extends {@link Number}, but does <em>not</em> define
  * methods such as {@code equals}, {@code hashCode} and {@code
@@ -80,6 +82,7 @@ import java.util.function.LongBinaryOperator;
 public class LongAccumulator extends Striped64 implements Serializable {
     private static final long serialVersionUID = 7249069246863182397L;
 
+    @SuppressWarnings("serial") // Not statically typed as Serializable
     private final LongBinaryOperator function;
     private final long identity;
 
@@ -101,16 +104,19 @@ public class LongAccumulator extends Striped64 implements Serializable {
      * @param x the value
      */
     public void accumulate(long x) {
-        Cell[] as; long b, v, r; int m; Cell a;
-        if ((as = cells) != null ||
-            (r = function.applyAsLong(b = base, x)) != b && !casBase(b, r)) {
+        Cell[] cs; long b, v, r; int m; Cell c;
+        if ((cs = cells) != null
+            || ((r = function.applyAsLong(b = base, x)) != b
+                && !casBase(b, r))) {
+            int index = getProbe();
             boolean uncontended = true;
-            if (as == null || (m = as.length - 1) < 0 ||
-                (a = as[getProbe() & m]) == null ||
-                !(uncontended =
-                  (r = function.applyAsLong(v = a.value, x)) == v ||
-                  a.cas(v, r)))
-                longAccumulate(x, function, uncontended);
+            if (cs == null
+                || (m = cs.length - 1) < 0
+                || (c = cs[index & m]) == null
+                || !(uncontended =
+                     (r = function.applyAsLong(v = c.value, x)) == v
+                     || c.cas(v, r)))
+                longAccumulate(x, function, uncontended, index);
         }
     }
 
@@ -124,13 +130,12 @@ public class LongAccumulator extends Striped64 implements Serializable {
      * @return the current value
      */
     public long get() {
-        Cell[] as = cells; Cell a;
+        Cell[] cs = cells;
         long result = base;
-        if (as != null) {
-            for (int i = 0; i < as.length; ++i) {
-                if ((a = as[i]) != null)
-                    result = function.applyAsLong(result, a.value);
-            }
+        if (cs != null) {
+            for (Cell c : cs)
+                if (c != null)
+                    result = function.applyAsLong(result, c.value);
         }
         return result;
     }
@@ -144,13 +149,12 @@ public class LongAccumulator extends Striped64 implements Serializable {
      * updating.
      */
     public void reset() {
-        Cell[] as = cells; Cell a;
+        Cell[] cs = cells;
         base = identity;
-        if (as != null) {
-            for (int i = 0; i < as.length; ++i) {
-                if ((a = as[i]) != null)
-                    a.value = identity;
-            }
+        if (cs != null) {
+            for (Cell c : cs)
+                if (c != null)
+                    c.reset(identity);
         }
     }
 
@@ -165,14 +169,12 @@ public class LongAccumulator extends Striped64 implements Serializable {
      * @return the value before reset
      */
     public long getThenReset() {
-        Cell[] as = cells; Cell a;
-        long result = base;
-        base = identity;
-        if (as != null) {
-            for (int i = 0; i < as.length; ++i) {
-                if ((a = as[i]) != null) {
-                    long v = a.value;
-                    a.value = identity;
+        Cell[] cs = cells;
+        long result = getAndSetBase(identity);
+        if (cs != null) {
+            for (Cell c : cs) {
+                if (c != null) {
+                    long v = c.getAndSet(identity);
                     result = function.applyAsLong(result, v);
                 }
             }
@@ -234,21 +236,26 @@ public class LongAccumulator extends Striped64 implements Serializable {
          * @serial
          */
         private final long value;
+
         /**
          * The function used for updates.
          * @serial
          */
+        @SuppressWarnings("serial") // Not statically typed as Serializable
         private final LongBinaryOperator function;
+
         /**
-         * The identity value
+         * The identity value.
          * @serial
          */
         private final long identity;
 
-        SerializationProxy(LongAccumulator a) {
-            function = a.function;
-            identity = a.identity;
-            value = a.get();
+        SerializationProxy(long value,
+                           LongBinaryOperator function,
+                           long identity) {
+            this.value = value;
+            this.function = function;
+            this.identity = identity;
         }
 
         /**
@@ -256,7 +263,7 @@ public class LongAccumulator extends Striped64 implements Serializable {
          * held by this proxy.
          *
          * @return a {@code LongAccumulator} object with initial state
-         * held by this proxy.
+         * held by this proxy
          */
         private Object readResolve() {
             LongAccumulator a = new LongAccumulator(function, identity);
@@ -267,7 +274,7 @@ public class LongAccumulator extends Striped64 implements Serializable {
 
     /**
      * Returns a
-     * <a href="../../../../serialized-form.html#java.util.concurrent.atomic.LongAccumulator.SerializationProxy">
+     * <a href="{@docRoot}/serialized-form.html#java.util.concurrent.atomic.LongAccumulator.SerializationProxy">
      * SerializationProxy</a>
      * representing the state of this instance.
      *
@@ -275,7 +282,7 @@ public class LongAccumulator extends Striped64 implements Serializable {
      * representing the state of this instance
      */
     private Object writeReplace() {
-        return new SerializationProxy(this);
+        return new SerializationProxy(get(), function, identity);
     }
 
     /**

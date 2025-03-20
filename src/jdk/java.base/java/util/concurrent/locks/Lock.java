@@ -34,6 +34,7 @@
  */
 
 package java.util.concurrent.locks;
+
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -77,7 +78,7 @@ import java.util.concurrent.TimeUnit;
  * methods and statements. In most cases, the following idiom
  * should be used:
  *
- *  <pre> {@code
+ * <pre> {@code
  * Lock l = ...;
  * l.lock();
  * try {
@@ -116,13 +117,13 @@ import java.util.concurrent.TimeUnit;
  * parameter will result in a {@link NullPointerException} being
  * thrown.
  *
- * <h3>Memory Synchronization</h3>
+ * <h2>Memory Synchronization</h2>
  *
  * <p>All {@code Lock} implementations <em>must</em> enforce the same
  * memory synchronization semantics as provided by the built-in monitor
  * lock, as described in
- * <a href="https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.4">
- * The Java Language Specification (17.4 Memory Model)</a>:
+ * Chapter 17 of
+ * <cite>The Java Language Specification</cite>:
  * <ul>
  * <li>A successful {@code lock} operation has the same memory
  * synchronization effects as a successful <em>Lock</em> action.
@@ -134,7 +135,7 @@ import java.util.concurrent.TimeUnit;
  * locking/unlocking operations, do not require any memory
  * synchronization effects.
  *
- * <h3>Implementation Considerations</h3>
+ * <h2>Implementation Considerations</h2>
  *
  * <p>The three forms of lock acquisition (interruptible,
  * non-interruptible, and timed) may differ in their performance
@@ -160,6 +161,7 @@ import java.util.concurrent.TimeUnit;
  * @see ReentrantLock
  * @see Condition
  * @see ReadWriteLock
+ * @jls 17.4 Memory Model
  *
  * @since 1.5
  * @author Doug Lea
@@ -240,7 +242,7 @@ public interface Lock {
      * immediately with the value {@code false}.
      *
      * <p>A typical usage idiom for this method would be:
-     *  <pre> {@code
+     * <pre> {@code
      * Lock lock = ...;
      * if (lock.tryLock()) {
      *   try {

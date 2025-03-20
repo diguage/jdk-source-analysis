@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2020, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -156,10 +156,12 @@ abstract class IntPipeline<E_IN>
     }
 
     @Override
-    final void forEachWithCancel(Spliterator<Integer> spliterator, Sink<Integer> sink) {
+    final boolean forEachWithCancel(Spliterator<Integer> spliterator, Sink<Integer> sink) {
         Spliterator.OfInt spl = adapt(spliterator);
         IntConsumer adaptedSink = adapt(sink);
-        do { } while (!sink.cancellationRequested() && spl.tryAdvance(adaptedSink));
+        boolean cancelled;
+        do { } while (!(cancelled = sink.cancellationRequested()) && spl.tryAdvance(adaptedSink));
+        return cancelled;
     }
 
     @Override
@@ -168,6 +170,19 @@ abstract class IntPipeline<E_IN>
         return Nodes.intBuilder(exactSizeIfKnown);
     }
 
+    private <U> Stream<U> mapToObj(IntFunction<? extends U> mapper, int opFlags) {
+        return new ReferencePipeline.StatelessOp<Integer, U>(this, StreamShape.INT_VALUE, opFlags) {
+            @Override
+            Sink<Integer> opWrapSink(int flags, Sink<U> sink) {
+                return new Sink.ChainedInt<U>(sink) {
+                    @Override
+                    public void accept(int t) {
+                        downstream.accept(mapper.apply(t));
+                    }
+                };
+            }
+        };
+    }
 
     // IntStream
 
@@ -185,8 +200,7 @@ abstract class IntPipeline<E_IN>
 
     @Override
     public final LongStream asLongStream() {
-        return new LongPipeline.StatelessOp<Integer>(this, StreamShape.INT_VALUE,
-                                                     StreamOpFlag.NOT_SORTED | StreamOpFlag.NOT_DISTINCT) {
+        return new LongPipeline.StatelessOp<Integer>(this, StreamShape.INT_VALUE, 0) {
             @Override
             Sink<Integer> opWrapSink(int flags, Sink<Long> sink) {
                 return new Sink.ChainedInt<Long>(sink) {
@@ -201,8 +215,7 @@ abstract class IntPipeline<E_IN>
 
     @Override
     public final DoubleStream asDoubleStream() {
-        return new DoublePipeline.StatelessOp<Integer>(this, StreamShape.INT_VALUE,
-                                                       StreamOpFlag.NOT_SORTED | StreamOpFlag.NOT_DISTINCT) {
+        return new DoublePipeline.StatelessOp<Integer>(this, StreamShape.INT_VALUE, 0) {
             @Override
             Sink<Integer> opWrapSink(int flags, Sink<Double> sink) {
                 return new Sink.ChainedInt<Double>(sink) {
@@ -217,7 +230,7 @@ abstract class IntPipeline<E_IN>
 
     @Override
     public final Stream<Integer> boxed() {
-        return mapToObj(Integer::valueOf);
+        return mapToObj(Integer::valueOf, 0);
     }
 
     @Override
@@ -240,18 +253,7 @@ abstract class IntPipeline<E_IN>
     @Override
     public final <U> Stream<U> mapToObj(IntFunction<? extends U> mapper) {
         Objects.requireNonNull(mapper);
-        return new ReferencePipeline.StatelessOp<Integer, U>(this, StreamShape.INT_VALUE,
-                                                             StreamOpFlag.NOT_SORTED | StreamOpFlag.NOT_DISTINCT) {
-            @Override
-            Sink<Integer> opWrapSink(int flags, Sink<U> sink) {
-                return new Sink.ChainedInt<U>(sink) {
-                    @Override
-                    public void accept(int t) {
-                        downstream.accept(mapper.apply(t));
-                    }
-                };
-            }
-        };
+        return mapToObj(mapper, StreamOpFlag.NOT_SORTED | StreamOpFlag.NOT_DISTINCT);
     }
 
     @Override
@@ -315,7 +317,7 @@ abstract class IntPipeline<E_IN>
                                     result.sequential().forEach(downstreamAsInt);
                                 }
                                 else {
-                                    Spliterator.OfInt s = result.sequential().spliterator();
+                                    var s = result.sequential().spliterator();
                                     do { } while (!downstream.cancellationRequested() && s.tryAdvance(downstreamAsInt));
                                 }
                             }
@@ -330,6 +332,30 @@ abstract class IntPipeline<E_IN>
                         // downstream operation
                         cancellationRequestedCalled = true;
                         return downstream.cancellationRequested();
+                    }
+                };
+            }
+        };
+    }
+
+    @Override
+    public final IntStream mapMulti(IntMapMultiConsumer mapper) {
+        Objects.requireNonNull(mapper);
+        return new StatelessOp<>(this, StreamShape.INT_VALUE,
+                StreamOpFlag.NOT_SORTED | StreamOpFlag.NOT_DISTINCT | StreamOpFlag.NOT_SIZED) {
+            @Override
+            Sink<Integer> opWrapSink(int flags, Sink<Integer> sink) {
+                return new Sink.ChainedInt<>(sink) {
+
+                    @Override
+                    public void begin(long size) {
+                        downstream.begin(-1);
+                    }
+
+                    @Override
+                    @SuppressWarnings("unchecked")
+                    public void accept(int t) {
+                        mapper.accept(t, (IntConsumer) downstream);
                     }
                 };
             }
@@ -409,6 +435,16 @@ abstract class IntPipeline<E_IN>
     }
 
     @Override
+    public final IntStream takeWhile(IntPredicate predicate) {
+        return WhileOps.makeTakeWhileInt(this, predicate);
+    }
+
+    @Override
+    public final IntStream dropWhile(IntPredicate predicate) {
+        return WhileOps.makeDropWhileInt(this, predicate);
+    }
+
+    @Override
     public final IntStream sorted() {
         return SortedOps.makeInt(this);
     }
@@ -449,7 +485,7 @@ abstract class IntPipeline<E_IN>
 
     @Override
     public final long count() {
-        return mapToLong(e -> 1L).sum();
+        return evaluate(ReduceOps.makeIntCounting());
     }
 
     @Override

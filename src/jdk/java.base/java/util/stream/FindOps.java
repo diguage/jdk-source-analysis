@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -54,9 +54,10 @@ final class FindOps {
      *        first element in the encounter order
      * @return a {@code TerminalOp} implementing the find operation
      */
+    @SuppressWarnings("unchecked")
     public static <T> TerminalOp<T, Optional<T>> makeRef(boolean mustFindFirst) {
-        return new FindOp<>(mustFindFirst, StreamShape.REFERENCE, Optional.empty(),
-                            Optional::isPresent, FindSink.OfRef::new);
+        return (TerminalOp<T, Optional<T>>)
+                (mustFindFirst ? FindSink.OfRef.OP_FIND_FIRST : FindSink.OfRef.OP_FIND_ANY);
     }
 
     /**
@@ -67,8 +68,7 @@ final class FindOps {
      * @return a {@code TerminalOp} implementing the find operation
      */
     public static TerminalOp<Integer, OptionalInt> makeInt(boolean mustFindFirst) {
-        return new FindOp<>(mustFindFirst, StreamShape.INT_VALUE, OptionalInt.empty(),
-                            OptionalInt::isPresent, FindSink.OfInt::new);
+        return mustFindFirst ? FindSink.OfInt.OP_FIND_FIRST : FindSink.OfInt.OP_FIND_ANY;
     }
 
     /**
@@ -79,8 +79,7 @@ final class FindOps {
      * @return a {@code TerminalOp} implementing the find operation
      */
     public static TerminalOp<Long, OptionalLong> makeLong(boolean mustFindFirst) {
-        return new FindOp<>(mustFindFirst, StreamShape.LONG_VALUE, OptionalLong.empty(),
-                            OptionalLong::isPresent, FindSink.OfLong::new);
+        return mustFindFirst ? FindSink.OfLong.OP_FIND_FIRST : FindSink.OfLong.OP_FIND_ANY;
     }
 
     /**
@@ -91,8 +90,7 @@ final class FindOps {
      * @return a {@code TerminalOp} implementing the find operation
      */
     public static TerminalOp<Double, OptionalDouble> makeDouble(boolean mustFindFirst) {
-        return new FindOp<>(mustFindFirst, StreamShape.DOUBLE_VALUE, OptionalDouble.empty(),
-                            OptionalDouble::isPresent, FindSink.OfDouble::new);
+        return mustFindFirst ? FindSink.OfDouble.OP_FIND_FIRST : FindSink.OfDouble.OP_FIND_ANY;
     }
 
     /**
@@ -107,7 +105,7 @@ final class FindOps {
      */
     private static final class FindOp<T, O> implements TerminalOp<T, O> {
         private final StreamShape shape;
-        final boolean mustFindFirst;
+        final int opFlags;
         final O emptyValue;
         final Predicate<O> presentPredicate;
         final Supplier<TerminalSink<T, O>> sinkSupplier;
@@ -129,7 +127,7 @@ final class FindOps {
                        O emptyValue,
                        Predicate<O> presentPredicate,
                        Supplier<TerminalSink<T, O>> sinkSupplier) {
-            this.mustFindFirst = mustFindFirst;
+            this.opFlags = StreamOpFlag.IS_SHORT_CIRCUIT | (mustFindFirst ? 0 : StreamOpFlag.NOT_ORDERED);
             this.shape = shape;
             this.emptyValue = emptyValue;
             this.presentPredicate = presentPredicate;
@@ -138,7 +136,7 @@ final class FindOps {
 
         @Override
         public int getOpFlags() {
-            return StreamOpFlag.IS_SHORT_CIRCUIT | (mustFindFirst ? 0 : StreamOpFlag.NOT_ORDERED);
+            return opFlags;
         }
 
         @Override
@@ -156,18 +154,21 @@ final class FindOps {
         @Override
         public <P_IN> O evaluateParallel(PipelineHelper<T> helper,
                                          Spliterator<P_IN> spliterator) {
-            return new FindTask<>(this, helper, spliterator).invoke();
+            // This takes into account the upstream ops flags and the terminal
+            // op flags and therefore takes into account findFirst or findAny
+            boolean mustFindFirst = StreamOpFlag.ORDERED.isKnown(helper.getStreamAndOpFlags());
+            return new FindTask<>(this, mustFindFirst, helper, spliterator).invoke();
         }
     }
 
     /**
-     * Implementation of @{code TerminalSink} that implements the find
+     * Implementation of {@code TerminalSink} that implements the find
      * functionality, requesting cancellation when something has been found
      *
      * @param <T> The type of input element
      * @param <O> The result type, typically an optional type
      */
-    private static abstract class FindSink<T, O> implements TerminalSink<T, O> {
+    private abstract static class FindSink<T, O> implements TerminalSink<T, O> {
         boolean hasValue;
         T value;
 
@@ -192,6 +193,14 @@ final class FindOps {
             public Optional<T> get() {
                 return hasValue ? Optional.of(value) : null;
             }
+
+            static final TerminalOp<?, ?> OP_FIND_FIRST = new FindOp<>(true,
+                    StreamShape.REFERENCE, Optional.empty(),
+                    Optional::isPresent, FindSink.OfRef::new);
+
+            static final TerminalOp<?, ?> OP_FIND_ANY = new FindOp<>(false,
+                    StreamShape.REFERENCE, Optional.empty(),
+                    Optional::isPresent, FindSink.OfRef::new);
         }
 
         /** Specialization of {@code FindSink} for int streams */
@@ -207,6 +216,13 @@ final class FindOps {
             public OptionalInt get() {
                 return hasValue ? OptionalInt.of(value) : null;
             }
+
+            static final TerminalOp<Integer, OptionalInt> OP_FIND_FIRST = new FindOp<>(true,
+                    StreamShape.INT_VALUE, OptionalInt.empty(),
+                    OptionalInt::isPresent, FindSink.OfInt::new);
+            static final TerminalOp<Integer, OptionalInt> OP_FIND_ANY = new FindOp<>(false,
+                    StreamShape.INT_VALUE, OptionalInt.empty(),
+                    OptionalInt::isPresent, FindSink.OfInt::new);
         }
 
         /** Specialization of {@code FindSink} for long streams */
@@ -222,6 +238,13 @@ final class FindOps {
             public OptionalLong get() {
                 return hasValue ? OptionalLong.of(value) : null;
             }
+
+            static final TerminalOp<Long, OptionalLong> OP_FIND_FIRST = new FindOp<>(true,
+                    StreamShape.LONG_VALUE, OptionalLong.empty(),
+                    OptionalLong::isPresent, FindSink.OfLong::new);
+            static final TerminalOp<Long, OptionalLong> OP_FIND_ANY = new FindOp<>(false,
+                    StreamShape.LONG_VALUE, OptionalLong.empty(),
+                    OptionalLong::isPresent, FindSink.OfLong::new);
         }
 
         /** Specialization of {@code FindSink} for double streams */
@@ -237,6 +260,13 @@ final class FindOps {
             public OptionalDouble get() {
                 return hasValue ? OptionalDouble.of(value) : null;
             }
+
+            static final TerminalOp<Double, OptionalDouble> OP_FIND_FIRST = new FindOp<>(true,
+                    StreamShape.DOUBLE_VALUE, OptionalDouble.empty(),
+                    OptionalDouble::isPresent, FindSink.OfDouble::new);
+            static final TerminalOp<Double, OptionalDouble> OP_FIND_ANY = new FindOp<>(false,
+                    StreamShape.DOUBLE_VALUE, OptionalDouble.empty(),
+                    OptionalDouble::isPresent, FindSink.OfDouble::new);
         }
     }
 
@@ -250,16 +280,20 @@ final class FindOps {
     private static final class FindTask<P_IN, P_OUT, O>
             extends AbstractShortCircuitTask<P_IN, P_OUT, O, FindTask<P_IN, P_OUT, O>> {
         private final FindOp<P_OUT, O> op;
+        private final boolean mustFindFirst;
 
         FindTask(FindOp<P_OUT, O> op,
+                 boolean mustFindFirst,
                  PipelineHelper<P_OUT> helper,
                  Spliterator<P_IN> spliterator) {
             super(helper, spliterator);
+            this.mustFindFirst = mustFindFirst;
             this.op = op;
         }
 
         FindTask(FindTask<P_IN, P_OUT, O> parent, Spliterator<P_IN> spliterator) {
             super(parent, spliterator);
+            this.mustFindFirst = parent.mustFindFirst;
             this.op = parent.op;
         }
 
@@ -283,7 +317,7 @@ final class FindOps {
         @Override
         protected O doLeaf() {
             O result = helper.wrapAndCopyInto(op.sinkSupplier.get(), spliterator).get();
-            if (!op.mustFindFirst) {
+            if (!mustFindFirst) {
                 if (result != null)
                     shortCircuit(result);
                 return null;
@@ -300,7 +334,7 @@ final class FindOps {
 
         @Override
         public void onCompletion(CountedCompleter<?> caller) {
-            if (op.mustFindFirst) {
+            if (mustFindFirst) {
                     for (FindTask<P_IN, P_OUT, O> child = leftChild, p = null; child != p;
                          p = child, child = rightChild) {
                     O result = child.getLocalResult();

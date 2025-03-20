@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2015, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -125,7 +125,11 @@ interface Node<T> {
         Node.Builder<T> nodeBuilder = Nodes.builder(size, generator);
         nodeBuilder.begin(size);
         for (int i = 0; i < from && spliterator.tryAdvance(e -> { }); i++) { }
-        for (int i = 0; (i < size) && spliterator.tryAdvance(nodeBuilder); i++) { }
+        if (to == count()) {
+            spliterator.forEachRemaining(nodeBuilder);
+        } else {
+            for (int i = 0; i < size && spliterator.tryAdvance(nodeBuilder); i++) { }
+        }
         nodeBuilder.end();
         return nodeBuilder.build();
     }
@@ -196,7 +200,7 @@ interface Node<T> {
         Node<T> build();
 
         /**
-         * Specialized @{code Node.Builder} for int elements
+         * Specialized {@code Node.Builder} for int elements
          */
         interface OfInt extends Node.Builder<Integer>, Sink.OfInt {
             @Override
@@ -204,7 +208,7 @@ interface Node<T> {
         }
 
         /**
-         * Specialized @{code Node.Builder} for long elements
+         * Specialized {@code Node.Builder} for long elements
          */
         interface OfLong extends Node.Builder<Long>, Sink.OfLong {
             @Override
@@ -212,7 +216,7 @@ interface Node<T> {
         }
 
         /**
-         * Specialized @{code Node.Builder} for double elements
+         * Specialized {@code Node.Builder} for double elements
          */
         interface OfDouble extends Node.Builder<Double>, Sink.OfDouble {
             @Override
@@ -310,6 +314,7 @@ interface Node<T> {
     /**
      * Specialized {@code Node} for int elements
      */
+    @SuppressWarnings("overloads")
     interface OfInt extends OfPrimitive<Integer, IntConsumer, int[], Spliterator.OfInt, OfInt> {
 
         /**
@@ -360,7 +365,11 @@ interface Node<T> {
             Node.Builder.OfInt nodeBuilder = Nodes.intBuilder(size);
             nodeBuilder.begin(size);
             for (int i = 0; i < from && spliterator.tryAdvance((IntConsumer) e -> { }); i++) { }
-            for (int i = 0; (i < size) && spliterator.tryAdvance((IntConsumer) nodeBuilder); i++) { }
+            if (to == count()) {
+                spliterator.forEachRemaining((IntConsumer) nodeBuilder);
+            } else {
+                for (int i = 0; i < size && spliterator.tryAdvance((IntConsumer) nodeBuilder); i++) { }
+            }
             nodeBuilder.end();
             return nodeBuilder.build();
         }
@@ -383,6 +392,7 @@ interface Node<T> {
     /**
      * Specialized {@code Node} for long elements
      */
+    @SuppressWarnings("overloads")
     interface OfLong extends OfPrimitive<Long, LongConsumer, long[], Spliterator.OfLong, OfLong> {
 
         /**
@@ -433,7 +443,11 @@ interface Node<T> {
             Node.Builder.OfLong nodeBuilder = Nodes.longBuilder(size);
             nodeBuilder.begin(size);
             for (int i = 0; i < from && spliterator.tryAdvance((LongConsumer) e -> { }); i++) { }
-            for (int i = 0; (i < size) && spliterator.tryAdvance((LongConsumer) nodeBuilder); i++) { }
+            if (to == count()) {
+                spliterator.forEachRemaining((LongConsumer) nodeBuilder);
+            } else {
+                for (int i = 0; i < size && spliterator.tryAdvance((LongConsumer) nodeBuilder); i++) { }
+            }
             nodeBuilder.end();
             return nodeBuilder.build();
         }
@@ -456,6 +470,7 @@ interface Node<T> {
     /**
      * Specialized {@code Node} for double elements
      */
+    @SuppressWarnings("overloads")
     interface OfDouble extends OfPrimitive<Double, DoubleConsumer, double[], Spliterator.OfDouble, OfDouble> {
 
         /**
@@ -508,7 +523,11 @@ interface Node<T> {
             Node.Builder.OfDouble nodeBuilder = Nodes.doubleBuilder(size);
             nodeBuilder.begin(size);
             for (int i = 0; i < from && spliterator.tryAdvance((DoubleConsumer) e -> { }); i++) { }
-            for (int i = 0; (i < size) && spliterator.tryAdvance((DoubleConsumer) nodeBuilder); i++) { }
+            if (to == count()) {
+                spliterator.forEachRemaining((DoubleConsumer) nodeBuilder);
+            } else {
+                for (int i = 0; i < size && spliterator.tryAdvance((DoubleConsumer) nodeBuilder); i++) { }
+            }
             nodeBuilder.end();
             return nodeBuilder.build();
         }

@@ -34,8 +34,9 @@
  */
 
 package java.util.concurrent.locks;
-import java.util.concurrent.TimeUnit;
+
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * {@code Condition} factors out the {@code Object} monitor
@@ -72,7 +73,7 @@ import java.util.Date;
  * available in the buffer. This can be achieved using two
  * {@link Condition} instances.
  * <pre>
- * class BoundedBuffer {
+ * class BoundedBuffer&lt;E&gt; {
  *   <b>final Lock lock = new ReentrantLock();</b>
  *   final Condition notFull  = <b>lock.newCondition(); </b>
  *   final Condition notEmpty = <b>lock.newCondition(); </b>
@@ -80,7 +81,7 @@ import java.util.Date;
  *   final Object[] items = new Object[100];
  *   int putptr, takeptr, count;
  *
- *   public void put(Object x) throws InterruptedException {
+ *   public void put(E x) throws InterruptedException {
  *     <b>lock.lock();
  *     try {</b>
  *       while (count == items.length)
@@ -94,12 +95,12 @@ import java.util.Date;
  *     }</b>
  *   }
  *
- *   public Object take() throws InterruptedException {
+ *   public E take() throws InterruptedException {
  *     <b>lock.lock();
  *     try {</b>
  *       while (count == 0)
  *         <b>notEmpty.await();</b>
- *       Object x = items[takeptr];
+ *       E x = (E) items[takeptr];
  *       if (++takeptr == items.length) takeptr = 0;
  *       --count;
  *       <b>notFull.signal();</b>
@@ -126,7 +127,7 @@ import java.util.Date;
  * <p>Note that {@code Condition} instances are just normal objects and can
  * themselves be used as the target in a {@code synchronized} statement,
  * and can have their own monitor {@link Object#wait wait} and
- * {@link Object#notify notification} methods invoked.
+ * {@link Object#notify notify} methods invoked.
  * Acquiring the monitor lock of a {@code Condition} instance, or using its
  * monitor methods, has no specified relationship with acquiring the
  * {@link Lock} associated with that {@code Condition} or the use of its
@@ -137,7 +138,7 @@ import java.util.Date;
  * <p>Except where noted, passing a {@code null} value for any parameter
  * will result in a {@link NullPointerException} being thrown.
  *
- * <h3>Implementation Considerations</h3>
+ * <h2>Implementation Considerations</h2>
  *
  * <p>When waiting upon a {@code Condition}, a &quot;<em>spurious
  * wakeup</em>&quot; is permitted to occur, in
@@ -308,17 +309,19 @@ public interface Condition {
      * condition still does not hold. Typical uses of this method take
      * the following form:
      *
-     *  <pre> {@code
-     * boolean aMethod(long timeout, TimeUnit unit) {
-     *   long nanos = unit.toNanos(timeout);
+     * <pre> {@code
+     * boolean aMethod(long timeout, TimeUnit unit)
+     *     throws InterruptedException {
+     *   long nanosRemaining = unit.toNanos(timeout);
      *   lock.lock();
      *   try {
      *     while (!conditionBeingWaitedFor()) {
-     *       if (nanos <= 0L)
+     *       if (nanosRemaining <= 0L)
      *         return false;
-     *       nanos = theCondition.awaitNanos(nanos);
+     *       nanosRemaining = theCondition.awaitNanos(nanosRemaining);
      *     }
      *     // ...
+     *     return true;
      *   } finally {
      *     lock.unlock();
      *   }
@@ -361,7 +364,7 @@ public interface Condition {
      * Causes the current thread to wait until it is signalled or interrupted,
      * or the specified waiting time elapses. This method is behaviorally
      * equivalent to:
-     *  <pre> {@code awaitNanos(unit.toNanos(time)) > 0}</pre>
+     * <pre> {@code awaitNanos(unit.toNanos(time)) > 0}</pre>
      *
      * @param time the maximum time to wait
      * @param unit the time unit of the {@code time} argument
@@ -395,7 +398,6 @@ public interface Condition {
      * re-acquire the lock associated with this condition. When the
      * thread returns it is <em>guaranteed</em> to hold this lock.
      *
-     *
      * <p>If the current thread:
      * <ul>
      * <li>has its interrupted status set on entry to this method; or
@@ -407,11 +409,11 @@ public interface Condition {
      * case, whether or not the test for interruption occurs before the lock
      * is released.
      *
-     *
      * <p>The return value indicates whether the deadline has elapsed,
      * which can be used as follows:
-     *  <pre> {@code
-     * boolean aMethod(Date deadline) {
+     * <pre> {@code
+     * boolean aMethod(Date deadline)
+     *     throws InterruptedException {
      *   boolean stillWaiting = true;
      *   lock.lock();
      *   try {
@@ -421,6 +423,7 @@ public interface Condition {
      *       stillWaiting = theCondition.awaitUntil(deadline);
      *     }
      *     // ...
+     *     return true;
      *   } finally {
      *     lock.unlock();
      *   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2019, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -28,7 +28,7 @@ package java.util;
 /**
  * Unchecked exception thrown when the formatter has been closed.
  *
- * <p> Unless otherwise specified, passing a <tt>null</tt> argument to any
+ * <p> Unless otherwise specified, passing a {@code null} argument to any
  * method or constructor in this class will cause a {@link
  * NullPointerException} to be thrown.
  *
@@ -36,6 +36,7 @@ package java.util;
  */
 public class FormatterClosedException extends IllegalStateException {
 
+    @java.io.Serial
     private static final long serialVersionUID = 18111216L;
 
     /**

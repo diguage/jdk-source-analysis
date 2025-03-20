@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -33,7 +33,8 @@ package java.util;
  * @since 1.5
  * @serial exclude
  */
-class RegularEnumSet<E extends Enum<E>> extends EnumSet<E> {
+final class RegularEnumSet<E extends Enum<E>> extends EnumSet<E> {
+    @java.io.Serial
     private static final long serialVersionUID = 3411599620347842686L;
     /**
      * Bit vector representation of this set.  The 2^k bit indicates the
@@ -123,19 +124,19 @@ class RegularEnumSet<E extends Enum<E>> extends EnumSet<E> {
     }
 
     /**
-     * Returns <tt>true</tt> if this set contains no elements.
+     * Returns {@code true} if this set contains no elements.
      *
-     * @return <tt>true</tt> if this set contains no elements
+     * @return {@code true} if this set contains no elements
      */
     public boolean isEmpty() {
         return elements == 0;
     }
 
     /**
-     * Returns <tt>true</tt> if this set contains the specified element.
+     * Returns {@code true} if this set contains the specified element.
      *
      * @param e element to be checked for containment in this collection
-     * @return <tt>true</tt> if this set contains the specified element
+     * @return {@code true} if this set contains the specified element
      */
     public boolean contains(Object e) {
         if (e == null)
@@ -153,9 +154,9 @@ class RegularEnumSet<E extends Enum<E>> extends EnumSet<E> {
      * Adds the specified element to this set if it is not already present.
      *
      * @param e element to be added to this set
-     * @return <tt>true</tt> if the set changed as a result of the call
+     * @return {@code true} if the set changed as a result of the call
      *
-     * @throws NullPointerException if <tt>e</tt> is null
+     * @throws NullPointerException if {@code e} is null
      */
     public boolean add(E e) {
         typeCheck(e);
@@ -169,7 +170,7 @@ class RegularEnumSet<E extends Enum<E>> extends EnumSet<E> {
      * Removes the specified element from this set if it is present.
      *
      * @param e element to be removed from this set, if present
-     * @return <tt>true</tt> if the set contained the specified element
+     * @return {@code true} if the set contained the specified element
      */
     public boolean remove(Object e) {
         if (e == null)
@@ -186,19 +187,18 @@ class RegularEnumSet<E extends Enum<E>> extends EnumSet<E> {
     // Bulk Operations
 
     /**
-     * Returns <tt>true</tt> if this set contains all of the elements
+     * Returns {@code true} if this set contains all of the elements
      * in the specified collection.
      *
      * @param c collection to be checked for containment in this set
-     * @return <tt>true</tt> if this set contains all of the elements
+     * @return {@code true} if this set contains all of the elements
      *        in the specified collection
      * @throws NullPointerException if the specified collection is null
      */
     public boolean containsAll(Collection<?> c) {
-        if (!(c instanceof RegularEnumSet))
+        if (!(c instanceof RegularEnumSet<?> es))
             return super.containsAll(c);
 
-        RegularEnumSet<?> es = (RegularEnumSet<?>)c;
         if (es.elementType != elementType)
             return es.isEmpty();
 
@@ -209,15 +209,14 @@ class RegularEnumSet<E extends Enum<E>> extends EnumSet<E> {
      * Adds all of the elements in the specified collection to this set.
      *
      * @param c collection whose elements are to be added to this set
-     * @return <tt>true</tt> if this set changed as a result of the call
+     * @return {@code true} if this set changed as a result of the call
      * @throws NullPointerException if the specified collection or any
      *     of its elements are null
      */
     public boolean addAll(Collection<? extends E> c) {
-        if (!(c instanceof RegularEnumSet))
+        if (!(c instanceof RegularEnumSet<?> es))
             return super.addAll(c);
 
-        RegularEnumSet<?> es = (RegularEnumSet<?>)c;
         if (es.elementType != elementType) {
             if (es.isEmpty())
                 return false;
@@ -236,14 +235,13 @@ class RegularEnumSet<E extends Enum<E>> extends EnumSet<E> {
      * the specified collection.
      *
      * @param c elements to be removed from this set
-     * @return <tt>true</tt> if this set changed as a result of the call
+     * @return {@code true} if this set changed as a result of the call
      * @throws NullPointerException if the specified collection is null
      */
     public boolean removeAll(Collection<?> c) {
-        if (!(c instanceof RegularEnumSet))
+        if (!(c instanceof RegularEnumSet<?> es))
             return super.removeAll(c);
 
-        RegularEnumSet<?> es = (RegularEnumSet<?>)c;
         if (es.elementType != elementType)
             return false;
 
@@ -257,14 +255,13 @@ class RegularEnumSet<E extends Enum<E>> extends EnumSet<E> {
      * specified collection.
      *
      * @param c elements to be retained in this set
-     * @return <tt>true</tt> if this set changed as a result of the call
+     * @return {@code true} if this set changed as a result of the call
      * @throws NullPointerException if the specified collection is null
      */
     public boolean retainAll(Collection<?> c) {
-        if (!(c instanceof RegularEnumSet))
+        if (!(c instanceof RegularEnumSet<?> es))
             return super.retainAll(c);
 
-        RegularEnumSet<?> es = (RegularEnumSet<?>)c;
         if (es.elementType != elementType) {
             boolean changed = (elements != 0);
             elements = 0;
@@ -285,18 +282,17 @@ class RegularEnumSet<E extends Enum<E>> extends EnumSet<E> {
 
     /**
      * Compares the specified object with this set for equality.  Returns
-     * <tt>true</tt> if the given object is also a set, the two sets have
+     * {@code true} if the given object is also a set, the two sets have
      * the same size, and every member of the given set is contained in
      * this set.
      *
      * @param o object to be compared for equality with this set
-     * @return <tt>true</tt> if the specified object is equal to this set
+     * @return {@code true} if the specified object is equal to this set
      */
     public boolean equals(Object o) {
-        if (!(o instanceof RegularEnumSet))
+        if (!(o instanceof RegularEnumSet<?> es))
             return super.equals(o);
 
-        RegularEnumSet<?> es = (RegularEnumSet<?>)o;
         if (es.elementType != elementType)
             return elements == 0 && es.elements == 0;
         return es.elements == elements;

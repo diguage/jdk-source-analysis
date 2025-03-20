@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2020, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -31,6 +31,7 @@ import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.IntConsumer;
 import java.util.function.LongConsumer;
+import jdk.internal.vm.annotation.IntrinsicCandidate;
 
 /**
  * Utility methods for operating on and creating streams.
@@ -46,14 +47,6 @@ final class Streams {
     private Streams() {
         throw new Error("no instances");
     }
-
-    /**
-     * An object instance representing no value, that cannot be an actual
-     * data element of a stream.  Used when processing streams that can contain
-     * {@code null} elements to distinguish between a {@code null} value and no
-     * value.
-     */
-    static final Object NONE = new Object();
 
     /**
      * An {@code int} range spliterator.
@@ -98,6 +91,7 @@ final class Streams {
         }
 
         @Override
+        @IntrinsicCandidate
         public void forEachRemaining(IntConsumer consumer) {
             Objects.requireNonNull(consumer);
 
@@ -154,10 +148,9 @@ final class Streams {
          * than a balanced tree at the expense of a higher-depth for the right
          * side of the range.
          *
-         * <p>This is optimized for cases such as IntStream.ints() that is
-         * implemented as range of 0 to Integer.MAX_VALUE but is likely to be
-         * augmented with a limit operation that limits the number of elements
-         * to a count lower than this threshold.
+         * <p>This is optimized for cases such as IntStream.range(0, Integer.MAX_VALUE)
+         * that is likely to be augmented with a limit operation that limits the
+         * number of elements to a count lower than this threshold.
          */
         private static final int BALANCED_SPLIT_THRESHOLD = 1 << 24;
 
@@ -278,10 +271,9 @@ final class Streams {
          * than a balanced tree at the expense of a higher-depth for the right
          * side of the range.
          *
-         * <p>This is optimized for cases such as LongStream.longs() that is
-         * implemented as range of 0 to Long.MAX_VALUE but is likely to be
-         * augmented with a limit operation that limits the number of elements
-         * to a count lower than this threshold.
+         * <p>This is optimized for cases such as LongStream.range(0, Long.MAX_VALUE)
+         * that is likely to be augmented with a limit operation that limits the
+         * number of elements to a count lower than this threshold.
          */
         private static final long BALANCED_SPLIT_THRESHOLD = 1 << 24;
 
@@ -298,7 +290,7 @@ final class Streams {
         }
     }
 
-    private static abstract class AbstractStreamBuilderImpl<T, S extends Spliterator<T>> implements Spliterator<T> {
+    private abstract static class AbstractStreamBuilderImpl<T, S extends Spliterator<T>> implements Spliterator<T> {
         // >= 0 when building, < 0 when built
         // -1 == no elements
         // -2 == one element, held by first
@@ -782,7 +774,7 @@ final class Streams {
             }
         }
 
-        private static abstract class OfPrimitive<T, T_CONS, T_SPLITR extends Spliterator.OfPrimitive<T, T_CONS, T_SPLITR>>
+        private abstract static class OfPrimitive<T, T_CONS, T_SPLITR extends Spliterator.OfPrimitive<T, T_CONS, T_SPLITR>>
                 extends ConcatSpliterator<T, T_SPLITR>
                 implements Spliterator.OfPrimitive<T, T_CONS, T_SPLITR> {
             private OfPrimitive(T_SPLITR aSpliterator, T_SPLITR bSpliterator) {
@@ -812,6 +804,7 @@ final class Streams {
             }
         }
 
+        @SuppressWarnings("overloads")
         static class OfInt
                 extends ConcatSpliterator.OfPrimitive<Integer, IntConsumer, Spliterator.OfInt>
                 implements Spliterator.OfInt {
@@ -820,6 +813,7 @@ final class Streams {
             }
         }
 
+        @SuppressWarnings("overloads")
         static class OfLong
                 extends ConcatSpliterator.OfPrimitive<Long, LongConsumer, Spliterator.OfLong>
                 implements Spliterator.OfLong {
@@ -828,6 +822,7 @@ final class Streams {
             }
         }
 
+        @SuppressWarnings("overloads")
         static class OfDouble
                 extends ConcatSpliterator.OfPrimitive<Double, DoubleConsumer, Spliterator.OfDouble>
                 implements Spliterator.OfDouble {

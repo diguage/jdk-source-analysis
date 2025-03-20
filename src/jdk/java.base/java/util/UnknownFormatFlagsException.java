@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -28,14 +28,15 @@ package java.util;
 /**
  * Unchecked exception thrown when an unknown flag is given.
  *
- * <p> Unless otherwise specified, passing a <tt>null</tt> argument to any
+ * <p> Unless otherwise specified, passing a {@code null} argument to any
  * method or constructor in this class will cause a {@link
  * NullPointerException} to be thrown.
  *
  * @since 1.5
  */
-public class UnknownFormatFlagsException extends IllegalFormatException {
+public non-sealed class UnknownFormatFlagsException extends IllegalFormatException {
 
+    @java.io.Serial
     private static final long serialVersionUID = 19370506L;
 
     private String flags;

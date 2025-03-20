@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -43,32 +43,31 @@ package java.util;
 import sun.util.ResourceBundleEnumeration;
 
 /**
- * <code>ListResourceBundle</code> is an abstract subclass of
- * <code>ResourceBundle</code> that manages resources for a locale
- * in a convenient and easy to use list. See <code>ResourceBundle</code> for
+ * {@code ListResourceBundle} is an abstract subclass of
+ * {@code ResourceBundle} that manages resources for a locale
+ * in a convenient and easy to use list. See {@code ResourceBundle} for
  * more information about resource bundles in general.
  *
  * <P>
- * Subclasses must override <code>getContents</code> and provide an array,
+ * Subclasses must override {@code getContents} and provide an array,
  * where each item in the array is a pair of objects.
  * The first element of each pair is the key, which must be a
- * <code>String</code>, and the second element is the value associated with
+ * {@code String}, and the second element is the value associated with
  * that key.
  *
  * <p>
- * The following <a name="sample">example</a> shows two members of a resource
+ * The following <a id="sample">example</a> shows two members of a resource
  * bundle family with the base name "MyResources".
  * "MyResources" is the default member of the bundle family, and
  * "MyResources_fr" is the French member.
- * These members are based on <code>ListResourceBundle</code>
- * (a related <a href="PropertyResourceBundle.html#sample">example</a> shows
+ * These members are based on {@code ListResourceBundle}
+ * (a related {@linkplain PropertyResourceBundle##sample example} shows
  * how you can add a bundle to this family that's based on a properties file).
  * The keys in this example are of the form "s1" etc. The actual
  * keys are entirely up to your choice, so long as they are the same as
  * the keys you use in your program to retrieve the objects from the bundle.
  * Keys are case-sensitive.
- * <blockquote>
- * <pre>
+ * {@snippet lang=java :
  *
  * public class MyResources extends ListResourceBundle {
  *     protected Object[][] getContents() {
@@ -103,8 +102,7 @@ import sun.util.ResourceBundleEnumeration;
  *         };
  *     }
  * }
- * </pre>
- * </blockquote>
+ * }
  *
  * <p>
  * The implementation of a {@code ListResourceBundle} subclass must be thread-safe
@@ -113,7 +111,7 @@ import sun.util.ResourceBundleEnumeration;
  *
  * @see ResourceBundle
  * @see PropertyResourceBundle
- * @since JDK1.1
+ * @since 1.1
  */
 public abstract class ListResourceBundle extends ResourceBundle {
     /**
@@ -136,11 +134,11 @@ public abstract class ListResourceBundle extends ResourceBundle {
     }
 
     /**
-     * Returns an <code>Enumeration</code> of the keys contained in
-     * this <code>ResourceBundle</code> and its parent bundles.
+     * Returns an {@code Enumeration} of the keys contained in
+     * this {@code ResourceBundle} and its parent bundles.
      *
-     * @return an <code>Enumeration</code> of the keys contained in
-     *         this <code>ResourceBundle</code> and its parent bundles.
+     * @return an {@code Enumeration} of the keys contained in
+     *         this {@code ResourceBundle} and its parent bundles.
      * @see #keySet()
      */
     public Enumeration<String> getKeys() {
@@ -155,11 +153,11 @@ public abstract class ListResourceBundle extends ResourceBundle {
     }
 
     /**
-     * Returns a <code>Set</code> of the keys contained
-     * <em>only</em> in this <code>ResourceBundle</code>.
+     * Returns a {@code Set} of the keys contained
+     * <em>only</em> in this {@code ResourceBundle}.
      *
-     * @return a <code>Set</code> of the keys contained only in this
-     *         <code>ResourceBundle</code>
+     * @return a {@code Set} of the keys contained only in this
+     *         {@code ResourceBundle}
      * @since 1.6
      * @see #keySet()
      */
@@ -172,15 +170,15 @@ public abstract class ListResourceBundle extends ResourceBundle {
 
     /**
      * Returns an array in which each item is a pair of objects in an
-     * <code>Object</code> array. The first element of each pair is
-     * the key, which must be a <code>String</code>, and the second
+     * {@code Object} array. The first element of each pair is
+     * the key, which must be a {@code String}, and the second
      * element is the value associated with that key.  See the class
      * description for details.
      *
-     * @return an array of an <code>Object</code> array representing a
+     * @return an array of an {@code Object} array representing a
      * key-value pair.
      */
-    abstract protected Object[][] getContents();
+    protected abstract Object[][] getContents();
 
     // ==================privates====================
 
@@ -193,11 +191,11 @@ public abstract class ListResourceBundle extends ResourceBundle {
             return;
 
         Object[][] contents = getContents();
-        HashMap<String,Object> temp = new HashMap<>(contents.length);
-        for (int i = 0; i < contents.length; ++i) {
+        HashMap<String,Object> temp = HashMap.newHashMap(contents.length);
+        for (Object[] content : contents) {
             // key must be non-null String, value must be non-null
-            String key = (String) contents[i][0];
-            Object value = contents[i][1];
+            String key = (String) content[0];
+            Object value = content[1];
             if (key == null || value == null) {
                 throw new NullPointerException();
             }
@@ -206,5 +204,5 @@ public abstract class ListResourceBundle extends ResourceBundle {
         lookup = temp;
     }
 
-    private Map<String,Object> lookup = null;
+    private volatile Map<String,Object> lookup;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,7 +25,7 @@
 
 package java.util;
 
-import sun.misc.SharedSecrets;
+import jdk.internal.access.SharedSecrets;
 
 /**
  * A specialized {@link Set} implementation for use with enum types.  All of
@@ -34,11 +34,11 @@ import sun.misc.SharedSecrets;
  * are represented internally as bit vectors.  This representation is
  * extremely compact and efficient. The space and time performance of this
  * class should be good enough to allow its use as a high-quality, typesafe
- * alternative to traditional <tt>int</tt>-based "bit flags."  Even bulk
- * operations (such as <tt>containsAll</tt> and <tt>retainAll</tt>) should
+ * alternative to traditional {@code int}-based "bit flags."  Even bulk
+ * operations (such as {@code containsAll} and {@code retainAll}) should
  * run very quickly if their argument is also an enum set.
  *
- * <p>The iterator returned by the <tt>iterator</tt> method traverses the
+ * <p>The iterator returned by the {@code iterator} method traverses the
  * elements in their <i>natural order</i> (the order in which the enum
  * constants are declared).  The returned iterator is <i>weakly
  * consistent</i>: it will never throw {@link ConcurrentModificationException}
@@ -50,7 +50,7 @@ import sun.misc.SharedSecrets;
  * presence of a null element or to remove one will, however, function
  * properly.
  *
- * <P>Like most collection implementations, <tt>EnumSet</tt> is not
+ * <P>Like most collection implementations, {@code EnumSet} is not
  * synchronized.  If multiple threads access an enum set concurrently, and at
  * least one of the threads modifies the set, it should be synchronized
  * externally.  This is typically accomplished by synchronizing on some
@@ -69,28 +69,31 @@ import sun.misc.SharedSecrets;
  * constant time if their argument is also an enum set.
  *
  * <p>This class is a member of the
- * <a href="{@docRoot}/../technotes/guides/collections/index.html">
+ * <a href="{@docRoot}/java.base/java/util/package-summary.html#CollectionsFramework">
  * Java Collections Framework</a>.
+ *
+ * @param <E> the enum type of elements maintained by this set
  *
  * @author Josh Bloch
  * @since 1.5
  * @see EnumMap
- * @serial exclude
  */
-public abstract class EnumSet<E extends Enum<E>> extends AbstractSet<E>
-    implements Cloneable, java.io.Serializable
+public abstract sealed class EnumSet<E extends Enum<E>> extends AbstractSet<E>
+    implements Cloneable, java.io.Serializable permits JumboEnumSet, RegularEnumSet
 {
+    // declare EnumSet.class serialization compatibility with JDK 8
+    @java.io.Serial
+    private static final long serialVersionUID = 1009687484059888093L;
+
     /**
      * The class of all the elements of this set.
      */
-    final Class<E> elementType;
+    final transient Class<E> elementType;
 
     /**
-     * All of the values comprising T.  (Cached for performance.)
+     * All of the values comprising E.  (Cached for performance.)
      */
-    final Enum<?>[] universe;
-
-    private static Enum<?>[] ZERO_LENGTH_ENUM_ARRAY = new Enum<?>[0];
+    final transient Enum<?>[] universe;
 
     EnumSet(Class<E>elementType, Enum<?>[] universe) {
         this.elementType = elementType;
@@ -104,7 +107,7 @@ public abstract class EnumSet<E extends Enum<E>> extends AbstractSet<E>
      * @param elementType the class object of the element type for this enum
      *     set
      * @return An empty enum set of the specified type.
-     * @throws NullPointerException if <tt>elementType</tt> is null
+     * @throws NullPointerException if {@code elementType} is null
      */
     public static <E extends Enum<E>> EnumSet<E> noneOf(Class<E> elementType) {
         Enum<?>[] universe = getUniverse(elementType);
@@ -125,7 +128,7 @@ public abstract class EnumSet<E extends Enum<E>> extends AbstractSet<E>
      * @param elementType the class object of the element type for this enum
      *     set
      * @return An enum set containing all the elements in the specified type.
-     * @throws NullPointerException if <tt>elementType</tt> is null
+     * @throws NullPointerException if {@code elementType} is null
      */
     public static <E extends Enum<E>> EnumSet<E> allOf(Class<E> elementType) {
         EnumSet<E> result = noneOf(elementType);
@@ -146,7 +149,7 @@ public abstract class EnumSet<E extends Enum<E>> extends AbstractSet<E>
      * @param <E> The class of the elements in the set
      * @param s the enum set from which to initialize this enum set
      * @return A copy of the specified enum set.
-     * @throws NullPointerException if <tt>s</tt> is null
+     * @throws NullPointerException if {@code s} is null
      */
     public static <E extends Enum<E>> EnumSet<E> copyOf(EnumSet<E> s) {
         return s.clone();
@@ -154,7 +157,7 @@ public abstract class EnumSet<E extends Enum<E>> extends AbstractSet<E>
 
     /**
      * Creates an enum set initialized from the specified collection.  If
-     * the specified collection is an <tt>EnumSet</tt> instance, this static
+     * the specified collection is an {@code EnumSet} instance, this static
      * factory method behaves identically to {@link #copyOf(EnumSet)}.
      * Otherwise, the specified collection must contain at least one element
      * (in order to determine the new enum set's element type).
@@ -162,9 +165,9 @@ public abstract class EnumSet<E extends Enum<E>> extends AbstractSet<E>
      * @param <E> The class of the elements in the collection
      * @param c the collection from which to initialize this enum set
      * @return An enum set initialized from the given collection.
-     * @throws IllegalArgumentException if <tt>c</tt> is not an
-     *     <tt>EnumSet</tt> instance and contains no elements
-     * @throws NullPointerException if <tt>c</tt> is null
+     * @throws IllegalArgumentException if {@code c} is not an
+     *     {@code EnumSet} instance and contains no elements
+     * @throws NullPointerException if {@code c} is null
      */
     public static <E extends Enum<E>> EnumSet<E> copyOf(Collection<E> c) {
         if (c instanceof EnumSet) {
@@ -189,7 +192,7 @@ public abstract class EnumSet<E extends Enum<E>> extends AbstractSet<E>
      * @param <E> The class of the elements in the enum set
      * @param s the enum set from whose complement to initialize this enum set
      * @return The complement of the specified set in this set
-     * @throws NullPointerException if <tt>s</tt> is null
+     * @throws NullPointerException if {@code s} is null
      */
     public static <E extends Enum<E>> EnumSet<E> complementOf(EnumSet<E> s) {
         EnumSet<E> result = copyOf(s);
@@ -208,7 +211,7 @@ public abstract class EnumSet<E extends Enum<E>> extends AbstractSet<E>
      *
      * @param <E> The class of the specified element and of the set
      * @param e the element that this set is to contain initially
-     * @throws NullPointerException if <tt>e</tt> is null
+     * @throws NullPointerException if {@code e} is null
      * @return an enum set initially containing the specified element
      */
     public static <E extends Enum<E>> EnumSet<E> of(E e) {
@@ -330,7 +333,7 @@ public abstract class EnumSet<E extends Enum<E>> extends AbstractSet<E>
      * @param first an element that the set is to contain initially
      * @param rest the remaining elements the set is to contain initially
      * @throws NullPointerException if any of the specified elements are null,
-     *     or if <tt>rest</tt> is null
+     *     or if {@code rest} is null
      * @return an enum set initially containing the specified elements
      */
     @SafeVarargs
@@ -416,9 +419,12 @@ public abstract class EnumSet<E extends Enum<E>> extends AbstractSet<E>
      *
      * @serial include
      */
-    private static class SerializationProxy <E extends Enum<E>>
+    private static class SerializationProxy<E extends Enum<E>>
         implements java.io.Serializable
     {
+
+        private static final Enum<?>[] ZERO_LENGTH_ENUM_ARRAY = new Enum<?>[0];
+
         /**
          * The element type of this enum set.
          *
@@ -438,26 +444,60 @@ public abstract class EnumSet<E extends Enum<E>> extends AbstractSet<E>
             elements = set.toArray(ZERO_LENGTH_ENUM_ARRAY);
         }
 
-        // instead of cast to E, we should perhaps use elementType.cast()
-        // to avoid injection of forged stream, but it will slow the implementation
+        /**
+         * Returns an {@code EnumSet} object with initial state
+         * held by this proxy.
+         *
+         * @return a {@code EnumSet} object with initial state
+         * held by this proxy
+         */
         @SuppressWarnings("unchecked")
+        @java.io.Serial
         private Object readResolve() {
+            // instead of cast to E, we should perhaps use elementType.cast()
+            // to avoid injection of forged stream, but it will slow the
+            // implementation
             EnumSet<E> result = EnumSet.noneOf(elementType);
             for (Enum<?> e : elements)
                 result.add((E)e);
             return result;
         }
 
+        @java.io.Serial
         private static final long serialVersionUID = 362491234563181265L;
     }
 
+    /**
+     * Returns a
+     * <a href="{@docRoot}/serialized-form.html#java.util.EnumSet.SerializationProxy">
+     * SerializationProxy</a>
+     * representing the state of this instance.
+     *
+     * @return a {@link SerializationProxy}
+     * representing the state of this instance
+     */
+    @java.io.Serial
     Object writeReplace() {
         return new SerializationProxy<>(this);
     }
 
-    // readObject method for the serialization proxy pattern
-    // See Effective Java, Second Ed., Item 78.
-    private void readObject(java.io.ObjectInputStream stream)
+    /**
+     * Throws {@code InvalidObjectException}.
+     * @param s the stream
+     * @throws java.io.InvalidObjectException always
+     */
+    @java.io.Serial
+    private void readObject(java.io.ObjectInputStream s)
+        throws java.io.InvalidObjectException {
+        throw new java.io.InvalidObjectException("Proxy required");
+    }
+
+    /**
+     * Throws {@code InvalidObjectException}.
+     * @throws java.io.InvalidObjectException always
+     */
+    @java.io.Serial
+    private void readObjectNoData()
         throws java.io.InvalidObjectException {
         throw new java.io.InvalidObjectException("Proxy required");
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -24,11 +24,7 @@
  */
 package java.util.stream;
 
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.LongSummaryStatistics;
 import java.util.Objects;
 import java.util.OptionalDouble;
@@ -36,7 +32,6 @@ import java.util.OptionalLong;
 import java.util.PrimitiveIterator;
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.LongBinaryOperator;
@@ -170,6 +165,43 @@ public interface LongStream extends BaseStream<Long, LongStream> {
     LongStream flatMap(LongFunction<? extends LongStream> mapper);
 
     /**
+     * Returns a stream consisting of the results of replacing each element of
+     * this stream with multiple elements, specifically zero or more elements.
+     * Replacement is performed by applying the provided mapping function to each
+     * element in conjunction with a {@linkplain LongConsumer consumer} argument
+     * that accepts replacement elements. The mapping function calls the consumer
+     * zero or more times to provide the replacement elements.
+     *
+     * <p>This is an <a href="package-summary.html#StreamOps">intermediate
+     * operation</a>.
+     *
+     * <p>If the {@linkplain LongConsumer consumer} argument is used outside the scope of
+     * its application to the mapping function, the results are undefined.
+     *
+     * @implSpec
+     * The default implementation invokes {@link #flatMap flatMap} on this stream,
+     * passing a function that behaves as follows. First, it calls the mapper function
+     * with a {@code LongConsumer} that accumulates replacement elements into a newly created
+     * internal buffer. When the mapper function returns, it creates a {@code LongStream} from the
+     * internal buffer. Finally, it returns this stream to {@code flatMap}.
+     *
+     * @param mapper a <a href="package-summary.html#NonInterference">non-interfering</a>,
+     *               <a href="package-summary.html#Statelessness">stateless</a>
+     *               function that generates replacement elements
+     * @return the new stream
+     * @see Stream#mapMulti Stream.mapMulti
+     * @since 16
+     */
+    default LongStream mapMulti(LongMapMultiConsumer mapper) {
+        Objects.requireNonNull(mapper);
+        return flatMap(e -> {
+            SpinedBuffer.OfLong buffer = new SpinedBuffer.OfLong();
+            mapper.accept(e, buffer);
+            return StreamSupport.longStream(buffer.spliterator(), false);
+        });
+    }
+
+    /**
      * Returns a stream consisting of the distinct elements of this stream.
      *
      * <p>This is a <a href="package-summary.html#StreamOps">stateful
@@ -213,6 +245,11 @@ public interface LongStream extends BaseStream<Long, LongStream> {
      *         .peek(e -> System.out.println("Mapped value: " + e))
      *         .sum();
      * }</pre>
+     *
+     * <p>In cases where the stream implementation is able to optimize away the
+     * production of some or all the elements (such as with short-circuiting
+     * operations like {@code findFirst}, or in the example described in
+     * {@link #count}), the action will not be invoked for those elements.
      *
      * @param action a <a href="package-summary.html#NonInterference">
      *               non-interfering</a> action to perform on the elements as
@@ -276,6 +313,139 @@ public interface LongStream extends BaseStream<Long, LongStream> {
      * @throws IllegalArgumentException if {@code n} is negative
      */
     LongStream skip(long n);
+
+    /**
+     * Returns, if this stream is ordered, a stream consisting of the longest
+     * prefix of elements taken from this stream that match the given predicate.
+     * Otherwise returns, if this stream is unordered, a stream consisting of a
+     * subset of elements taken from this stream that match the given predicate.
+     *
+     * <p>If this stream is ordered then the longest prefix is a contiguous
+     * sequence of elements of this stream that match the given predicate.  The
+     * first element of the sequence is the first element of this stream, and
+     * the element immediately following the last element of the sequence does
+     * not match the given predicate.
+     *
+     * <p>If this stream is unordered, and some (but not all) elements of this
+     * stream match the given predicate, then the behavior of this operation is
+     * nondeterministic; it is free to take any subset of matching elements
+     * (which includes the empty set).
+     *
+     * <p>Independent of whether this stream is ordered or unordered if all
+     * elements of this stream match the given predicate then this operation
+     * takes all elements (the result is the same as the input), or if no
+     * elements of the stream match the given predicate then no elements are
+     * taken (the result is an empty stream).
+     *
+     * <p>This is a <a href="package-summary.html#StreamOps">short-circuiting
+     * stateful intermediate operation</a>.
+     *
+     * @implSpec
+     * The default implementation obtains the {@link #spliterator() spliterator}
+     * of this stream, wraps that spliterator so as to support the semantics
+     * of this operation on traversal, and returns a new stream associated with
+     * the wrapped spliterator.  The returned stream preserves the execution
+     * characteristics of this stream (namely parallel or sequential execution
+     * as per {@link #isParallel()}) but the wrapped spliterator may choose to
+     * not support splitting.  When the returned stream is closed, the close
+     * handlers for both the returned and this stream are invoked.
+     *
+     * @apiNote
+     * While {@code takeWhile()} is generally a cheap operation on sequential
+     * stream pipelines, it can be quite expensive on ordered parallel
+     * pipelines, since the operation is constrained to return not just any
+     * valid prefix, but the longest prefix of elements in the encounter order.
+     * Using an unordered stream source (such as
+     * {@link #generate(LongSupplier)}) or removing the ordering constraint with
+     * {@link #unordered()} may result in significant speedups of
+     * {@code takeWhile()} in parallel pipelines, if the semantics of your
+     * situation permit.  If consistency with encounter order is required, and
+     * you are experiencing poor performance or memory utilization with
+     * {@code takeWhile()} in parallel pipelines, switching to sequential
+     * execution with {@link #sequential()} may improve performance.
+     *
+     * @param predicate a <a href="package-summary.html#NonInterference">non-interfering</a>,
+     *                  <a href="package-summary.html#Statelessness">stateless</a>
+     *                  predicate to apply to elements to determine the longest
+     *                  prefix of elements.
+     * @return the new stream
+     * @since 9
+     */
+    default LongStream takeWhile(LongPredicate predicate) {
+        Objects.requireNonNull(predicate);
+        // Reuses the unordered spliterator, which, when encounter is present,
+        // is safe to use as long as it configured not to split
+        return StreamSupport.longStream(
+                new WhileOps.UnorderedWhileSpliterator.OfLong.Taking(spliterator(), true, predicate),
+                isParallel()).onClose(this::close);
+    }
+
+    /**
+     * Returns, if this stream is ordered, a stream consisting of the remaining
+     * elements of this stream after dropping the longest prefix of elements
+     * that match the given predicate.  Otherwise returns, if this stream is
+     * unordered, a stream consisting of the remaining elements of this stream
+     * after dropping a subset of elements that match the given predicate.
+     *
+     * <p>If this stream is ordered then the longest prefix is a contiguous
+     * sequence of elements of this stream that match the given predicate.  The
+     * first element of the sequence is the first element of this stream, and
+     * the element immediately following the last element of the sequence does
+     * not match the given predicate.
+     *
+     * <p>If this stream is unordered, and some (but not all) elements of this
+     * stream match the given predicate, then the behavior of this operation is
+     * nondeterministic; it is free to drop any subset of matching elements
+     * (which includes the empty set).
+     *
+     * <p>Independent of whether this stream is ordered or unordered if all
+     * elements of this stream match the given predicate then this operation
+     * drops all elements (the result is an empty stream), or if no elements of
+     * the stream match the given predicate then no elements are dropped (the
+     * result is the same as the input).
+     *
+     * <p>This is a <a href="package-summary.html#StreamOps">stateful
+     * intermediate operation</a>.
+     *
+     * @implSpec
+     * The default implementation obtains the {@link #spliterator() spliterator}
+     * of this stream, wraps that spliterator so as to support the semantics
+     * of this operation on traversal, and returns a new stream associated with
+     * the wrapped spliterator.  The returned stream preserves the execution
+     * characteristics of this stream (namely parallel or sequential execution
+     * as per {@link #isParallel()}) but the wrapped spliterator may choose to
+     * not support splitting.  When the returned stream is closed, the close
+     * handlers for both the returned and this stream are invoked.
+     *
+     * @apiNote
+     * While {@code dropWhile()} is generally a cheap operation on sequential
+     * stream pipelines, it can be quite expensive on ordered parallel
+     * pipelines, since the operation is constrained to return not just any
+     * valid prefix, but the longest prefix of elements in the encounter order.
+     * Using an unordered stream source (such as
+     * {@link #generate(LongSupplier)}) or removing the ordering constraint with
+     * {@link #unordered()} may result in significant speedups of
+     * {@code dropWhile()} in parallel pipelines, if the semantics of your
+     * situation permit.  If consistency with encounter order is required, and
+     * you are experiencing poor performance or memory utilization with
+     * {@code dropWhile()} in parallel pipelines, switching to sequential
+     * execution with {@link #sequential()} may improve performance.
+     *
+     * @param predicate a <a href="package-summary.html#NonInterference">non-interfering</a>,
+     *                  <a href="package-summary.html#Statelessness">stateless</a>
+     *                  predicate to apply to elements to determine the longest
+     *                  prefix of elements.
+     * @return the new stream
+     * @since 9
+     */
+    default LongStream dropWhile(LongPredicate predicate) {
+        Objects.requireNonNull(predicate);
+        // Reuses the unordered spliterator, which, when encounter is present,
+        // is safe to use as long as it configured not to split
+        return StreamSupport.longStream(
+                new WhileOps.UnorderedWhileSpliterator.OfLong.Dropping(spliterator(), true, predicate),
+                isParallel()).onClose(this::close);
+    }
 
     /**
      * Performs an action for each element of this stream.
@@ -431,19 +601,23 @@ public interface LongStream extends BaseStream<Long, LongStream> {
      * <p>This is a <a href="package-summary.html#StreamOps">terminal
      * operation</a>.
      *
-     * @param <R> type of the result
-     * @param supplier a function that creates a new result container. For a
-     *                 parallel execution, this function may be called
+     * @param <R> the type of the mutable result container
+     * @param supplier a function that creates a new mutable result container.
+     *                 For a parallel execution, this function may be called
      *                 multiple times and must return a fresh value each time.
      * @param accumulator an <a href="package-summary.html#Associativity">associative</a>,
      *                    <a href="package-summary.html#NonInterference">non-interfering</a>,
      *                    <a href="package-summary.html#Statelessness">stateless</a>
-     *                    function for incorporating an additional element into a result
+     *                    function that must fold an element into a result
+     *                    container.
      * @param combiner an <a href="package-summary.html#Associativity">associative</a>,
      *                    <a href="package-summary.html#NonInterference">non-interfering</a>,
      *                    <a href="package-summary.html#Statelessness">stateless</a>
-     *                    function for combining two values, which must be
-     *                    compatible with the accumulator function
+     *                    function that accepts two partial result containers
+     *                    and merges them, which must be compatible with the
+     *                    accumulator function.  The combiner function must fold
+     *                    the elements from the second result container into the
+     *                    first result container.
      * @return the result of the reduction
      * @see Stream#collect(Supplier, BiConsumer, BiConsumer)
      */
@@ -508,6 +682,24 @@ public interface LongStream extends BaseStream<Long, LongStream> {
      * }</pre>
      *
      * <p>This is a <a href="package-summary.html#StreamOps">terminal operation</a>.
+     *
+     * @apiNote
+     * An implementation may choose to not execute the stream pipeline (either
+     * sequentially or in parallel) if it is capable of computing the count
+     * directly from the stream source.  In such cases no source elements will
+     * be traversed and no intermediate operations will be evaluated.
+     * Behavioral parameters with side-effects, which are strongly discouraged
+     * except for harmless cases such as debugging, may be affected.  For
+     * example, consider the following stream:
+     * <pre>{@code
+     *     LongStream s = LongStream.of(1, 2, 3, 4);
+     *     long count = s.peek(System.out::println).count();
+     * }</pre>
+     * The number of elements covered by the stream source is known and the
+     * intermediate operation, {@code peek}, does not inject into or remove
+     * elements from the stream (as may be the case for {@code flatMap} or
+     * {@code filter} operations).  Thus the count is 4 and there is no need to
+     * execute the pipeline and, as a side-effect, print out the elements.
      *
      * @return the count of elements in this stream
      */
@@ -726,6 +918,12 @@ public interface LongStream extends BaseStream<Long, LongStream> {
      * {@code n}, will be the result of applying the function {@code f} to the
      * element at position {@code n - 1}.
      *
+     * <p>The action of applying {@code f} for one element
+     * <a href="../concurrent/package-summary.html#MemoryVisibility"><i>happens-before</i></a>
+     * the action of applying {@code f} for subsequent elements.  For any given
+     * element the action may be performed in whatever thread the library
+     * chooses.
+     *
      * @param seed the initial element
      * @param f a function to be applied to the previous element to produce
      *          a new element
@@ -733,24 +931,107 @@ public interface LongStream extends BaseStream<Long, LongStream> {
      */
     public static LongStream iterate(final long seed, final LongUnaryOperator f) {
         Objects.requireNonNull(f);
-        final PrimitiveIterator.OfLong iterator = new PrimitiveIterator.OfLong() {
-            long t = seed;
+        Spliterator.OfLong spliterator = new Spliterators.AbstractLongSpliterator(Long.MAX_VALUE,
+               Spliterator.ORDERED | Spliterator.IMMUTABLE | Spliterator.NONNULL) {
+            long prev;
+            boolean started;
 
             @Override
-            public boolean hasNext() {
+            public boolean tryAdvance(LongConsumer action) {
+                Objects.requireNonNull(action);
+                long t;
+                if (started)
+                    t = f.applyAsLong(prev);
+                else {
+                    t = seed;
+                    started = true;
+                }
+                action.accept(prev = t);
+                return true;
+            }
+        };
+        return StreamSupport.longStream(spliterator, false);
+    }
+
+    /**
+     * Returns a sequential ordered {@code LongStream} produced by iterative
+     * application of the given {@code next} function to an initial element,
+     * conditioned on satisfying the given {@code hasNext} predicate.  The
+     * stream terminates as soon as the {@code hasNext} predicate returns false.
+     *
+     * <p>{@code LongStream.iterate} should produce the same sequence of elements as
+     * produced by the corresponding for-loop:
+     * <pre>{@code
+     *     for (long index=seed; hasNext.test(index); index = next.applyAsLong(index)) {
+     *         ...
+     *     }
+     * }</pre>
+     *
+     * <p>The resulting sequence may be empty if the {@code hasNext} predicate
+     * does not hold on the seed value.  Otherwise the first element will be the
+     * supplied {@code seed} value, the next element (if present) will be the
+     * result of applying the {@code next} function to the {@code seed} value,
+     * and so on iteratively until the {@code hasNext} predicate indicates that
+     * the stream should terminate.
+     *
+     * <p>The action of applying the {@code hasNext} predicate to an element
+     * <a href="../concurrent/package-summary.html#MemoryVisibility"><i>happens-before</i></a>
+     * the action of applying the {@code next} function to that element.  The
+     * action of applying the {@code next} function for one element
+     * <i>happens-before</i> the action of applying the {@code hasNext}
+     * predicate for subsequent elements.  For any given element an action may
+     * be performed in whatever thread the library chooses.
+     *
+     * @param seed the initial element
+     * @param hasNext a predicate to apply to elements to determine when the
+     *                stream must terminate.
+     * @param next a function to be applied to the previous element to produce
+     *             a new element
+     * @return a new sequential {@code LongStream}
+     * @since 9
+     */
+    public static LongStream iterate(long seed, LongPredicate hasNext, LongUnaryOperator next) {
+        Objects.requireNonNull(next);
+        Objects.requireNonNull(hasNext);
+        Spliterator.OfLong spliterator = new Spliterators.AbstractLongSpliterator(Long.MAX_VALUE,
+               Spliterator.ORDERED | Spliterator.IMMUTABLE | Spliterator.NONNULL) {
+            long prev;
+            boolean started, finished;
+
+            @Override
+            public boolean tryAdvance(LongConsumer action) {
+                Objects.requireNonNull(action);
+                if (finished)
+                    return false;
+                long t;
+                if (started)
+                    t = next.applyAsLong(prev);
+                else {
+                    t = seed;
+                    started = true;
+                }
+                if (!hasNext.test(t)) {
+                    finished = true;
+                    return false;
+                }
+                action.accept(prev = t);
                 return true;
             }
 
             @Override
-            public long nextLong() {
-                long v = t;
-                t = f.applyAsLong(t);
-                return v;
+            public void forEachRemaining(LongConsumer action) {
+                Objects.requireNonNull(action);
+                if (finished)
+                    return;
+                finished = true;
+                long t = started ? next.applyAsLong(prev) : seed;
+                while (hasNext.test(t)) {
+                    action.accept(t);
+                    t = next.applyAsLong(t);
+                }
             }
         };
-        return StreamSupport.longStream(Spliterators.spliteratorUnknownSize(
-                iterator,
-                Spliterator.ORDERED | Spliterator.IMMUTABLE | Spliterator.NONNULL), false);
+        return StreamSupport.longStream(spliterator, false);
     }
 
     /**
@@ -842,10 +1123,26 @@ public interface LongStream extends BaseStream<Long, LongStream> {
      * streams is parallel.  When the resulting stream is closed, the close
      * handlers for both input streams are invoked.
      *
+     * <p>This method operates on the two input streams and binds each stream
+     * to its source.  As a result subsequent modifications to an input stream
+     * source may not be reflected in the concatenated stream result.
+     *
      * @implNote
      * Use caution when constructing streams from repeated concatenation.
      * Accessing an element of a deeply concatenated stream can result in deep
-     * call chains, or even {@code StackOverflowException}.
+     * call chains, or even {@code StackOverflowError}.
+     *
+     * @apiNote
+     * To preserve optimization opportunities this method binds each stream to
+     * its source and accepts only two streams as parameters.  For example, the
+     * exact size of the concatenated stream source can be computed if the exact
+     * size of each input stream source is known.
+     * To concatenate more streams without binding, or without nested calls to
+     * this method, try creating a stream of streams and flat-mapping with the
+     * identity function, for example:
+     * <pre>{@code
+     *     LongStream concat = Stream.of(s1, s2, s3, s4).flatMapToLong(s -> s);
+     * }</pre>
      *
      * @param a the first stream
      * @param b the second stream
@@ -916,5 +1213,31 @@ public interface LongStream extends BaseStream<Long, LongStream> {
          * to the built state
          */
         LongStream build();
+    }
+
+    /**
+     * Represents an operation that accepts a {@code long}-valued argument
+     * and a LongConsumer, and returns no result. This functional interface is
+     * used by {@link LongStream#mapMulti(LongStream.LongMapMultiConsumer) LongStream.mapMulti}
+     * to replace a long value with zero or more long values.
+     *
+     * <p>This is a <a href="../function/package-summary.html">functional interface</a>
+     * whose functional method is {@link #accept(long, LongConsumer)}.
+     *
+     * @see LongStream#mapMulti(LongStream.LongMapMultiConsumer)
+     *
+     * @since 16
+     */
+    @FunctionalInterface
+    interface LongMapMultiConsumer {
+
+        /**
+         * Replaces the given {@code value} with zero or more values by feeding the mapped
+         * values to the {@code lc} consumer.
+         *
+         * @param value the long value coming from upstream
+         * @param lc a {@code LongConsumer} accepting the mapped values
+         */
+        void accept(long value, LongConsumer lc);
     }
 }
