@@ -2666,13 +2666,13 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
         Node<K,V> b; int n;
         if (tab != null) {
             if ((n = tab.length) < MIN_TREEIFY_CAPACITY)
-                tryPresize(n << 1);
+                tryPresize(n << 1); // 数组长度小于阈值 64，则不做红黑树转换，直接扩容
             else if ((b = tabAt(tab, index)) != null && b.hash >= 0) {
-                synchronized (b) {
+                synchronized (b) { // 链表转换成红黑树
                     if (tabAt(tab, index) == b) {
                         TreeNode<K,V> hd = null, tl = null;
                         for (Node<K,V> e = b; e != null; e = e.next) {
-                            TreeNode<K,V> p =
+                            TreeNode<K,V> p = // 遍历链表，构建红黑树
                                 new TreeNode<K,V>(e.hash, e.key, e.val,
                                                   null, null);
                             if ((p.prev = tl) == null)

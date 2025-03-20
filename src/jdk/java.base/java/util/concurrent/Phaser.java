@@ -830,7 +830,7 @@ public class Phaser {
      * @return the phase number, or a negative value if terminated
      */
     public final int getPhase() {
-        return (int)(root.state >>> PHASE_SHIFT);
+        return (int)(root.state >>> PHASE_SHIFT); // 获取当前轮数
     }
 
     /**

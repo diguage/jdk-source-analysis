@@ -266,8 +266,11 @@ public class ReentrantReadWriteLock
         static final int EXCLUSIVE_MASK = (1 << SHARED_SHIFT) - 1;
 
         /** Returns the number of shared holds represented in count. */
+        // 持有读锁的线程重入次数 TODO 重入次数？不是读锁的并发线程数？
+        // 高 16 位用于记录读锁
         static int sharedCount(int c)    { return c >>> SHARED_SHIFT; }
         /** Returns the number of exclusive holds represented in count. */
+        // 持有写锁的线程重入次数。低 16 位用于记录写锁
         static int exclusiveCount(int c) { return c & EXCLUSIVE_MASK; }
 
         /**
@@ -374,6 +377,8 @@ public class ReentrantReadWriteLock
             boolean free = exclusiveCount(nextc) == 0;
             if (free)
                 setExclusiveOwnerThread(null);
+            // 写锁是排他锁，在当前线程持有写锁时，其他线程不会有写锁，
+            // 也不会有读锁，所以可以直接 set，无需加锁或 CAS
             setState(nextc);
             return free;
         }
@@ -401,10 +406,11 @@ public class ReentrantReadWriteLock
                 if (w + exclusiveCount(acquires) > MAX_COUNT)
                     throw new Error("Maximum lock count exceeded");
                 // Reentrant acquire
-                setState(c + acquires);
+                setState(c + acquires); // 记录写锁重入次数
                 return true;
             }
-            if (writerShouldBlock() ||
+            // 只有当 state == 0 时，写锁才可以直接抢
+            if (writerShouldBlock() || // 写锁是否可以被阻塞，可以则去排队，不可以则直接抢锁
                 !compareAndSetState(c, c + acquires))
                 return false;
             setExclusiveOwnerThread(current);
@@ -436,6 +442,7 @@ public class ReentrantReadWriteLock
             for (;;) {
                 int c = getState();
                 int nextc = c - SHARED_UNIT;
+                // 由于读锁有很多线程持有，那么就需要不断自旋使用 CAS 来设置 state
                 if (compareAndSetState(c, nextc))
                     // Releasing the read lock has no effect on readers,
                     // but it may allow waiting writers to proceed if
@@ -468,14 +475,15 @@ public class ReentrantReadWriteLock
              */
             Thread current = Thread.currentThread();
             int c = getState();
+            // 写锁已经被抢，且持锁线程不是当前线程，读锁肯定抢不到，直接返回
             if (exclusiveCount(c) != 0 &&
                 getExclusiveOwnerThread() != current)
                 return -1;
             int r = sharedCount(c);
-            if (!readerShouldBlock() &&
-                r < MAX_COUNT &&
-                compareAndSetState(c, c + SHARED_UNIT)) {
-                if (r == 0) {
+            if (!readerShouldBlock() && // 读锁不被阻塞
+                r < MAX_COUNT &&        // 且并发线程数少于最大阈值
+                compareAndSetState(c, c + SHARED_UNIT)) { // 抢锁成功
+                if (r == 0) { // 第一个拿到读锁的线程
                     firstReader = current;
                     firstReaderHoldCount = 1;
                 } else if (firstReader == current) {
@@ -491,6 +499,7 @@ public class ReentrantReadWriteLock
                 }
                 return 1;
             }
+            // 抢锁失败，则不断自旋去抢读锁
             return fullTryAcquireShared(current);
         }
 
@@ -680,6 +689,8 @@ public class ReentrantReadWriteLock
     static final class NonfairSync extends Sync {
         private static final long serialVersionUID = -8159625535654395037L;
         final boolean writerShouldBlock() {
+            // 写锁是否可以被阻塞，不可以则直接抢锁。
+            // 写锁不被阻塞就可以直接抢锁，则是非公平锁
             return false; // writers can always barge
         }
         final boolean readerShouldBlock() {
@@ -690,6 +701,7 @@ public class ReentrantReadWriteLock
              * block if there is a waiting writer behind other enabled
              * readers that have not yet drained from the queue.
              */
+            // 如果第一个元素是写锁，则就要阻塞，否则可以直接抢锁
             return apparentlyFirstQueuedIsExclusive();
         }
     }
@@ -904,7 +916,7 @@ public class ReentrantReadWriteLock
          * @throws UnsupportedOperationException always
          */
         public Condition newCondition() {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException(); // 读锁不支持创建 Condition
         }
 
         /**

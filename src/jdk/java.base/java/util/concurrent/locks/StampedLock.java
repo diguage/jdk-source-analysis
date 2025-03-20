@@ -239,7 +239,7 @@ import jdk.internal.vm.annotation.ReservedStackAccess;
  * @since 1.8
  * @author Doug Lea
  */
-public class StampedLock implements java.io.Serializable {
+public class StampedLock implements java.io.Serializable { // 读写也不互斥
     /*
      * Algorithmic notes:
      *
@@ -314,10 +314,11 @@ public class StampedLock implements java.io.Serializable {
 
     // Values for lock state and stamp operations
     private static final long RUNIT = 1L;
+    // 第 8 位表示写锁。写锁只有 1 位，不可重入
     private static final long WBIT  = 1L << LG_READERS;
-    private static final long RBITS = WBIT - 1L;
-    private static final long RFULL = RBITS - 1L;
-    private static final long ABITS = RBITS | WBIT;
+    private static final long RBITS = WBIT - 1L; // 最低的 7 位表示读锁，最多 127 个读线程并发
+    private static final long RFULL = RBITS - 1L; // 读锁的数量
+    private static final long ABITS = RBITS | WBIT; // 读写状态合并
     private static final long SBITS = ~RBITS; // note overlap with ABITS
     // not writing and conservatively non-overflowing
     private static final long RSAFE = ~(3L << (LG_READERS - 1));
@@ -636,7 +637,7 @@ public class StampedLock implements java.io.Serializable {
      * since issuance of the given stamp; else false
      */
     public boolean validate(long stamp) {
-        U.loadFence();
+        U.loadFence(); // 内存屏障
         return (stamp & SBITS) == (state & SBITS);
     }
 
@@ -1203,7 +1204,7 @@ public class StampedLock implements java.io.Serializable {
         boolean interrupted = false, first = false;
         WriterNode node = null;
         Node pred = null;
-        for (long s, nextState;;) {
+        for (long s, nextState;;) { // 入队时自旋
             if (!first && (pred = (node == null) ? null : node.prev) != null &&
                 !(first = (head == pred))) {
                 if (pred.status < 0) {

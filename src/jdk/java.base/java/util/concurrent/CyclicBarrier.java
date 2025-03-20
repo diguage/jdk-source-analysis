@@ -209,28 +209,28 @@ public class CyclicBarrier {
             if (g.broken)
                 throw new BrokenBarrierException();
 
-            if (Thread.interrupted()) {
-                breakBarrier();
+            if (Thread.interrupted()) { // 响应中断
+                breakBarrier(); // 唤醒所有阻塞的线程
                 throw new InterruptedException();
             }
 
-            int index = --count;
-            if (index == 0) {  // tripped
+            int index = --count; // 线程每次调用 await 时，count 都减一
+            if (index == 0) {  // tripped // count == 0，则唤醒所有等待线程
                 Runnable command = barrierCommand;
                 if (command != null) {
                     try {
-                        command.run();
+                        command.run(); // 执行回调
                     } catch (Throwable ex) {
-                        breakBarrier();
+                        breakBarrier(); // 唤醒所有阻塞的线程
                         throw ex;
                     }
                 }
-                nextGeneration();
+                nextGeneration(); // 唤醒所有线程，然后把 count 复原，进入下一个迭代。
                 return 0;
             }
 
             // loop until tripped, broken, interrupted, or timed out
-            for (;;) {
+            for (;;) { // count > 0，说明没有到齐，则阻塞自己
                 try {
                     if (!timed)
                         trip.await();
@@ -238,7 +238,7 @@ public class CyclicBarrier {
                         nanos = trip.awaitNanos(nanos);
                 } catch (InterruptedException ie) {
                     if (g == generation && ! g.broken) {
-                        breakBarrier();
+                        breakBarrier(); // 唤醒所有阻塞的线程
                         throw ie;
                     } else {
                         // We're about to finish waiting even if we had not
@@ -251,11 +251,11 @@ public class CyclicBarrier {
                 if (g.broken)
                     throw new BrokenBarrierException();
 
-                if (g != generation)
+                if (g != generation) // 从阻塞中唤醒，返回
                     return index;
 
                 if (timed && nanos <= 0L) {
-                    breakBarrier();
+                    breakBarrier(); // 唤醒所有阻塞的线程
                     throw new TimeoutException();
                 }
             }

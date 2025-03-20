@@ -225,9 +225,9 @@ public class ScheduledThreadPoolExecutor
         ScheduledFutureTask(Runnable r, V result, long triggerTime,
                             long period, long sequenceNumber) {
             super(r, result);
-            this.time = triggerTime;
-            this.period = period;
-            this.sequenceNumber = sequenceNumber;
+            this.time = triggerTime; // 延迟时间
+            this.period = period; // 周期
+            this.sequenceNumber = sequenceNumber; // 序列号
         }
 
         /**
@@ -255,7 +255,7 @@ public class ScheduledThreadPoolExecutor
                     return -1;
                 else if (diff > 0)
                     return 1;
-                else if (sequenceNumber < x.sequenceNumber)
+                else if (sequenceNumber < x.sequenceNumber) // 如果延迟时间相等，则再进一步比较序号
                     return -1;
                 else
                     return 1;
@@ -275,12 +275,15 @@ public class ScheduledThreadPoolExecutor
 
         /**
          * Sets the next time to run for a periodic task.
+         * 设置下次执行时间
          */
         private void setNextRunTime() {
             long p = period;
             if (p > 0)
+                // AtFixedRate 时，p > 0，下次执行时间是上次任务开始时间 + period，即固定周期
                 time += p;
             else
+                // WithFixedDelay 时，p < 0，下次执行时间是上次任务结束时间 + period，即固定延迟
                 time = triggerTime(-p);
         }
 
@@ -300,10 +303,11 @@ public class ScheduledThreadPoolExecutor
         public void run() {
             if (!canRunInCurrentRunState(this))
                 cancel(false);
-            else if (!isPeriodic())
+            else if (!isPeriodic()) // 不是周期性的，则执行一次就结束
                 super.run();
             else if (super.runAndReset()) {
-                setNextRunTime();
+                // 周期性的任务，执行完之后，重新计算延迟时间，然后再仍会队列
+                setNextRunTime(); // 设置下次执行时间
                 reExecutePeriodic(outerTask);
             }
         }
@@ -339,7 +343,7 @@ public class ScheduledThreadPoolExecutor
         if (isShutdown())
             reject(task);
         else {
-            super.getQueue().add(task);
+            super.getQueue().add(task); // 将 ScheduledFutureTask 对象添加到等待队列
             if (!canRunInCurrentRunState(task) && remove(task))
                 task.cancel(false);
             else
@@ -625,7 +629,7 @@ public class ScheduledThreadPoolExecutor
             new ScheduledFutureTask<Void>(command,
                                           null,
                                           triggerTime(initialDelay, unit),
-                                          unit.toNanos(period),
+                                          unit.toNanos(period), // 注意：正数
                                           sequencer.getAndIncrement());
         RunnableScheduledFuture<Void> t = decorateTask(command, sft);
         sft.outerTask = t;
@@ -673,7 +677,7 @@ public class ScheduledThreadPoolExecutor
             new ScheduledFutureTask<Void>(command,
                                           null,
                                           triggerTime(initialDelay, unit),
-                                          -unit.toNanos(delay),
+                                          -unit.toNanos(delay), // 注意：负数
                                           sequencer.getAndIncrement());
         RunnableScheduledFuture<Void> t = decorateTask(command, sft);
         sft.outerTask = t;

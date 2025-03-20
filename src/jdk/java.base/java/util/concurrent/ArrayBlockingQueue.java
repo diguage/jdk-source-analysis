@@ -117,6 +117,7 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
      * found in any textbook.
      */
 
+    // 一把锁 lock，两个条件 notEmpty + notFull
     /** Main lock guarding all access */
     final ReentrantLock lock;
 
@@ -184,7 +185,7 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         items[putIndex] = e;
         if (++putIndex == items.length) putIndex = 0;
         count++;
-        notEmpty.signal();
+        notEmpty.signal(); // 入队成功，则通知非空条件
     }
 
     /**
@@ -203,7 +204,7 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         count--;
         if (itrs != null)
             itrs.elementDequeued();
-        notFull.signal();
+        notFull.signal(); // 出队成功，则通知非满条件
         return e;
     }
 
@@ -271,6 +272,7 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         if (capacity <= 0)
             throw new IllegalArgumentException();
         this.items = new Object[capacity];
+        // 在构造函数中初始化锁和条件
         lock = new ReentrantLock(fair);
         notEmpty = lock.newCondition();
         notFull =  lock.newCondition();
@@ -367,7 +369,7 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         lock.lockInterruptibly();
         try {
             while (count == items.length)
-                notFull.await();
+                notFull.await(); // 当 put 时，队列已满，阻塞在“非满”条件
             enqueue(e);
         } finally {
             lock.unlock();
@@ -417,7 +419,7 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         lock.lockInterruptibly();
         try {
             while (count == 0)
-                notEmpty.await();
+                notEmpty.await(); // take 时，如果队列为空，则阻塞在“非空”条件上
             return dequeue();
         } finally {
             lock.unlock();

@@ -607,6 +607,7 @@ public abstract class AbstractQueuedSynchronizer
         if (node != null) {
             boolean unpark = false;
             for (Node t;;) {
+                // 如果是等待队列首个节点，则最后调用 unpark 唤醒等待
                 if ((t = tail) == null && (t = tryInitializeHead()) == null) {
                     unpark = true;             // wake up to spin on OOME
                     break;
@@ -986,7 +987,7 @@ public abstract class AbstractQueuedSynchronizer
      *        can represent anything you like.
      */
     public final void acquire(int arg) {
-        if (!tryAcquire(arg))
+        if (!tryAcquire(arg)) // 再次尝试抢锁，没有拿到，则入队等待。tryAcquire 被各种 Sync 子类实现
             acquire(null, arg, false, false, false, 0L);
     }
 
@@ -1056,8 +1057,8 @@ public abstract class AbstractQueuedSynchronizer
      * @return the value returned from {@link #tryRelease}
      */
     public final boolean release(int arg) {
-        if (tryRelease(arg)) {
-            signalNext(head);
+        if (tryRelease(arg)) { // 尝试释放锁。tryRelease 被各种 Sync 子类实现
+            signalNext(head); // 唤醒后面的等待线程
             return true;
         }
         return false;
@@ -1075,7 +1076,7 @@ public abstract class AbstractQueuedSynchronizer
      *        and can represent anything you like.
      */
     public final void acquireShared(int arg) {
-        if (tryAcquireShared(arg) < 0)
+        if (tryAcquireShared(arg) < 0) // 尝试抢锁，失败则排队。tryAcquireShared 被各种 Sync 子类实现
             acquire(null, arg, true, false, false, 0L);
     }
 
@@ -1143,8 +1144,8 @@ public abstract class AbstractQueuedSynchronizer
      * @return the value returned from {@link #tryReleaseShared}
      */
     public final boolean releaseShared(int arg) {
-        if (tryReleaseShared(arg)) {
-            signalNext(head);
+        if (tryReleaseShared(arg)) { // 尝试释放锁。 tryReleaseShared 被各种 Sync 子类实现
+            signalNext(head); // 唤醒下一个等待线程
             return true;
         }
         return false;
@@ -1513,7 +1514,7 @@ public abstract class AbstractQueuedSynchronizer
                     first.nextWaiter = null; // GC assistance
 
                 if ((first.getAndUnsetStatus(COND) & COND) != 0) {
-                    enqueue(first);
+                    enqueue(first); // 把条件节点加入到等待队列中
                     if (!all)
                         break;
                 }
@@ -1532,9 +1533,9 @@ public abstract class AbstractQueuedSynchronizer
          */
         public final void signal() {
             ConditionNode first = firstWaiter;
-            if (!isHeldExclusively())
+            if (!isHeldExclusively()) // 只有持有锁，才可以调用 signal()
                 throw new IllegalMonitorStateException();
-            else if (first != null)
+            else if (first != null) // 条件队列第一个元素不为空，则去唤醒
                 doSignal(first, false);
         }
 
@@ -1572,7 +1573,7 @@ public abstract class AbstractQueuedSynchronizer
                     last.nextWaiter = node;
                 lastWaiter = node;
                 int savedState = getState();
-                if (release(savedState))
+                if (release(savedState)) // 释放锁
                     return savedState;
             }
             node.status = CANCELLED; // lock not held or inconsistent
@@ -1651,11 +1652,11 @@ public abstract class AbstractQueuedSynchronizer
             ConditionNode node = newConditionNode();
             if (node == null)
                 return;
-            int savedState = enableWait(node);
+            int savedState = enableWait(node); // 释放锁
             LockSupport.setCurrentBlocker(this); // for back-compatibility
             boolean interrupted = false, rejected = false;
             while (!canReacquire(node)) {
-                if (Thread.interrupted())
+                if (Thread.interrupted()) // 收到中断，不退出，只是记录一下，然后继续循环
                     interrupted = true;
                 else if ((node.status & COND) != 0) {
                     try {
@@ -1692,12 +1693,12 @@ public abstract class AbstractQueuedSynchronizer
          * </ol>
          */
         public final void await() throws InterruptedException {
-            if (Thread.interrupted())
+            if (Thread.interrupted()) // 收到中断信号，则抛出异常
                 throw new InterruptedException();
-            ConditionNode node = newConditionNode();
+            ConditionNode node = newConditionNode(); // 加入到条件队列
             if (node == null)
                 return;
-            int savedState = enableWait(node);
+            int savedState = enableWait(node); // 阻塞之前，要先释放锁，否则会造成死锁
             LockSupport.setCurrentBlocker(this); // for back-compatibility
             boolean interrupted = false, cancelled = false, rejected = false;
             while (!canReacquire(node)) {
@@ -1707,13 +1708,13 @@ public abstract class AbstractQueuedSynchronizer
                 } else if ((node.status & COND) != 0) {
                     try {
                         if (rejected)
-                            node.block();
+                            node.block(); // 阻塞自己，方法内调用 LockSupport.park 方法
                         else
                             ForkJoinPool.managedBlock(node);
                     } catch (RejectedExecutionException ex) {
                         rejected = true;
                     } catch (InterruptedException ie) {
-                        interrupted = true;
+                        interrupted = true; // 响应中断，如果发现中断，则直接报错，退出循环
                     }
                 } else
                     Thread.onSpinWait();    // awoke while enqueuing
@@ -1721,7 +1722,7 @@ public abstract class AbstractQueuedSynchronizer
             LockSupport.setCurrentBlocker(null);
             node.clearStatus();
             acquire(node, savedState, false, false, false, 0L);
-            if (interrupted) {
+            if (interrupted) { // 响应中断，如果发现中断，则直接报错，退出
                 if (cancelled) {
                     unlinkCancelledWaiters(node);
                     throw new InterruptedException();
