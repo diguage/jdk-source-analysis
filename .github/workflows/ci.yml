@@ -16,7 +16,7 @@ jobs:
           node-version: 'lts/*'
 
       # https://github.com/actions/checkout
-      - name: Checkout
+      - name: Checkout 🛎️
         uses: actions/checkout@v4
         with:
           persist-credentials: false
@@ -25,14 +25,136 @@ jobs:
       - name: Set up JDK ☕️
         uses: actions/setup-java@v4
         with:
-          distribution: 'corretto'
           java-version: '21'
+          distribution: 'corretto'
           cache: 'maven'
 
-      - name: Install Graphviz 🐰
+      # https://github.com/marketplace/actions/docker-setup-docker
+      - name: Setup Docker 🐳
+        uses: docker/setup-docker-action@v4
+
+      - name: Add Watermark to Images 🎖
         run: |
-          sudo apt update -y -m
-          sudo apt install -y graphviz
+          docker pull dpokidov/imagemagick
+          
+          cd docs/assets
+          wget https://github.com/diguage/open-fonts/releases/download/latest/SourceCodePro-Semibold.otf
+          BASEDIR=$( pwd )/
+          
+          # 异步加水印
+          # JPG
+          echo " "
+          echo -e "\n\n$(date +%T) start to add watermark to JPG"
+          find . -type f -name "*.jpg" | grep -v "wx-jikerizhi-qrcode.jpg\|wx-jikerizhi.jpg\|wxpay.jpg" | sed "s/.jpg$//g" | xargs -I {} docker run --rm -v ${BASEDIR}:/imgs dpokidov/imagemagick -compress JPEG2000 -strip -thumbnail "1200x>" -quality 75 -font /imgs/SourceCodePro-Semibold.otf -pointsize 30 -gravity southeast -fill "#DE282A" -draw 'text 15,18 "https://www.diguage.com"' /imgs/{}.jpg /imgs/{}-mark.jpg 1>/dev/null 2>&1 &
+          
+          wait
+          echo -e "$(date +%T) finish adding watermark to JPG...\n\n"
+          echo " "
+          find . -type f -name "*.jpg" | xargs ls -l -h
+          echo " "
+          echo -e "\n\n$(date +%T) --start to replace JPG----------------------"
+          for f in `find . -type f -name "*-mark.jpg"`;
+          do
+            name=`echo $f | sed "s/-mark.jpg//g"`
+            echo "replace ${f} to ${name}.jpeg"
+            rm -rf "${name}.jpg"
+            mv "${f}" "${name}.jpg"
+          done
+          echo -e "$(date +%T) --finish replacing JPG----------------------\n\n"
+          echo " "
+          find . -type f -name "*.jpg" | xargs ls -l -h
+          
+          # JPEG
+          echo " "
+          echo -e "\n\n$(date +%T) start to add watermark to JPEG"
+          find . -type f -name "*.jpeg" | sed "s/.jpeg$//g" | xargs -I {} docker run --rm -v ${BASEDIR}:/imgs dpokidov/imagemagick -compress JPEG2000 -strip -thumbnail "1200x>" -quality 75 -font /imgs/SourceCodePro-Semibold.otf -pointsize 30 -gravity southeast -fill "#DE282A" -draw 'text 15,18 "https://www.diguage.com"' /imgs/{}.jpeg /imgs/{}-mark.jpeg 1>/dev/null 2>&1 &
+          
+          wait
+          echo -e "$(date +%T) finish adding watermark to JPEG...\n\n"
+          echo " "
+          find . -type f -name "*.jpeg" | xargs ls -l -h
+          echo " "
+          echo -e "\n\n$(date +%T) --start to replace JPEG----------------------"
+          for f in `find . -type f -name "*-mark.jpeg"`;
+          do
+            name=`echo $f | sed "s/-mark.jpeg//g"`
+            echo "replace ${f} to ${name}.jpeg"
+            rm -rf "${name}.jpeg"
+            mv "${f}" "${name}.jpeg"
+          done
+          echo -e "$(date +%T) --finish replacing JPEG----------------------\n\n"
+          echo " "
+          find . -type f -name "*.jpeg" | xargs ls -l -h
+
+      #          # PNG
+      #          echo " "
+      #          echo -e "\n\n$(date +%T) start to add watermark to PNG"
+      #          find . -type f -name "*.png" | grep -v "alipay.png\|wxpay.png" | sed "s/.png$//g" | xargs -I {} docker run --rm -v ${BASEDIR}:/imgs dpokidov/imagemagick -strip -resize 1200x -define png:compression-level=9 -define png:exclude-chunk=all -define png:filter-type=1 -font /imgs/SourceCodePro-Semibold.otf -pointsize 30 -gravity southeast -fill "#DE282A" -draw 'text 15,18 "https://www.diguage.com"' /imgs/{}.png /imgs/{}-mark.png 1>/dev/null 2>&1 &
+      #
+      #          wait
+      #          echo -e "$(date +%T) finish adding watermark to PNG...\n\n"
+      #          echo " "
+      #          find . -type f -name "*.png" | xargs ls -l -h
+      #          echo " "
+      #          echo -e "\n\n$(date +%T) --start to replace PNG----------------------"
+      #          for f in `find . -type f -name "*-mark.png"`;
+      #          do
+      #            name=`echo $f | sed "s/-mark.png//g"`
+      #            echo "replace ${f} to ${name}.png"
+      #            rm -rf "${name}.png"
+      #            mv "${f}" "${name}.png"
+      #          done
+      #          echo -e "$(date +%T) --finish replacing PNG----------------------\n\n"
+      #          echo " "
+      #          find . -type f -name "*.png" | xargs ls -l -h
+
+      - name: Install font 🎃
+        run: |
+          mkdir $HOME/.fonts
+          cd $HOME/.fonts
+          declare -a fonts=('https://github.com/diguage/open-fonts/releases/download/latest/NotoEmoji-Regular.ttf' \
+                  'https://github.com/diguage/open-fonts/releases/download/latest/SourceCodePro-Regular.otf' \
+                  'https://github.com/diguage/open-fonts/releases/download/latest/SourceCodePro-Semibold.otf' \
+                  'https://github.com/diguage/open-fonts/releases/download/latest/SourceCodePro-It.otf' \
+                  'https://github.com/diguage/open-fonts/releases/download/latest/SourceCodePro-Bold.otf' \
+                  'https://github.com/diguage/open-fonts/releases/download/latest/SourceCodePro-BoldIt.otf' \
+                  'https://github.com/diguage/open-fonts/releases/download/latest/JetBrainsMono-Regular.ttf' \
+                  'https://github.com/diguage/open-fonts/releases/download/latest/JetBrainsMono-SemiBold.ttf' \
+                  'https://github.com/diguage/open-fonts/releases/download/latest/JetBrainsMono-Bold.ttf' \
+                  'https://github.com/diguage/open-fonts/releases/download/latest/SourceHanSerifSC-Regular.otf' \
+                  'https://github.com/diguage/open-fonts/releases/download/latest/SourceHanSerifSC-Bold.otf' \
+                  'https://github.com/diguage/open-fonts/releases/download/latest/SourceHanSerifSC-Medium.otf' \
+                  'https://github.com/diguage/open-fonts/releases/download/latest/SourceHanSerifSC-SemiBold.otf' \
+                  'https://github.com/diguage/open-fonts/releases/download/latest/SourceHanSansSC-Regular.otf' \
+                  'https://github.com/diguage/open-fonts/releases/download/latest/SourceHanSansSC-Bold.otf' \
+                  'https://github.com/diguage/open-fonts/releases/download/latest/SourceHanSansSC-Medium.otf' \
+                  'https://github.com/diguage/open-fonts/releases/download/latest/SourceHanSansSC-Heavy.otf' \
+                  'https://github.com/diguage/open-fonts/releases/download/latest/Symbola.ttf')
+          echo -e "$(date +%T) start to download fonts...\n"
+          for font in "${fonts[@]}"
+          do
+            name=`echo $font | awk -F'/' '{print $NF}'`
+            if [ -f "$name" ]; then
+              echo "$name exists."
+            else
+              wget -c --tries=5 --retry-connrefused --waitretry=5 --timeout=10 $font 1>/dev/null 2>&1 &
+            fi
+          done
+          
+          wait
+          echo -e "$(date +%T) finish downloading fonts...\n"
+          ls -lh
+
+      #      # 使用 Kroki 处理，就不需要配置字体了
+      #      - name: Check font 🔍
+      #        run: |
+      #          echo -e "[seqdiag]\nfontpath = $HOME/.fonts/SourceHanSerifSC-Regular.otf" > $HOME/.blockdiagrc
+      #          echo -e "\n[blockdiag]\nfontpath = $HOME/.fonts/SourceHanSerifSC-Regular.otf" >> $HOME/.blockdiagrc
+      #          echo -e "\n[actdiag]\nfontpath = $HOME/.fonts/SourceHanSerifSC-Regular.otf" >> $HOME/.blockdiagrc
+      #          echo -e "\n[nwdiag]\nfontpath = $HOME/.fonts/SourceHanSerifSC-Regular.otf" >> $HOME/.blockdiagrc
+      #          ls -lh $HOME/.fonts
+      #          fc-list
+      #          cat $HOME/.blockdiagrc
 
       - name: Improve Document 📝
         run: |
@@ -43,23 +165,42 @@ jobs:
       # https://stackoverflow.com/a/46719361
       # https://stackoverflow.com/a/1103159
 
-      - name: Build 🔧
-        run: |
-          mvn clean package
+      - name: Build 🏗
+        run: mvn clean package
 
       - name: Add Reward Qrcode 💰
         run: |
           cd target/docs/multipage/
           find . -name "*.html" | grep -v 'preface.html' | xargs -I {} sed -i 's@\(<div id="content">\)@\1<div class="sect2"><h3 id="_友情支持">友情支持</h3><div class="paragraph"><p>如果您觉得这个笔记对您有所帮助，看在D瓜哥码这么多字的辛苦上，请友情支持一下，D瓜哥感激不尽，😜</p></div><table class="tableblock frame-none grid-all stretch"><colgroup><col style="width: 50%;"><col style="width: 50%;"></colgroup><tbody><tr><td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="./images/alipay.png" alt="支付宝" width="85%" title="支付宝"></span></p></td><td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="./images/wxpay.jpg" alt="微信" width="85%" title="微信"></span></p></td></tr></tbody></table><div class="paragraph"><p>有些打赏的朋友希望可以加个好友，欢迎关注D 瓜哥的微信公众号，这样就可以通过公众号的回复直接给我发信息。</p></div><div class="paragraph"><p><span class="image"><img src="./images/wx-jikerizhi.png" alt="wx jikerizhi" width="98%"></span></p></div><div class="admonitionblock tip"><table><tbody><tr><td class="icon"><i class="fa icon-tip" title="Tip"></i></td><td class="content"><strong>公众号的微信号是: <code>jikerizhi</code></strong>。<em>因为众所周知的原因，有时图片加载不出来。 如果图片加载不出来可以直接通过搜索微信号来查找我的公众号。</em></td></tr></tbody></table></div></div>@' {}
 
-#      - name: Add Tab Resource 🌗
-#        run: |
-#          cp -R docs/assets target/docs/multipage/
-#          cd target/docs/multipage/
-#          sed -i 's@>题解@ target="_blank">题解@g' logbook-*.html
-#          mv images/* assets/images/
-#          sed -i 's@src="asciidoctor-tabs.js"@src="assets/scripts/asciidoctor-tabs.js"@g' *.html
-#          sed -i 's@img src="./images@img src="assets/images@g' *.html
+      - name: Add Giscus 🗣️
+        run: |
+          cd target/docs/multipage/
+          # 📢 注意，有几个地方需要修改：
+          # 1. 仓库地址
+          # 2. 仓库 ID
+          # 3. 数据分类名称
+          # 4. 数据分类 ID
+          dataRepo='diguage/jdk-source-analysis'
+          dataRepoId='MDEwOlJlcG9zaXRvcnk3MjM5MzE5Mw=='
+          dataCategory='General'
+          dataCategoryId='MDE4OkRpc2N1c3Npb25DYXRlZ29yeTMyMDM2MDQx'
+          # 📢 注意，现在是提取文件名作为 Giscus 参数！请根据需要自定义 Giscus 参数。
+          for file in `find . -name "*.html"`;
+          do
+            #fileBaseName=$(basename -- "$file")
+            #fileName="${fileBaseName%.*}"
+            fileName=$(echo $file | sed 's|^\./||; s/\.html$//')
+            echo "$file → $fileName"
+            sed -i "s@\(<title>\)@<meta property=\"og:title\" content=\"${fileName}\">\n\1@" $file
+            sed -i -z "s@\(</div>\n<div id=\"footer\">\)@<script src=\"https://giscus.app/client.js\" data-repo=\"${dataRepo}\" data-repo-id=\"${dataRepoId}\" data-category=\"${dataCategory}\" data-category-id=\"${dataCategoryId}\" data-mapping=\"og:title\" data-strict=\"0\" data-reactions-enabled=\"1\" data-emit-metadata=\"1\" data-input-position=\"top\" data-theme=\"preferred_color_scheme\" data-lang=\"zh-CN\" data-loading=\"lazy\" crossorigin=\"anonymous\" async></script>\n\1@" $file
+          done
+
+      - name: Add Tab Resource 🌗
+        run: |
+          cp -R docs/assets target/docs/multipage/
+          cd target/docs/
+          find . -name "*.html" | xargs -I {} sed -i 's@src="asciidoctor-tabs.js"@src="assets/scripts/asciidoctor-tabs.js"@g' {}
 
       - name: Add Scroll TOC JS 🐌
         run: |
@@ -85,8 +226,8 @@ jobs:
               if [ "${subtitle}" != "" ]; then
                 # 将变量中的 & 替换为 \&
                 escaped_title=$(sed 's/&/\\&/g' <<< "${subtitle}") 
-                sed -i "s@ 解题笔记</h1>@: ${escaped_title}</h1>@g" $file
-                sed -i "s@ 解题笔记</title>@: ${escaped_title}</title>@g" $file
+                sed -i "s@</h1>@: ${escaped_title}</h1>@g" $file
+                sed -i "s@</title>@: ${escaped_title}</title>@g" $file
               fi
             fi
           done
@@ -95,15 +236,19 @@ jobs:
       - name: Compress CSS 🍭
         run: |
           # https://github.com/parcel-bundler/lightningcss
-          npm install -g clean-css-cli
+          npm install -g lightningcss-cli
           # Multiple HTML page
           cd target/docs/
           for f in `find . -name "*.css"`;
           do
+            if [[ $f == *asciidoctor.css ]]; then
+              # TODO 这里需要添加的 code 选择器可能更多
+              echo -e '\na{text-decoration:none;}p>code,strong>code{color: #d14 !important;background-color: #f5f5f5 !important;border: 1px solid #e1e1e8;}' >> $f
+            fi
             fn="${f%.*}.min.css";
             echo  "compress $f"
-            cleancss -o $fn $f
-            rm -rf $f;
+            lightningcss --minify --error-recovery --output-file $fn $f
+            rm -rf $f
             mv $fn $f
           done
 
@@ -118,7 +263,7 @@ jobs:
           do
             fn="${f%.*}.min.css";
             echo  "compress $f"
-            uglifyjs $f --compress --rename -o $fn 
+            uglifyjs $f --compress --rename -o $fn
             rm -rf $f;
             mv $fn $f
           done
