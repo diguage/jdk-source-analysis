@@ -37,7 +37,7 @@ jobs:
         run: |
           docker pull dpokidov/imagemagick
           
-          cd docs/assets
+          cd docs
           wget https://github.com/diguage/open-fonts/releases/download/latest/SourceCodePro-Semibold.otf
           BASEDIR=$( pwd )/
           
@@ -166,7 +166,7 @@ jobs:
       # https://stackoverflow.com/a/1103159
 
       - name: Build 🏗
-        run: mvn clean package
+        run: mvn clean package -Pasciidoc
 
       - name: Add Reward Qrcode 💰
         run: |
