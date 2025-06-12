@@ -3,7 +3,7 @@
 
 在纠结了 N 久之后，终于动手写程序完成了 Socket 全双工实验。实验证实，Socket 在接受的同时，还可以发送报文。
 
-image::images/simplex-half-duplex-full-duplex.jpg[]
+image::assets/images/simplex-half-duplex-full-duplex.jpg[]
 
 [{java_src_attr}]
 ----

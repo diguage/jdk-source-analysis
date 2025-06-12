@@ -21,7 +21,7 @@ WARNING: 本文档基于 *OpenJDK 17* 的代码开展分析，请 PR 的小伙�
 
 有些打赏的朋友希望可以加个好友，欢迎关注D瓜哥的微信公众号，这样就可以通过公众号的回复直接给我发信息。
 
-image::images/wx-jikerizhi.png[{image_attr}]
+image::assets/images/wx-jikerizhi.png[{image_attr}]
 
 TIP: **公众号的微信号是: `jikerizhi`**。__因为众所周知的原因，有时图片加载不出来。如果图片加载不出来可以直接通过搜索微信号来查找我的公众号。__
 
@@ -107,7 +107,7 @@ TIP: 对比一下自己的实现和这些经典代码的实现，总结自己差
 . `java.util.BitSet`
 
 
-image::images/java.util.Collection.png[]
+image::assets/images/java.util.Collection.png[]
 
 *Map*::
 代码总行数： 1687 + 284 + 424 + 857 + 3012 + 1339 + 812 + 1600 + 756 + 2444 + 155 + 1521 = 14891 行，预计 28 个小时。
@@ -124,10 +124,10 @@ image::images/java.util.Collection.png[]
 . `java.util.Dictionary`
 . `java.util.Hashtable`
 
-image::images/java.util.Map.png[]
+image::assets/images/java.util.Map.png[]
 
 来张总体结构图：
 
-image::images/jdk-collection-classes.png[]
+image::assets/images/jdk-collection-classes.png[]
 
 TIP: 这里没有包含并发相关的集合类。这块内容放到并发中一起搞。

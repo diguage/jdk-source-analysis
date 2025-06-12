@@ -1,4 +1,4 @@
 [#overview]
 = 集合类概述
 
-image::images/java-collections-overview.png[]
+image::assets/images/java-collections-overview.png[]

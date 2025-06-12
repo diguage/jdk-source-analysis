@@ -1,7 +1,7 @@
 [#util-Hashtable]
 = Hashtable
 
-image::images/Hashtable-lock.png[]
+image::assets/images/Hashtable-lock.png[]
 
 == 参考资料
 

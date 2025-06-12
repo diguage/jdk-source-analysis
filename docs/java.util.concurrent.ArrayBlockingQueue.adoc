@@ -1,7 +1,7 @@
 [#concurrent-ArrayBlockingQueue]
 = ArrayBlockingQueue
 
-image::images/BlockingQueue.png[align="center"]
+image::assets/images/BlockingQueue.png[align="center"]
 
 == 方法组
 

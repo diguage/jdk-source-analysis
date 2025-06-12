@@ -250,7 +250,7 @@ The general layout of the ziplist is as follows:
 NOTE: all fields are stored in little endian, if not specified otherwise.
 ----
 
-image::images/redis/redis-ziplist-structure.jpg[]
+image::assets/images/redis/redis-ziplist-structure.jpg[]
 
 . `<zlbytes>`: 32bit，表示ziplist占用的字节总数（也包括<zlbytes>本身占用的4个字节）。
 . `<zltail>`: 32bit，表示ziplist表中最后一项（entry）在ziplist中的偏移字节数。
@@ -328,7 +328,7 @@ ____
 
 引用在网上找的例子，来做个说明：
 
-image::images/redis/redis-ziplist-sample.png[]
+image::assets/images/redis/redis-ziplist-sample.png[]
 
 . 这个ziplist一共包含 33 个字节。字节编号从 `byte[0]` 到 `byte[32]`。图中每个字节的值使用 16 进制表示。
 . 头 4 个字节（`0x21000000`）是按小端（little endian）模式存储的 `<zlbytes>` 字段。什么是小端呢？就是指数据的低字节保存在内存的低地址中（参见维基百科词条 https://en.wikipedia.org/wiki/Endianness[Endianness^]）。因此，这里 `<zlbytes>` 的值应该解析成 `0x00000021`，用十进制表示正好就是33。
@@ -526,7 +526,7 @@ typedef struct quicklistEntry {
 } quicklistEntry;
 ----
 
-image::images/redis/redis-quicklist-structure.png[]
+image::assets/images/redis/redis-quicklist-structure.png[]
 
 [source,bash,{source_attr}]
 ----
@@ -589,7 +589,7 @@ import java.util.function.Consumer;
 ----
 
 == 类的继承关系
-image::images/DiagramForLinkedList.png[]
+image::assets/images/DiagramForLinkedList.png[]
 继承自AbstractSequentialList，一个LinkedList抽象的实现；
 重点关注实现了Deque接口。
 
@@ -630,7 +630,7 @@ public class LinkedList<E>
 == 类的方法
 主要的方法的基础是link和unlink方法组,Node<E> node(int index)定位方法（均不是public）
 
-image::images/linkedlist-insert-node.png[]
+image::assets/images/linkedlist-insert-node.png[]
 
 [source,java]
 ----
@@ -683,7 +683,7 @@ image::images/linkedlist-insert-node.png[]
 
 ----
 
-image::images/linkedlist-remove-node.png[]
+image::assets/images/linkedlist-remove-node.png[]
 
 [source,java]
 ----

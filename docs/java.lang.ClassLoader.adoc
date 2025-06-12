@@ -132,7 +132,7 @@ digraph G {
 
 在 JDK 8 及以前，`AppClassLoader` 和 `ExtClassLoader` 这两个类都是 `sun.misc.Launcher` 中的内部类。 `BootstrapClassLoader` 是由 C++ 代码实现的。所以，不存在 Java 类定义。
 
-image::images/load-class-process.png[]
+image::assets/images/load-class-process.png[]
 
 .JDK 9 之后的加载体系
 [graphviz,{diagram_attr}]

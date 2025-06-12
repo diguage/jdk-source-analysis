@@ -13,3 +13,6 @@
 :sourcedir: {asciidoctorconfigdir}/../src/main/java/com/diguage/truman
 :source_attr: linenums,indent=0,subs="attributes,verbatim"
 :java_src_attr: source%nowrap,java,{source_attr}
+
+:kroki-plantuml-include-paths: ./assets/diagrams
+:diagram_dir: ./assets/diagrams

@@ -1,15 +1,15 @@
 [#concurrent-ForkJoinPool]
 = ForkJoinPool
 
-image::images/ForkJoinPool-fork-join.webp[]
+image::assets/images/ForkJoinPool-fork-join.webp[]
 
-image::images/ForkJoinPool-work-stealing.webp[]
+image::assets/images/ForkJoinPool-work-stealing.webp[]
 
-image::images/ForkJoinPool-invoke-link.png[]
+image::assets/images/ForkJoinPool-invoke-link.png[]
 
-image::images/ForkJoinPool-data-structures.png[]
+image::assets/images/ForkJoinPool-data-structures.png[]
 
-image::images/ForkJoinPool-ctl.png[]
+image::assets/images/ForkJoinPool-ctl.png[]
 
 [{java_src_attr}]
 ----

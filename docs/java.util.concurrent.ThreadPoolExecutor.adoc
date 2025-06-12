@@ -35,7 +35,7 @@
 
 由于运行状态值存放在高3位，所以可以直接通过十进制值（甚至可以忽略低29位，直接用ctl进行比较，或者使用ctl和线程池状态常量进行比较）来比较和判断线程池的状态：工作线程数为0的前提下：`RUNNING(-536870912)` < `SHUTDOWN(0)` < `STOP(536870912)` < `TIDYING(1073741824)` < `TERMINATED(1610612736)`。
 
-image::images/ThreadPoolExecutor-states.jpeg[]
+image::assets/images/ThreadPoolExecutor-states.jpeg[]
 
 
 [{java_src_attr}]
@@ -124,11 +124,11 @@ image::images/ThreadPoolExecutor-states.jpeg[]
 如果一个任务成功加入任务队列，我们依然需要二次检查是否需要添加一个工作线程（因为所有存活的工作线程有可能在最后一次检查之后已经终结）或者执行当前方法的时候线程池是否已经 `shutdown` 了。所以我们需要二次检查线程池的状态，必要时把任务从任务队列中移除或者在没有可用的工作线程的前提下新建一个工作线程。
 ****
 
-image::images/ThreadPoolExecutor-process.jpeg[]
+image::assets/images/ThreadPoolExecutor-process.jpeg[]
 
 `runWorker()` 方法的核心流程：
 
-image::images/ThreadPoolExecutor-runWorker.jpeg[]
+image::assets/images/ThreadPoolExecutor-runWorker.jpeg[]
 
 
 

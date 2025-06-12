@@ -3,7 +3,7 @@
 
 在JDK1.2之后，Java线程模型已经确定了基于操作系统原生线程模型实现。
 
-image::images/jvm-thread-to-os-thread.jpeg[]
+image::assets/images/jvm-thread-to-os-thread.jpeg[]
 
 Java线程最终会映射为系统内核原生线程，所以Java线程调度最终取决于系操作系统，而目前主流的操作系统内核线程调度基本都是使用抢占式线程调度。也就是可以死记硬背一下：**Java线程是使用抢占式线程调度方式进行线程调度的。**
 
@@ -117,9 +117,9 @@ public class Thread implements Runnable {
 }
 ----
 
-image::images/thread-lifecycle.jpeg[]
+image::assets/images/thread-lifecycle.jpeg[]
 
-image::images/thread-states.jpeg[]
+image::assets/images/thread-states.jpeg[]
 
 
 Java 对象内存占用大小：

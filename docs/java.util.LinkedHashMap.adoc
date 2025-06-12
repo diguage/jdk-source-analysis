@@ -2,7 +2,7 @@
 = LinkedHashMap
 
 
-image::images/LinkedHashMap.png[]
+image::assets/images/LinkedHashMap.png[]
 
 问题：
 

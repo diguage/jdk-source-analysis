@@ -6,7 +6,7 @@
 include::{sourcedir}/reflect/ProxyTest.java[]
 ----
 
-image::images/Proxy-newProxyInstance-sequence-diagram.png[]
+image::assets/images/Proxy-newProxyInstance-sequence-diagram.png[]
 
 跟着代码整体走下来，所谓的"动态代理"，其实是在 `java.lang.reflect.ProxyGenerator.generateProxyClass(java.lang.String, java.lang.Class<?>[], int)` 中生成了一个实现了接口的代理类。生成字节码的逻辑封装在了 `java.lang.reflect.ProxyGenerator.generateClassFile` 中，按照字节码规范中规定的格式（魔数、版本号、常量池、访问标识符、当前类索引、父类索引、接口索引、字段表、方法表、附加属性），一点一点追加内容。
 

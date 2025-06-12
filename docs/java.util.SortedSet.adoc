@@ -38,7 +38,7 @@ typedef struct zset {
 
 skiplist，顾名思义，首先它是一个list。实际上，它是在有序链表的基础上发展起来的。
 
-image::images/redis/skiplist.png[{image_attr}]
+image::assets/images/redis/skiplist.png[{image_attr}]
 
 当我们想查找数据的时候，可以先沿着跨度大的链进行查找。当碰到比待查数据大的节点时，再回到跨度小的链表中进行查找。
 
@@ -46,7 +46,7 @@ skiplist正是受这种多层链表的想法的启发而设计出来的。按照
 
 skiplist为了避免这一问题，它不要求上下相邻两层链表之间的节点个数有严格的对应关系，而是为每个节点随机出一个层数(level)。
 
-image::images/redis/redis-skiplist-insertions.png[{image_attr}]
+image::assets/images/redis/redis-skiplist-insertions.png[{image_attr}]
 
 插入操作只需要修改插入节点前后的指针，而不需要对很多节点都进行调整。这就降低了插入操作的复杂度。实际上，这是 skiplist 的一个很重要的特性，这让它在插入性能上明显优于平衡树的方案。
 
@@ -57,7 +57,7 @@ skiplist，翻译成中文，可以翻译成“跳表”或“跳跃表”，指
 . 在平衡树种，如何做范围查找？先确定边界，然后其他节点怎么查找？
 ****
 
-image::images/redis/redis_skiplist_example.png[{image_attr}]
+image::assets/images/redis/redis_skiplist_example.png[{image_attr}]
 
 . skiplist 中 key 允许重复。
 . 在比较时，不仅比较分数（即key），还要比较数据自身。

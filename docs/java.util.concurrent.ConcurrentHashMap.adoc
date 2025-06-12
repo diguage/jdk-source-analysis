@@ -2,9 +2,9 @@
 = `ConcurrentHashMap`
 
 
-image::images/ConcurrentHashMap-segment-lock.png[]
+image::assets/images/ConcurrentHashMap-segment-lock.png[]
 
-image::images/JDK1.8-ConcurrentHashMap-Structure.jpg[]
+image::assets/images/JDK1.8-ConcurrentHashMap-Structure.jpg[]
 
 == 参考资料
 

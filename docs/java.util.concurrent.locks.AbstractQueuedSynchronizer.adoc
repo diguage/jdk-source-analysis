@@ -7,7 +7,7 @@ Doug Lea
 
 == CLH lock queue 介绍
 
-image::images/AbstractQueuedSynchronizer-CLH-queue.png[]
+image::assets/images/AbstractQueuedSynchronizer-CLH-queue.png[]
 
 终于看明白了 CLH lock queue。CLH 通过自旋来锁定当前节点。自旋的好处是线程不需要睡眠和唤醒，减小了系统调用的开销。
 
