@@ -238,7 +238,7 @@ import jdk.internal.vm.annotation.ReservedStackAccess;
  * @jls 17.4 Memory Model
  * @since 1.8
  * @author Doug Lea
- */
+ */ // TODO ❓读写不互斥，是不是比 ReentrantLock 更适合 BlockingQueue？
 public class StampedLock implements java.io.Serializable { // 读写也不互斥
     /*
      * Algorithmic notes:

@@ -222,10 +222,11 @@ public class ReentrantLock implements Lock, java.io.Serializable {
 
         final boolean initialTryLock() {
             Thread current = Thread.currentThread();
+            // 非公平锁与公平锁对比一下：非公平锁，先抢锁，不考虑排队
             if (compareAndSetState(0, 1)) { // first attempt is unguarded
                 setExclusiveOwnerThread(current); // 上来就抢，不考虑是否有排队，这是非公平锁
                 return true;
-            } else if (getExclusiveOwnerThread() == current) {
+            } else if (getExclusiveOwnerThread() == current) { // 判断是否是重入
                 int c = getState() + 1;
                 if (c < 0) // overflow
                     throw new Error("Maximum lock count exceeded");
@@ -259,6 +260,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
         final boolean initialTryLock() {
             Thread current = Thread.currentThread();
             int c = getState();
+            // 非公平锁与公平锁对比一下：锁没有被抢，等待队列中前面没有排队节点才去抢锁
             if (c == 0) { // 锁没有被抢，且没有排队线程才去抢锁，这是公平锁。
                 if (!hasQueuedThreads() && compareAndSetState(0, 1)) {
                     setExclusiveOwnerThread(current);

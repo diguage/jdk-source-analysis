@@ -1187,13 +1187,13 @@ public abstract class AbstractQueuedLongSynchronizer
                 node.waiter = Thread.currentThread();
                 node.setStatusRelaxed(COND | WAITING);
                 ConditionNode last = lastWaiter;
-                if (last == null)
+                if (last == null) // 单链表入队
                     firstWaiter = node;
                 else
                     last.nextWaiter = node;
                 lastWaiter = node;
                 long savedState = getState();
-                if (release(savedState))
+                if (release(savedState)) // 释放锁。只有释放锁，其他的线程才能获取锁来执行程序
                     return savedState;
             }
             node.status = CANCELLED; // lock not held or inconsistent
@@ -1313,12 +1313,12 @@ public abstract class AbstractQueuedLongSynchronizer
          * </ol>
          */
         public final void await() throws InterruptedException {
-            if (Thread.interrupted())
+            if (Thread.interrupted()) // 收到中断信号，抛出异常
                 throw new InterruptedException();
             ConditionNode node = newConditionNode();
             if (node == null)
                 return;
-            long savedState = enableWait(node);
+            long savedState = enableWait(node); // 建立 Condition 链表，释放锁
             LockSupport.setCurrentBlocker(this); // for back-compatibility
             boolean interrupted = false, cancelled = false, rejected = false;
             while (!canReacquire(node)) {

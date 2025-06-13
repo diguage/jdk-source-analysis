@@ -739,7 +739,7 @@ public abstract class AbstractQueuedSynchronizer
             } else if (pred == null) {          // try to enqueue
                 node.waiter = current;
                 node.setPrevRelaxed(t);         // avoid unnecessary fence
-                if (!casTail(t, node))
+                if (!casTail(t, node)) 入队
                     node.setPrevRelaxed(null);  // back out
                 else
                     t.next = node;

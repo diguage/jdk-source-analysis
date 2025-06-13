@@ -401,8 +401,10 @@ public class ReentrantReadWriteLock
             int w = exclusiveCount(c);
             if (c != 0) {
                 // (Note: if c != 0 and w == 0 then shared count != 0)
+                // ❓w==0 为什么就有读锁？答：因为前面还有 c != 0 的条件
                 if (w == 0 || current != getExclusiveOwnerThread())
                     return false;
+                // 因为 c != 0 & w != 0，则必然是写锁持有锁
                 if (w + exclusiveCount(acquires) > MAX_COUNT)
                     throw new Error("Maximum lock count exceeded");
                 // Reentrant acquire
@@ -480,15 +482,16 @@ public class ReentrantReadWriteLock
                 getExclusiveOwnerThread() != current)
                 return -1;
             int r = sharedCount(c);
-            if (!readerShouldBlock() && // 读锁不被阻塞
+            if (!readerShouldBlock() && // 读锁不被阻塞：非公平锁是第一个节点是抢写锁的线程；公平锁，前面有排队就阻塞。
                 r < MAX_COUNT &&        // 且并发线程数少于最大阈值
-                compareAndSetState(c, c + SHARED_UNIT)) { // 抢锁成功
+                compareAndSetState(c, c + SHARED_UNIT)) { // 抢锁：高16位。JDK25中已经变成高32位了。
                 if (r == 0) { // 第一个拿到读锁的线程
                     firstReader = current;
                     firstReaderHoldCount = 1;
                 } else if (firstReader == current) {
                     firstReaderHoldCount++;
                 } else {
+                    // 统计变量，对流程没影响
                     HoldCounter rh = cachedHoldCounter;
                     if (rh == null ||
                         rh.tid != LockSupport.getThreadId(current))
