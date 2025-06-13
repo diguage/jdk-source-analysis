@@ -1,4 +1,4 @@
-[[id=java.util.concurrent.Phaser]]
+[[java.util.concurrent.Phaser]]
 = Phaser
 
 可以用于取代 ``
