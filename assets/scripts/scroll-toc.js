@@ -1,0 +1,1 @@
+document.querySelector("#toc li a span.toc-current").scrollIntoView({behavior:"smooth",block:"center",inline:"nearest"});
