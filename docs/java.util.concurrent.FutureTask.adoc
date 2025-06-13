@@ -1,4 +1,4 @@
-[#concurrent-FutureTask]
+[[java.util.concurrent.FutureTask]]
 = FutureTask
 
 == 类图

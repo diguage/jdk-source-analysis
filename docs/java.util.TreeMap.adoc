@@ -1,4 +1,4 @@
-[#util-TreeMap]
+[[java.util.TreeMap]]
 = TreeMap
 
 先看一个问题：

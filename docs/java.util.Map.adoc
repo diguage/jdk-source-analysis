@@ -1,3 +1,3 @@
-[#util-Map]
+[[java.util.Map]]
 = Map
 

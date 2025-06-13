@@ -1,4 +1,4 @@
-[#concurrent-locks-AbstractQueuedSynchronizer]
+[[java.util.concurrent.locks.AbstractQueuedSynchronizer]]
 = AbstractQueuedSynchronizer
 
 Doug Lea

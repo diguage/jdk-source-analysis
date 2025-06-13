@@ -1,4 +1,4 @@
-[#util-SortedSet]
+[[java.util.SortedSet]]
 = SortedSet
 
 == Redis 的 SkipList

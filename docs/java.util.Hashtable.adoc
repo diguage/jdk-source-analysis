@@ -1,4 +1,4 @@
-[#util-Hashtable]
+[[java.util.Hashtable]]
 = Hashtable
 
 image::assets/images/Hashtable-lock.png[]

@@ -1,4 +1,4 @@
-[#concurrent-locks-StampedLock]
+[[java.util.concurrent.locks.StampedLock]]
 = StampedLock
 
 [{java_src_attr}]

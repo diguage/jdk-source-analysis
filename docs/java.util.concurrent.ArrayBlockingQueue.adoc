@@ -1,4 +1,4 @@
-[#concurrent-ArrayBlockingQueue]
+[[java.util.concurrent.ArrayBlockingQueue]]
 = ArrayBlockingQueue
 
 image::assets/images/BlockingQueue.png[align="center"]

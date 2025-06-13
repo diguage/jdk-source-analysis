@@ -1,4 +1,4 @@
-[#util-HashSet]
+[[java.util.HashSet]]
 = HashSet
 
 == Redis 中的 Set

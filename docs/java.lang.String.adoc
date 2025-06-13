@@ -1,4 +1,4 @@
-[#lang-String]
+[[java.lang.String]]
 = `String`
 
 [{java_src_attr}]

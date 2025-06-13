@@ -1,4 +1,4 @@
-[#concurrent-CyclicBarrier]
+[[java.util.concurrent.CyclicBarrier]]
 = CyclicBarrier
 
 [{java_src_attr}]

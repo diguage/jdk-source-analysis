@@ -1,4 +1,4 @@
-[#util-Vector]
+[[java.util.Vector]]
 = Vector
 
 [plantuml,{diagram_attr}]

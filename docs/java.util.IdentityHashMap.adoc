@@ -1,3 +1,3 @@
-[#util-IdentityHashMap]
+[[java.util.IdentityHashMap]]
 = IdentityHashMap
 

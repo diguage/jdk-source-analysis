@@ -1,4 +1,4 @@
-[#concurrent-overview]
+[[concurrent.overview]]
 = 并发库概述
 
 image::assets/images/java-concurrent-overview.png[]

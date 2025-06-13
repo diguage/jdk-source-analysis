@@ -1,2 +1,2 @@
-[#util-Collections]
+[[java.util.Collection]]
 = 工具类 `Collections`

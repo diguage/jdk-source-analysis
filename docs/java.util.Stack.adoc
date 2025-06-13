@@ -1,4 +1,4 @@
-[#util-Stack]
+[[java.util.Stack]]
 = Stack
 
 [plantuml,{diagram_attr}]

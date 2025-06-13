@@ -1,4 +1,4 @@
-[#util-AbstractSequentialList]
+[[java.util.AbstractSequentialList]]
 = AbstractSequentialList
 
 == 类图

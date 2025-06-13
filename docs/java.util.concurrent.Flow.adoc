@@ -1,4 +1,4 @@
-[#concurrent-Flow]
+[[java.util.concurrent.Flow]]
 = `Flow`
 
 

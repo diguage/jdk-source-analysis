@@ -1,2 +1,2 @@
-[#util-Arrays]
+[[java.util.Array]]
 = 工具类 `Arrays`

@@ -1,4 +1,4 @@
-[#util-HashMap]
+[[java.util.HashMap]]
 = HashMap
 
 == HashMap 问题集

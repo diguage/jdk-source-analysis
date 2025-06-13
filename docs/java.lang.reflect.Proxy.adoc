@@ -1,4 +1,4 @@
-[#reflect-Proxy]
+[[java.lang.reflect.Proxy]]
 = Proxy
 
 [{java_src_attr}]

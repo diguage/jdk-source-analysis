@@ -1,4 +1,4 @@
-[#concurrent-ForkJoinPool]
+[[java.util.concurrent.ForkJoinPool]]
 = ForkJoinPool
 
 image::assets/images/ForkJoinPool-fork-join.webp[]

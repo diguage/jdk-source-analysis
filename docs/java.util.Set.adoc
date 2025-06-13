@@ -1,3 +1,3 @@
-[#util-Set]
+[[java.util.Set]]
 = Set
 

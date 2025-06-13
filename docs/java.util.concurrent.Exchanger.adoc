@@ -1,2 +1,2 @@
-[#concurrent-Exchanger]
+[[java.util.concurrent.Exchanger]]
 = Exchanger

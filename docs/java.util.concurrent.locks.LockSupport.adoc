@@ -1,4 +1,4 @@
-[#concurrent-locks-LockSupport]
+[[java.util.concurrent.locks.LockSupport]]
 = LockSupport
 
 [{java_src_attr}]
