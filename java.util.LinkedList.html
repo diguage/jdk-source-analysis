@@ -1,0 +1,2288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.26">
+<meta name="keywords" content="Java,JDK,Java source,Collection,ArrayList,Map,List,HashMap,ArrayDeque,Deque,Set,HashSet,LinkedList,Queue,TreeMap,TreeSet,Vector,Stack">
+<meta name="author" content="D瓜哥">
+<meta name="copyright" content="Apache-2.0">
+<meta property="og:title" content="java.util.LinkedList">
+<title>JDK 源码分析: 9. LinkedList</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="assets/styles/asciidoctor.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="assets/styles/rouge-github.css">
+<style>
+    a {
+        text-decoration: none;
+    }
+
+    .img_bk {
+        text-align: center;
+    }
+
+    p > code, strong > code, div.admonitionblock tr > td.content > code {
+        color: #d14 !important;
+        background-color: #f5f5f5 !important;
+        border: 1px solid #e1e1e8;
+        white-space: nowrap;
+        border-radius: 3px;
+    }
+</style>
+<link rel="stylesheet" href="assets/styles/asciidoctor-tabs.css">
+<style>.toc-current{color:#d14;font-size:130%;font-weight: bold;} .toc-root{font-family: "Open Sans","DejaVu Sans",sans-serif;
+                       font-size: 0.9em;} #content{display: flex; flex-direction: column; flex: 1 1 auto;}
+             .nav-footer{text-align: center; margin-top: auto;}
+             .nav-footer > p > a {white-space: nowrap;}</style>
+</head>
+<body id="java.util.LinkedList" class="book toc2 toc-left">
+<div id="header">
+<h1>JDK 源码分析: 9. LinkedList</h1>
+<div class="details">
+<span id="author" class="author">D瓜哥</span><br>
+<span id="email" class="email"><a href="https://www.diguage.com" class="bare">https://www.diguage.com</a></span><br>
+<span id="revdate">2025-11-25</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<p><span class="toc-root"><a href="index.html">JDK 源码分析</a></span></p><ul class="sectlevel1">
+<li><a href="preface.html">前言：JDK &amp; STL 源码分析计划</a>
+</li>
+<li><a href="overview.html">1. 集合类概述</a>
+</li>
+<li><a href="java.util.Iterator.html">2. 迭代器 Iterator、 Enumeration、 Spliterator 与 Iterable</a>
+</li>
+<li><a href="java.util.Collection.html">3. Collection</a>
+</li>
+<li><a href="java.util.AbstractCollection.html">4. AbstractCollection</a>
+</li>
+<li><a href="java.util.List.html">5. List</a>
+</li>
+<li><a href="java.util.AbstractList.html">6. AbstractList</a>
+</li>
+<li><a href="java.util.AbstractSequentialList.html">7. AbstractSequentialList</a>
+</li>
+<li><a href="java.util.ArrayList.html">8. <code>ArrayList</code></a>
+</li>
+<li><a href="java.util.LinkedList.html"><span class="toc-current">9. LinkedList</span></a>
+</li>
+<li><a href="java.util.Stack.html">10. Stack</a>
+</li>
+<li><a href="java.util.Vector.html">11. Vector</a>
+</li>
+<li><a href="java.util.Set.html">12. Set</a>
+</li>
+<li><a href="java.util.AbstractSet.html">13. AbstractSet</a>
+</li>
+<li><a href="java.util.SortedSet.html">14. SortedSet</a>
+</li>
+<li><a href="java.util.NavigableSet.html">15. NavigableSet</a>
+</li>
+<li><a href="java.util.HashSet.html">16. HashSet</a>
+</li>
+<li><a href="java.util.TreeSet.html">17. TreeSet</a>
+</li>
+<li><a href="java.util.LinkedHashSet.html">18. LinkedHashSet</a>
+</li>
+<li><a href="java.util.BitSet.html">19. BitSet</a>
+</li>
+<li><a href="java.util.EnumSet.html">20. EnumSet</a>
+</li>
+<li><a href="java.util.Map.html">21. Map</a>
+</li>
+<li><a href="java.util.SortedMap.html">22. SortedMap</a>
+</li>
+<li><a href="java.util.NavigableMap.html">23. NavigableMap</a>
+</li>
+<li><a href="java.util.AbstractMap.html">24. AbstractMap</a>
+</li>
+<li><a href="java.util.HashMap.html">25. HashMap</a>
+</li>
+<li><a href="java.util.TreeMap.html">26. TreeMap</a>
+</li>
+<li><a href="java.util.LinkedHashMap.html">27. LinkedHashMap</a>
+</li>
+<li><a href="java.util.Dictionary.html">28. Dictionary</a>
+</li>
+<li><a href="java.util.Hashtable.html">29. Hashtable</a>
+</li>
+<li><a href="java.util.EnumMap.html">30. EnumMap</a>
+</li>
+<li><a href="java.util.WeakHashMap.html">31. WeakHashMap</a>
+</li>
+<li><a href="java.util.IdentityHashMap.html">32. IdentityHashMap</a>
+</li>
+<li><a href="java.util.Queue.html">33. Queue</a>
+</li>
+<li><a href="java.util.Deque.html">34. Deque</a>
+</li>
+<li><a href="java.util.AbstractQueue.html">35. AbstractQueue</a>
+</li>
+<li><a href="java.util.ArrayDeque.html">36. ArrayDeque</a>
+</li>
+<li><a href="java.util.PriorityQueue.html">37. PriorityQueue</a>
+</li>
+<li><a href="java.util.Array.html">38. 工具类 <code>Arrays</code></a>
+</li>
+<li><a href="java.util.Collection.html">39. 工具类 <code>Collections</code></a>
+</li>
+<li><a href="concurrent.overview.html">40. 并发库概述</a>
+</li>
+<li><a href="java.lang.Thread.html">41. Thread</a>
+</li>
+<li><a href="java.util.concurrent.locks.LockSupport.html">42. LockSupport</a>
+</li>
+<li><a href="java.util.concurrent.locks.AbstractQueuedSynchronizer.html">43. AbstractQueuedSynchronizer</a>
+</li>
+<li><a href="java.util.concurrent.locks.ReentrantLock.html">44. ReentrantLock</a>
+</li>
+<li><a href="java.util.concurrent.locks.ReentrantReadWriteLock.html">45. ReentrantReadWriteLock</a>
+</li>
+<li><a href="java.util.concurrent.locks.StampedLock.html">46. StampedLock</a>
+</li>
+<li><a href="java.util.concurrent.Semaphore.html">47. Semaphore</a>
+</li>
+<li><a href="java.util.concurrent.CountDownLatch.html">48. CountDownLatch</a>
+</li>
+<li><a href="java.util.concurrent.CyclicBarrier.html">49. CyclicBarrier</a>
+</li>
+<li><a href="java.util.concurrent.Phaser.html">50. Phaser</a>
+</li>
+<li><a href="java.util.concurrent.Exchanger.html">51. Exchanger</a>
+</li>
+<li><a href="java.lang.ThreadLocal.html">52. ThreadLocal</a>
+</li>
+<li><a href="java.util.concurrent.atomic.AtomicInteger.html">53. AtomicInteger</a>
+</li>
+<li><a href="java.util.concurrent.atomic.LongAdder.html">54. LongAdder</a>
+</li>
+<li><a href="java.util.concurrent.Future.html">55. JUC 包基础类分析</a>
+</li>
+<li><a href="java.util.concurrent.FutureTask.html">56. FutureTask</a>
+</li>
+<li><a href="java.util.concurrent.CompletableFuture.html">57. CompletableFuture</a>
+</li>
+<li><a href="java.util.concurrent.ThreadPoolExecutor.html">58. ThreadPoolExecutor 源码分析</a>
+</li>
+<li><a href="java.util.concurrent.ForkJoinTask.html">59. ForkJoinTask</a>
+</li>
+<li><a href="java.util.concurrent.ForkJoinPool.html">60. ForkJoinPool</a>
+</li>
+<li><a href="java.util.concurrent.ConcurrentHashMap.html">61. <code>ConcurrentHashMap</code></a>
+</li>
+<li><a href="java.util.concurrent.ConcurrentSkipListMap.html">62. <code>ConcurrentSkipListMap</code></a>
+</li>
+<li><a href="java.util.concurrent.CopyOnWriteArrayList.html">63. CopyOnWriteArrayList</a>
+</li>
+<li><a href="java.util.concurrent.ConcurrentLinkedQueue.html">64. ConcurrentLinkedQueue</a>
+</li>
+<li><a href="java.util.concurrent.ArrayBlockingQueue.html">65. ArrayBlockingQueue</a>
+</li>
+<li><a href="java.util.concurrent.LinkedBlockingQueue.html">66. LinkedBlockingQueue</a>
+</li>
+<li><a href="java.util.concurrent.PriorityBlockingQueue.html">67. PriorityBlockingQueue</a>
+</li>
+<li><a href="java.util.concurrent.DelayQueue.html">68. DelayQueue</a>
+</li>
+<li><a href="java.util.concurrent.ScheduledThreadPoolExecutor.html">69. <code>ScheduledThreadPoolExecutor</code></a>
+</li>
+<li><a href="java.util.concurrent.Flow.html">70. <code>Flow</code></a>
+</li>
+<li><a href="java.lang.ClassLoader.html">71. ClassLoader</a>
+</li>
+<li><a href="java.lang.reflect.Field.html">72. Field</a>
+</li>
+<li><a href="java.lang.reflect.Proxy.html">73. Proxy</a>
+</li>
+<li><a href="java.net.ServerSocket.html">74. ServerSocket</a>
+</li>
+<li><a href="java.util.ServiceLoader.html">75. <code>ServiceLoader</code></a>
+</li>
+<li><a href="java.lang.String.html">76. <code>String</code></a>
+</li>
+<li><a href="java.util.Date.html">77. <code>Date</code></a>
+</li>
+<li><a href="java.io.Serializable.html">78. <code>Serializable</code></a>
+</li>
+<li><a href="java.regex.Pattern.html">79. <code>Pattern</code></a>
+</li>
+<li><a href="_netty.html">80. Netty</a>
+</li>
+</ul>
+</div>
+</div>
+<div id="content"><div class="sect2"><h3 id="_友情支持">友情支持</h3><div class="paragraph"><p>如果您觉得这个笔记对您有所帮助，看在D瓜哥码这么多字的辛苦上，请友情支持一下，D瓜哥感激不尽，😜</p></div><table class="tableblock frame-none grid-all stretch"><colgroup><col style="width: 50%;"><col style="width: 50%;"></colgroup><tbody><tr><td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="assets/images/alipay.png" alt="支付宝" width="85%" title="支付宝"></span></p></td><td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="assets/images/wxpay.jpg" alt="微信" width="85%" title="微信"></span></p></td></tr></tbody></table><div class="paragraph"><p>有些打赏的朋友希望可以加个好友，欢迎关注D 瓜哥的微信公众号，这样就可以通过公众号的回复直接给我发信息。</p></div><div class="paragraph"><p><span class="image"><img src="assets/images/wx-jikerizhi.png" alt="wx jikerizhi" width="98%"></span></p></div><div class="admonitionblock tip"><table><tbody><tr><td class="icon"><i class="fa icon-tip" title="Tip"></i></td><td class="content"><strong>公众号的微信号是: <code>jikerizhi</code></strong>。<em>因为众所周知的原因，有时图片加载不出来。 如果图片加载不出来可以直接通过搜索微信号来查找我的公众号。</em></td></tr></tbody></table></div></div>
+<div class="sect1">
+<h2 id="java.util.LinkedList"><a class="anchor" href="#java.util.LinkedList"></a>9. LinkedList</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>LinkedList</code> 底层使用的是 双向链表 数据结构（JDK1.6 之前为循环链表，JDK1.7 取消了循环。注意双向链表和双向循环链表的区别。）</p>
+</div>
+<div class="sect2">
+<h3 id="_类图_3"><a class="anchor" href="#_类图_3"></a>9.1. 类图</h3>
+<div class="paragraph">
+<p>先来看一下 <code>LinkedList</code> 的类图：</p>
+</div>
+<div class="imageblock text-center kroki">
+<div class="content">
+<img src="./diag-89a1a67d408bdc093c33ea84b16d344db6af13626b8e223b0611487c4f5b45a4.svg" alt="Diagram" width="95%">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_初始化_2"><a class="anchor" href="#_初始化_2"></a>9.2. 初始化</h3>
+<div class="paragraph">
+<p>先看看 <code>LinkedList</code> 中内部属性和构造函数：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+</pre></td><td class="code"><pre><span class="kd">transient</span> <span class="kt">int</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+
+<span class="cm">/**
+ * Pointer to first node.
+ */</span>
+<span class="kd">transient</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">first</span><span class="o">;</span>
+
+<span class="cm">/**
+ * Pointer to last node.
+ */</span>
+<span class="kd">transient</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">last</span><span class="o">;</span>
+
+<span class="cm">/*
+void dataStructureInvariants() {
+    assert (size == 0)
+        ? (first == null &amp;&amp; last == null)
+        : (first.prev == null &amp;&amp; last.next == null);
+}
+*/</span>
+
+<span class="cm">/**
+ * Constructs an empty list.
+ */</span>
+<span class="kd">public</span> <span class="nf">LinkedList</span><span class="o">()</span> <span class="o">{</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+ * Constructs a list containing the elements of the specified
+ * collection, in the order they are returned by the collection's
+ * iterator.
+ *
+ * @param  c the collection whose elements are to be placed into this list
+ * @throws NullPointerException if the specified collection is null
+ */</span>
+<span class="kd">public</span> <span class="nf">LinkedList</span><span class="o">(</span><span class="nc">Collection</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="no">E</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">();</span>
+    <span class="n">addAll</span><span class="o">(</span><span class="n">c</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="kd">private</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="no">E</span> <span class="n">item</span><span class="o">;</span>
+    <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">next</span><span class="o">;</span>
+    <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">prev</span><span class="o">;</span>
+
+    <span class="nc">Node</span><span class="o">(</span><span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">prev</span><span class="o">,</span> <span class="no">E</span> <span class="n">element</span><span class="o">,</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">next</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">item</span> <span class="o">=</span> <span class="n">element</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">next</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">prev</span> <span class="o">=</span> <span class="n">prev</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>从这里一眼即可看出内部使用一个双向链表来保存数据。初始化工作也及其干净，什么也不干。另外一个构造函数后面再分析。</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+D瓜哥觉得使用初始化的头尾节点更方便代码书写，少了很多繁琐的判断。
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_分析工具"><a class="anchor" href="#_分析工具"></a>9.3. 分析工具</h3>
+<div class="paragraph">
+<p>使用反射来获取内部属性，然后做进一步分析。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+</pre></td><td class="code"><pre><span class="kn">package</span> <span class="nn">com.diguage.truman</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.lang.reflect.Field</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.LinkedList</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.Objects</span><span class="o">;</span>
+
+<span class="cm">/**
+ * @author D瓜哥, https://www.diguage.com/
+ * @since 2020-03-03 16:16
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">LinkedListBaseTest</span> <span class="o">{</span>
+    <span class="cm">/**
+     * 使用反射读取 LinkedList 内部属性
+     */</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">xray</span><span class="o">(</span><span class="nc">LinkedList</span><span class="o">&lt;?&gt;</span> <span class="n">list</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Class</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="nc">LinkedList</span><span class="o">&gt;</span> <span class="n">clazz</span> <span class="o">=</span> <span class="n">list</span><span class="o">.</span><span class="na">getClass</span><span class="o">();</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="nc">Field</span> <span class="n">nodeField</span> <span class="o">=</span> <span class="n">clazz</span><span class="o">.</span><span class="na">getDeclaredField</span><span class="o">(</span><span class="s">"first"</span><span class="o">);</span>
+            <span class="n">nodeField</span><span class="o">.</span><span class="na">setAccessible</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+            <span class="nc">Object</span> <span class="n">node</span> <span class="o">=</span> <span class="n">nodeField</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">list</span><span class="o">);</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"length="</span> <span class="o">+</span> <span class="n">length</span><span class="o">(</span><span class="n">node</span><span class="o">)</span> <span class="o">+</span> <span class="s">", size="</span> <span class="o">+</span> <span class="n">list</span><span class="o">.</span><span class="na">size</span><span class="o">());</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Throwable</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">length</span><span class="o">(</span><span class="nc">Object</span> <span class="n">node</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="nc">Objects</span><span class="o">.</span><span class="na">isNull</span><span class="o">(</span><span class="n">node</span><span class="o">))</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="nc">Class</span><span class="o">&lt;?&gt;</span> <span class="n">nodeClass</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="na">getClass</span><span class="o">();</span>
+            <span class="nc">Field</span> <span class="n">nextField</span> <span class="o">=</span> <span class="n">nodeClass</span><span class="o">.</span><span class="na">getDeclaredField</span><span class="o">(</span><span class="s">"next"</span><span class="o">);</span>
+            <span class="n">nextField</span><span class="o">.</span><span class="na">setAccessible</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+            <span class="k">while</span> <span class="o">(</span><span class="nc">Objects</span><span class="o">.</span><span class="na">nonNull</span><span class="o">(</span><span class="n">node</span><span class="o">))</span> <span class="o">{</span>
+                <span class="n">node</span> <span class="o">=</span> <span class="n">nextField</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">node</span><span class="o">);</span>
+                <span class="n">result</span><span class="o">++;</span>
+            <span class="o">}</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Throwable</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_添加元素_2"><a class="anchor" href="#_添加元素_2"></a>9.4. 添加元素</h3>
+<div class="paragraph">
+<p>测试代码：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="code"><pre>    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testAddAtTail</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">LinkedList</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">&gt;</span> <span class="n">list</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">LinkedList</span><span class="o">&lt;&gt;();</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">16</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+            <span class="n">xray</span><span class="o">(</span><span class="n">list</span><span class="o">);</span>
+            <span class="n">list</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">i</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>JDK 源码：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+</pre></td><td class="code"><pre><span class="cm">/**
+ * Links e as last element.
+ */</span>
+<span class="kt">void</span> <span class="nf">linkLast</span><span class="o">(</span><span class="no">E</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">final</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">l</span> <span class="o">=</span> <span class="n">last</span><span class="o">;</span>
+    <span class="kd">final</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">newNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Node</span><span class="o">&lt;&gt;(</span><span class="n">l</span><span class="o">,</span> <span class="n">e</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+    <span class="n">last</span> <span class="o">=</span> <span class="n">newNode</span><span class="o">;</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">l</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+        <span class="n">first</span> <span class="o">=</span> <span class="n">newNode</span><span class="o">;</span>
+    <span class="k">else</span>
+        <span class="n">l</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">newNode</span><span class="o">;</span>
+    <span class="n">size</span><span class="o">++;</span>
+    <span class="n">modCount</span><span class="o">++;</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+ * Appends the specified element to the end of this list.
+ *
+ * &lt;p&gt;This method is equivalent to {@link #addLast}.
+ *
+ * @param e element to be appended to this list
+ * @return {@code true} (as specified by {@link Collection#add})
+ */</span>
+<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">add</span><span class="o">(</span><span class="no">E</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">linkLast</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+    <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>再来看看从头部插入元素：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="code"><pre>    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testAddAtHeader</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">LinkedList</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">&gt;</span> <span class="n">list</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">LinkedList</span><span class="o">&lt;&gt;();</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">16</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+            <span class="n">xray</span><span class="o">(</span><span class="n">list</span><span class="o">);</span>
+            <span class="n">list</span><span class="o">.</span><span class="na">addFirst</span><span class="o">(</span><span class="n">i</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>JDK 源码：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+</pre></td><td class="code"><pre><span class="cm">/**
+ * Links e as first element.
+ */</span>
+<span class="kd">private</span> <span class="kt">void</span> <span class="nf">linkFirst</span><span class="o">(</span><span class="no">E</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">final</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">f</span> <span class="o">=</span> <span class="n">first</span><span class="o">;</span>
+    <span class="kd">final</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">newNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Node</span><span class="o">&lt;&gt;(</span><span class="kc">null</span><span class="o">,</span> <span class="n">e</span><span class="o">,</span> <span class="n">f</span><span class="o">);</span>
+    <span class="n">first</span> <span class="o">=</span> <span class="n">newNode</span><span class="o">;</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">f</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+        <span class="n">last</span> <span class="o">=</span> <span class="n">newNode</span><span class="o">;</span>
+    <span class="k">else</span>
+        <span class="n">f</span><span class="o">.</span><span class="na">prev</span> <span class="o">=</span> <span class="n">newNode</span><span class="o">;</span>
+    <span class="n">size</span><span class="o">++;</span>
+    <span class="n">modCount</span><span class="o">++;</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+ * Inserts the specified element at the beginning of this list.
+ *
+ * @param e the element to add
+ */</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">addFirst</span><span class="o">(</span><span class="no">E</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">linkFirst</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>从这里就能看出，<code>LinkedList</code> 在 <code>add(e)</code>、<code>addLast(e)</code> 或者 <code>addFirst(e)</code> 时，都是对链表的首尾进行操作，会比较高效。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_redis_的_linkedlist"><a class="anchor" href="#_redis_的_linkedlist"></a>9.5. Redis 的 linkedlist</h3>
+<div class="paragraph">
+<p>Redis 底层也有很多地方使用到 linkedlist，并且也是双向链表。</p>
+</div>
+<div class="listingblock">
+<div class="title">adlist.h</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td><td class="code"><pre><span class="k">typedef</span> <span class="k">struct</span> <span class="n">listNode</span> <span class="p">{</span>
+    <span class="k">struct</span> <span class="n">listNode</span> <span class="o"><strong></span><span class="n">prev</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">listNode</span> <span class="o"></strong></span><span class="n">next</span><span class="p">;</span>
+    <span class="kt">void</span> <span class="o"><strong></span><span class="n">value</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">listNode</span><span class="p">;</span>
+
+<span class="k">typedef</span> <span class="k">struct</span> <span class="n">listIter</span> <span class="p">{</span>
+    <span class="n">listNode</span> <span class="o"></strong></span><span class="n">next</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">direction</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">listIter</span><span class="p">;</span>
+
+<span class="k">typedef</span> <span class="k">struct</span> <span class="n">list</span> <span class="p">{</span>
+    <span class="n">listNode</span> <span class="o"><strong></span><span class="n">head</span><span class="p">;</span>
+    <span class="n">listNode</span> <span class="o"></strong></span><span class="n">tail</span><span class="p">;</span>
+    <span class="kt">void</span> <span class="o"><strong></span><span class="p">(</span><span class="o"></strong></span><span class="n">dup</span><span class="p">)(</span><span class="kt">void</span> <span class="o"><strong></span><span class="n">ptr</span><span class="p">);</span>
+    <span class="kt">void</span> <span class="p">(</span><span class="o"></strong></span><span class="n">free</span><span class="p">)(</span><span class="kt">void</span> <span class="o"><strong></span><span class="n">ptr</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="p">(</span><span class="o"></strong></span><span class="n">match</span><span class="p">)(</span><span class="kt">void</span> <span class="o"><strong></span><span class="n">ptr</span><span class="p">,</span> <span class="kt">void</span> <span class="o"></strong></span><span class="n">key</span><span class="p">);</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">len</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">list</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Redis 的 linkedlist 实现特点是：</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>双向：节点带有前后指针；</p>
+</li>
+<li>
+<p>无环：首尾没有相连，所以没有构成环状；</p>
+</li>
+<li>
+<p>链表保存了首尾指针；</p>
+</li>
+<li>
+<p>多态：可以保存不同类型的值，这里成为泛型也许更符合 Java 中的语义。</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Redis 在 2014 年实现了 <a href="java.util.LinkedList.html#quicklist">quicklist</a>，并使用 quicklist 代替了 linkedlist。所以，现在 linkedlist 几乎已经是废弃状态。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_redis_的_ziplist"><a class="anchor" href="#_redis_的_ziplist"></a>9.6. Redis 的 ziplist</h3>
+<div class="paragraph">
+<p>Redis 官方在 ziplist.c 文件的注释中对 ziplist 进行了定义：</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>The ziplist is a specially encoded dually linked list that is designed
+to be very memory efficient. It stores both strings and integer values,
+where integers are encoded as actual integers instead of a series of
+characters. It allows push and pop operations on either side of the list
+in O(1) time. However, because every operation requires a reallocation of
+the memory used by the ziplist, the actual complexity is related to the
+amount of memory used by the ziplist.</p>
+</div>
+</blockquote>
+<div class="attribution">
+&#8212; ziplist.c
+</div>
+</div>
+<div class="paragraph">
+<p>就是说，ziplist 是一个经过特殊编码的双向链表，它的设计目标就是为了提高存储效率。ziplist 可以用于存储字符串或整数，其中整数是按真正的二进制表示进行编码的，而不是编码成字符串序列。它能以 O(1) 的时间复杂度在表的两端提供 <code>push</code> 和 <code>pop</code> 操作。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="linenums">The general layout of the ziplist is as follows:
+
+&lt;zlbytes&gt; &lt;zltail&gt; &lt;zllen&gt; &lt;entry&gt; &lt;entry&gt; ... &lt;entry&gt; &lt;zlend&gt;
+
+NOTE: all fields are stored in little endian, if not specified otherwise.</code></pre>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./assets/images/redis/redis-ziplist-structure.jpg" alt="redis ziplist structure">
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>&lt;zlbytes&gt;</code>: 32bit，表示ziplist占用的字节总数（也包括&lt;zlbytes&gt;本身占用的4个字节）。</p>
+</li>
+<li>
+<p><code>&lt;zltail&gt;</code>: 32bit，表示ziplist表中最后一项（entry）在ziplist中的偏移字节数。</p>
+<div class="paragraph">
+<p><code>&lt;zltail&gt;</code> 的存在，使得我们可以很方便地找到最后一项（不用遍历整个ziplist），从而可以在ziplist尾端快速地执行push或pop操作。</p>
+</div>
+</li>
+<li>
+<p><code>&lt;zllen&gt;</code>: 16bit， 表示ziplist中数据项（entry）的个数。zllen字段因为只有16bit，所以可以表达的最大值为2<sup>16</sup>-1。<code>&lt;zllen&gt;</code> 等于16bit全为1的情况，那么 <code>&lt;zllen&gt;</code> 就不表示数据项个数了，这时要想知道 ziplist 中数据项总数，那么必须对ziplist从头到尾遍历各个数据项，才能计数出来。</p>
+</li>
+<li>
+<p><code>&lt;entry&gt;</code>: 表示真正存放数据的数据项，长度不定。一个数据项（entry）也有它自己的内部结构，这个稍后再解释。</p>
+</li>
+<li>
+<p><code>&lt;zlend&gt;</code>: ziplist 最后 1 个字节，是一个结束标记，值固定等于 255。</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>ziplist 将表中每一项存放在前后连续的地址空间内，一个ziplist整体占用一大块内存。它是一个表（list），但其实不是一个链表（linked list）。</p>
+</div>
+<div class="paragraph">
+<p>ziplist 为了在细节上节省内存，对于值的存储采用了变长的编码方式。</p>
+</div>
+<div class="paragraph">
+<p>每一个数据项&lt;entry&gt;的构成：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="linenums">&lt;prevlen&gt; &lt;encoding&gt; &lt;entry-data&gt; <i class="conum" data-value="1"></i><b>(1)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td><code>&lt;prevlen&gt;</code>: 表示前一个数据项占用的总字节数。
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>如果前一个数据项占用字节数小于254，那么 <code>&lt;prevlen&gt;</code> 就只用一个字节来表示，这个字节的值就是前一个数据项的占用字节数： <code>&lt;prevlen from 0 to 253&gt; &lt;encoding&gt; &lt;entry&gt;</code></p>
+</li>
+<li>
+<p>如果前一个数据项占用字节数大于等于254，那么 <code>&lt;prevlen&gt;</code> 就用5个字节来表示，其中第1个字节的值是254（作为这种情况的一个标记），而后面4个字节组成一个整型值，来真正存储前一个数据项的占用字节数</p>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code>0xFE &lt;4 bytes unsigned little endian prevlen&gt; &lt;encoding&gt; &lt;entry&gt;  <i class="conum" data-value="2"></i><b>(2)</b> <i class="conum" data-value="3"></i><b>(3)</b></code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td><code>&lt;encoding&gt;</code>: 表示当前数据项的类型，整型或者字符串。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td><code>&lt;entry-data&gt;</code>: 数据</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>关于 <code>&lt;encoding&gt; &lt;entry-data&gt;</code> 的编码，直接引用官方文档：</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>The encoding field of the entry depends on the content of the
+entry. When the entry is a string, the first 2 bits of the encoding first
+byte will hold the type of encoding used to store the length of the string,
+followed by the actual length of the string. When the entry is an integer
+the first 2 bits are both set to 1. The following 2 bits are used to specify
+what kind of integer will be stored after this header. An overview of the
+different types and encodings is as follows. The first byte is always enough
+to determine the kind of entry.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>|00pppppp| - 1 byte
+     String value with length less than or equal to 63 bytes (6 bits).
+     "pppppp" represents the unsigned 6 bit length.
+|01pppppp|qqqqqqqq| - 2 bytes
+     String value with length less than or equal to 16383 bytes (14 bits).
+     IMPORTANT: The 14 bit number is stored in big endian.
+|10000000|qqqqqqqq|rrrrrrrr|ssssssss|tttttttt| - 5 bytes
+     String value with length greater than or equal to 16384 bytes.
+     Only the 4 bytes following the first byte represents the length
+     up to 32^2-1. The 6 lower bits of the first byte are not used and
+     are set to zero.
+     IMPORTANT: The 32 bit number is stored in big endian.
+|11000000| - 3 bytes
+     Integer encoded as int16_t (2 bytes).
+|11010000| - 5 bytes
+     Integer encoded as int32_t (4 bytes).
+|11100000| - 9 bytes
+     Integer encoded as int64_t (8 bytes).
+|11110000| - 4 bytes
+     Integer encoded as 24 bit signed (3 bytes).
+|11111110| - 2 bytes
+     Integer encoded as 8 bit signed (1 byte).
+|1111xxxx| - (with xxxx between 0000 and 1101) immediate 4 bit integer.
+     Unsigned integer from 0 to 12. The encoded value is actually from
+     1 to 13 because 0000 and 1111 can not be used, so 1 should be
+     subtracted from the encoded 4 bit value to obtain the right value.
+|11111111| - End of ziplist special entry.</pre>
+</div>
+</div>
+</blockquote>
+<div class="attribution">
+&#8212; ziplist.c
+</div>
+</div>
+<div class="paragraph">
+<p>引用在网上找的例子，来做个说明：</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./assets/images/redis/redis-ziplist-sample.png" alt="redis ziplist sample">
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>这个ziplist一共包含 33 个字节。字节编号从 <code>byte[0]</code> 到 <code>byte[32]</code>。图中每个字节的值使用 16 进制表示。</p>
+</li>
+<li>
+<p>头 4 个字节（<code>0x21000000</code>）是按小端（little endian）模式存储的 <code>&lt;zlbytes&gt;</code> 字段。什么是小端呢？就是指数据的低字节保存在内存的低地址中（参见维基百科词条 <a href="https://en.wikipedia.org/wiki/Endianness" target="_blank" rel="noopener">Endianness</a>）。因此，这里 <code>&lt;zlbytes&gt;</code> 的值应该解析成 <code>0x00000021</code>，用十进制表示正好就是33。</p>
+</li>
+<li>
+<p>接下来 4 个字节（<code>byte[4..7]</code>）是 <code>&lt;zltail&gt;</code>，用小端存储模式来解释，它的值是 <code>0x0000001D</code>（值为29），表示最后一个数据项在 <code>byte[29]</code> 的位置（那个数据项为 <code>0x05FE14</code>）。</p>
+</li>
+<li>
+<p>再接下来 2 个字节（<code>byte[8..9]</code>），值为 <code>0x0004</code>，表示这个 ziplist 里一共存有4项数据。</p>
+</li>
+<li>
+<p>接下来 6 个字节（<code>byte[10..15]</code>）是第 1 个数据项。其中，<code>prevlen=0</code>，因为它前面没有数据项；<code>len=4</code>，相当于前面定义的9种情况中的第1种，表示后面4个字节按字符串存储数据，数据的值为：<code>name</code>。</p>
+</li>
+<li>
+<p>接下来 8 个字节（<code>byte[16..23]</code>）是第 2 个数据项，与前面数据项存储格式类似，存储 1 个字符串：<code>tielei</code>。</p>
+</li>
+<li>
+<p>接下来 5 个字节（<code>byte[24..28]</code>）是第 3 个数据项，与前面数据项存储格式类似，存储 1 个字符串： <code>age</code>。</p>
+</li>
+<li>
+<p>接下来3个字节（<code>byte[29..31]</code>）是最后一个数据项，它的格式与前面的数据项存储格式不太一样。其中，第 1 个字节 <code>prevlen=5</code>，表示前一个数据项占用 5 个字节；第 2 个字节 = <code>FE</code>，相当于前面定义的9种情况中的第8种，所以后面还有1个字节用来表示真正的数据，并且以整数表示。它的值是20（0x14）。</p>
+</li>
+<li>
+<p>最后1个字节（<code>byte[32]</code>）表示 <code>&lt;zlend&gt;</code>，是固定的值255（0xFF）。</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>有两个问题需要注意：</p>
+</div>
+<div class="qlist qanda">
+<ol>
+<li>
+<p><em>如何反向遍历 ziplist ？</em></p>
+<p><code>&lt;prevlen&gt;</code>: 表示前一个数据项占用的总字节数。那么就能找到前一个元素的起始位置，就能实现反向遍历。</p>
+</li>
+<li>
+<p><em>如何从 ziplist 中添加/删除数据？删除数据后，对应位置的 Bits 位怎么处理？</em></p>
+<p>在某个/某些节点的前面添加新节点之后， 程序必须沿着路径挨个检查后续的节点，是否满足新长度的编码要求， 直到遇到一个能满足要求的节点（如果有一个能满足，则这个节点之后的其他节点也满足）， 或者到达 ziplist 的末端 zlend 为止， 这种检查操作的复杂度为 O(N<sup>2</sup>) 。</p>
+<div class="paragraph">
+<p>因为只有在新添加节点的后面有连续多个长度接近 254 的节点时， 这种连锁更新才会发生， 所以可以普遍地认为， 这种连锁更新发生的概率非常小， 在一般情况下， 将添加操作看成是 O(N) 复杂度也是可以的。</p>
+</div>
+<div class="paragraph">
+<p>删除元素就进行内存移位，覆盖 target 原本的数据，然后通过内存重分配，收缩多余空间。</p>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Redis 在下面这个几个地方使用了 ziplist：</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>列表包含少量的列表项，并且列表项只是整数或者短小的字符串时。（在下面 <a href="java.util.LinkedList.html#quicklist">quicklist</a> 小节中，在最新版 Redis 中测试，显示的是 quicklist，而 quicklist 内部使用的是 ziplist 来存储数据，只是外面被 quicklist 包裹着。）</p>
+</li>
+<li>
+<p>在哈希键值包含少量键值对，并且每个键值对只包含整数或短小字符串时。</p>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="bash"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="code"><pre><span class="nv">$ </span>redis-cli <span class="nt">--raw</span>
+
+127.0.0.1:6379&gt; HMSET site domain <span class="s2">"https://www.diguage.com"</span> owner <span class="s2">"D瓜哥"</span>
+OK
+
+127.0.0.1:6379&gt; HGET site domain
+https://www.diguage.com
+
+127.0.0.1:6379&gt; HGET site owner
+D瓜哥
+
+127.0.0.1:6379&gt; TYPE site
+<span class="nb">hash
+
+</span>127.0.0.1:6379&gt; OBJECT encoding site
+ziplist
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="quicklist"><a class="anchor" href="#quicklist"></a>9.7. quicklist</h3>
+<div class="paragraph">
+<p>Redis 对外暴露的 list 数据类型，它底层实现所依赖的内部数据结构就是 quicklist。</p>
+</div>
+<div class="paragraph">
+<p>list 是一个能维持数据项先后顺序的列表（各个数据项的先后顺序由插入位置决定），便于在表的两端追加和删除数据，而对于中间位置的存取具有 O(N) 的时间复杂度。</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>quicklist.c - A doubly linked list of ziplists</p>
+</div>
+</blockquote>
+<div class="attribution">
+&#8212; redis/quicklist.c
+</div>
+</div>
+<div class="paragraph">
+<p>Redis 在 <code>quicklist.c</code> 就说明了，quicklist 是一个双向链表，而且是一个 ziplist 的双向链表。quicklist 的每个节点都是一个 ziplist。这样设计大概又是一个空间和时间的折中：</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>双向链表便于在表的两端进行 <code>push</code> 和 <code>pop</code> 操作，但是它的内存开销比较大。首先，它在每个节点上除了要保存数据之外，还要额外保存两个指针；其次，双向链表的各个节点是单独的内存块，地址不连续，节点多了容易产生内存碎片。</p>
+</li>
+<li>
+<p>ziplist 由于是一整块连续内存，所以存储效率很高。但是，它不利于修改操作，每次数据变动都会引发一次内存的 <code>realloc</code> 。特别是当 ziplist 长度很长的时候，一次 <code>realloc</code> 可能会导致大批量的数据拷贝，进一步降低性能。</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>于是，结合了双向链表和 ziplist 的优点，quicklist 就应运而生了。</p>
+</div>
+<div class="paragraph">
+<p>新问题：到底一个 quicklist 节点包含多长的 ziplist 合适呢？</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>每个quicklist节点上的ziplist越短，则内存碎片越多。</p>
+</li>
+<li>
+<p>每个quicklist节点上的ziplist越长，则为ziplist分配大块连续内存空间的难度就越大。</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Redis 提供了一个配置参数 <code>list-max-ziplist-size</code> 让使用者可以来根据自己的情况进行调整:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code>list-max-ziplist-size -2</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>这个参数可正可负：</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>当取正值的时候，表示按照数据项个数来限定每个 quicklist 节点上的 ziplist 长度。</p>
+</li>
+<li>
+<p>当取负值的时候，表示按照占用字节数来限定每个 quicklist 节点上的 ziplist 长度。这时，它只能取 <code>-1</code> 到 <code>-5</code> 这五个值，每个值含义如下：</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>-5</code>: 每个 quicklist 节点上的 ziplist 大小不能超过 64 Kb。（注：1kb &#8658; 1024 bytes）</p>
+</li>
+<li>
+<p><code>-4</code>: 每个 quicklist 节点上的 ziplist 大小不能超过 32 Kb。</p>
+</li>
+<li>
+<p><code>-3</code>: 每个 quicklist 节点上的 ziplist 大小不能超过 16 Kb。</p>
+</li>
+<li>
+<p><code>-2</code>: 每个 quicklist 节点上的 ziplist 大小不能超过 8 Kb。（-2是Redis给出的默认值）</p>
+</li>
+<li>
+<p><code>-1</code>: 每个 quicklist 节点上的 ziplist 大小不能超过 4 Kb。</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>list的设计目标是能够用来存储很长的数据列表的。当列表很长的时候，最容易被访问的很可能是两端的数据，中间的数据被访问的频率比较低。list 还提供了一个选项，能够把中间的数据节点进行压缩，从而进一步节省内存空间。Redis 的配置参数 <code>list-compress-depth</code> 就是用来完成这个设置的。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code>list-compress-depth 0 // 0 是特殊值，表示都不压缩，默认值。</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>这个参数表示一个quicklist两端不被压缩的节点个数。注：这里的节点个数是指quicklist双向链表的节点个数，而不是指ziplist里面的数据项个数。一个 quicklist 节点上的 ziplist，如果被压缩，就是整体被压缩的。</p>
+</div>
+<div class="paragraph">
+<p>Redis 对于 quicklist 内部节点的压缩算法，采用的 <a href="https://en.wikipedia.org/wiki/LZ4_(compression_algorithm)" target="_blank" rel="noopener">LZF</a> ——一种无损压缩算法。</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>添加过程中，如何处理中间位置的压缩工作？</p>
+</li>
+<li>
+<p>头部或者尾部删除，导致 quicklistNode 的非压缩节点不符合设置，怎么处理？</p>
+</li>
+<li>
+<p>如果中间删除，节点为压缩节点，怎么处理？</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">quicklist.h</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+</pre></td><td class="code"><pre><span class="cm">/* Node, quicklist, and Iterator are the only data structures used currently. <strong>/</span>
+
+<span class="cm">/</strong> quicklistNode is a 32 byte struct describing a ziplist for a quicklist.
+ * We use bit fields keep the quicklistNode at 32 bytes.
+ * count: 16 bits, max 65536 (max zl bytes is 65k, so max count actually &lt; 32k).
+ * encoding: 2 bits, RAW=1, LZF=2.
+ * container: 2 bits, NONE=1, ZIPLIST=2.
+ * recompress: 1 bit, bool, true if node is temporarry decompressed for usage.
+ * attempted_compress: 1 bit, boolean, used for verifying during testing.
+ * extra: 10 bits, free for future use; pads out the remainder of 32 bits <strong>/</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="n">quicklistNode</span> <span class="p">{</span>
+    <span class="k">struct</span> <span class="n">quicklistNode</span> <span class="o"></strong></span><span class="n">prev</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">quicklistNode</span> <span class="o"><strong></span><span class="n">next</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o"></strong></span><span class="n">zl</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">sz</span><span class="p">;</span>             <span class="cm">/* ziplist size in bytes <strong>/</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">count</span> <span class="o">:</span> <span class="mi">16</span><span class="p">;</span>     <span class="cm">/</strong> count of items in ziplist <strong>/</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">encoding</span> <span class="o">:</span> <span class="mi">2</span><span class="p">;</span>   <span class="cm">/</strong> RAW==1 or LZF==2 <strong>/</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">container</span> <span class="o">:</span> <span class="mi">2</span><span class="p">;</span>  <span class="cm">/</strong> NONE==1 or ZIPLIST==2 <strong>/</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">recompress</span> <span class="o">:</span> <span class="mi">1</span><span class="p">;</span> <span class="cm">/</strong> was this node previous compressed? <strong>/</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">attempted_compress</span> <span class="o">:</span> <span class="mi">1</span><span class="p">;</span> <span class="cm">/</strong> node can't compress; too small <strong>/</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">extra</span> <span class="o">:</span> <span class="mi">10</span><span class="p">;</span> <span class="cm">/</strong> more bits to steal for future usage <strong>/</span>
+<span class="p">}</span> <span class="n">quicklistNode</span><span class="p">;</span>
+
+<span class="cm">/</strong> quicklistLZF is a 4+N byte struct holding 'sz' followed by 'compressed'.
+ * 'sz' is byte length of 'compressed' field.
+ * 'compressed' is LZF data with total (compressed) length 'sz'
+ * NOTE: uncompressed length is stored in quicklistNode-&gt;sz.
+ * When quicklistNode-&gt;zl is compressed, node-&gt;zl points to a quicklistLZF <strong>/</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="n">quicklistLZF</span> <span class="p">{</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">sz</span><span class="p">;</span> <span class="cm">/</strong> LZF size in bytes*/</span>
+    <span class="kt">char</span> <span class="n">compressed</span><span class="p">[];</span>
+<span class="p">}</span> <span class="n">quicklistLZF</span><span class="p">;</span>
+
+<span class="cm">/* Bookmarks are padded with realloc at the end of of the quicklist struct.
+ * They should only be used for very big lists if thousands of nodes were the
+ * excess memory usage is negligible, and there's a real need to iterate on them
+ * in portions.
+ * When not used, they don't add any memory overhead, but when used and then
+ * deleted, some overhead remains (to avoid resonance).
+ * The number of bookmarks used should be kept to minimum since it also adds
+ * overhead on node deletion (searching for a bookmark to update). <strong>/</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="n">quicklistBookmark</span> <span class="p">{</span>
+    <span class="n">quicklistNode</span> <span class="o"></strong></span><span class="n">node</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o"><strong></span><span class="n">name</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">quicklistBookmark</span><span class="p">;</span>
+
+<span class="cm">/</strong> quicklist is a 40 byte struct (on 64-bit systems) describing a quicklist.
+ * 'count' is the number of total entries.
+ * 'len' is the number of quicklist nodes.
+ * 'compress' is: -1 if compression disabled, otherwise it's the number
+ *                of quicklistNodes to leave uncompressed at ends of quicklist.
+ * 'fill' is the user-requested (or default) fill factor.
+ * 'bookmakrs are an optional feature that is used by realloc this struct,
+ *      so that they don't consume memory when not used. <strong>/</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="n">quicklist</span> <span class="p">{</span>
+    <span class="n">quicklistNode</span> <span class="o"></strong></span><span class="n">head</span><span class="p">;</span>
+    <span class="n">quicklistNode</span> <span class="o"><strong></span><span class="n">tail</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">count</span><span class="p">;</span>        <span class="cm">/</strong> total count of all entries in all ziplists <strong>/</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">len</span><span class="p">;</span>          <span class="cm">/</strong> number of quicklistNodes <strong>/</span>
+    <span class="kt">int</span> <span class="n">fill</span> <span class="o">:</span> <span class="n">QL_FILL_BITS</span><span class="p">;</span>              <span class="cm">/</strong> fill factor for individual nodes <strong>/</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">compress</span> <span class="o">:</span> <span class="n">QL_COMP_BITS</span><span class="p">;</span> <span class="cm">/</strong> depth of end nodes not to compress;0=off <strong>/</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">bookmark_count</span><span class="o">:</span> <span class="n">QL_BM_BITS</span><span class="p">;</span>
+    <span class="n">quicklistBookmark</span> <span class="n">bookmarks</span><span class="p">[];</span>
+<span class="p">}</span> <span class="n">quicklist</span><span class="p">;</span>
+
+<span class="k">typedef</span> <span class="k">struct</span> <span class="n">quicklistIter</span> <span class="p">{</span>
+    <span class="k">const</span> <span class="n">quicklist</span> <span class="o"></strong></span><span class="n">quicklist</span><span class="p">;</span>
+    <span class="n">quicklistNode</span> <span class="o"><strong></span><span class="n">current</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o"></strong></span><span class="n">zi</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="n">offset</span><span class="p">;</span> <span class="cm">/* offset in current ziplist <strong>/</span>
+    <span class="kt">int</span> <span class="n">direction</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">quicklistIter</span><span class="p">;</span>
+
+<span class="k">typedef</span> <span class="k">struct</span> <span class="n">quicklistEntry</span> <span class="p">{</span>
+    <span class="k">const</span> <span class="n">quicklist</span> <span class="o"></strong></span><span class="n">quicklist</span><span class="p">;</span>
+    <span class="n">quicklistNode</span> <span class="o"><strong></span><span class="n">node</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o"></strong></span><span class="n">zi</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">value</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="kt">long</span> <span class="n">longval</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">sz</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">offset</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">quicklistEntry</span><span class="p">;</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./assets/images/redis/redis-quicklist-structure.png" alt="redis quicklist structure">
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="bash"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="code"><pre><span class="nv">$ </span>redis-cli <span class="nt">--raw</span>
+
+127.0.0.1:6379&gt; RPUSH names diguage <span class="s2">"D瓜哥"</span> <span class="s2">"https://www.diguage.com/"</span>
+2
+
+127.0.0.1:6379&gt; LRANGE names 0 <span class="nt">-1</span>
+diguage
+D瓜哥
+https://www.diguage.com/
+
+127.0.0.1:6379&gt; TYPE names
+list
+
+127.0.0.1:6379&gt; OBJECT encoding names
+quicklist
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_参考资料_3"><a class="anchor" href="#_参考资料_3"></a>9.8. 参考资料</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><a href="https://www.diguage.com/post/redis-core-data-structure-1/" target="_blank" rel="noopener">Redis 核心数据结构（一） - "地瓜哥"博客网</a>&#8201;&#8212;&#8201;本文中的 Redis 内容是这篇文章的一个拷贝。请以原文为准备，本文尽量同步更新。</p>
+</li>
+<li>
+<p><a href="http://zhangtielei.com/posts/blog-redis-ziplist.html" target="_blank" rel="noopener">Redis内部数据结构详解(4)——ziplist</a></p>
+</li>
+<li>
+<p><a href="http://zhangtielei.com/posts/blog-redis-quicklist.html" target="_blank" rel="noopener">Redis内部数据结构详解(5)——quicklist</a></p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>ArrayList更适合随机访问，而LinkedList更适合插入和删除。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>对add(E e)方法的分析，可以得知LinkedList添加数据的效率高；</p>
+</li>
+<li>
+<p>对remove(int index)方法的分析，可以了解到LinkedList删除数据的效率高；</p>
+</li>
+<li>
+<p>对get(int index),set(int index, E element)方法的分析，可以看出LinkdedList查询的效率不高（需要定位，最差要遍历一半）；</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>核心数据结构通过内部类体现，Node就是实际的结点，存放了结点元素和前后结点的引用。</p>
+</div>
+<div class="paragraph">
+<p>在1.7之前LinkedList是通过headerEntry实现的一个首尾相连的循环链表的。<br>
+从1.7开始，LinkedList是一个Node实现的非循环链表。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java"><span class="kd">private</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="no">E</span> <span class="n">item</span><span class="o">;</span>
+    <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">next</span><span class="o">;</span>
+    <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">prev</span><span class="o">;</span>
+
+    <span class="nc">Node</span><span class="o">(</span><span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">prev</span><span class="o">,</span> <span class="no">E</span> <span class="n">element</span><span class="o">,</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">next</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">item</span> <span class="o">=</span> <span class="n">element</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">next</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">prev</span> <span class="o">=</span> <span class="n">prev</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>代码开始</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java"><span class="kn">package</span> <span class="nn">java.util</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.function.Consumer</span><span class="o">;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_类的继承关系"><a class="anchor" href="#_类的继承关系"></a>9.9. 类的继承关系</h3>
+<div class="imageblock">
+<div class="content">
+<img src="./assets/images/DiagramForLinkedList.png" alt="DiagramForLinkedList">
+</div>
+</div>
+<div class="paragraph">
+<p>继承自AbstractSequentialList，一个LinkedList抽象的实现；
+重点关注实现了Deque接口。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">LinkedList</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span>
+    <span class="kd">extends</span> <span class="nc">AbstractSequentialList</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span>
+    <span class="kd">implements</span> <span class="nc">List</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;,</span> <span class="nc">Deque</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;,</span> <span class="nc">Cloneable</span><span class="o">,</span> <span class="n">java</span><span class="o">.</span><span class="na">io</span><span class="o">.</span><span class="na">Serializable</span>
+<span class="o">{</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_类的属性"><a class="anchor" href="#_类的属性"></a>9.10. 类的属性</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java">    <span class="c1">//存储元素个数</span>
+    <span class="kd">transient</span> <span class="kt">int</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+
+    <span class="c1">//存储头结点</span>
+    <span class="kd">transient</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">first</span><span class="o">;</span>
+
+    <span class="c1">//存储尾结点</span>
+    <span class="kd">transient</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">last</span><span class="o">;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_类的构造器"><a class="anchor" href="#_类的构造器"></a>9.11. 类的构造器</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java">    <span class="c1">//无参构造器</span>
+    <span class="kd">public</span> <span class="nf">LinkedList</span><span class="o">()</span> <span class="o">{</span>
+    <span class="o">}</span>
+
+    <span class="c1">//通过一个集合初始化LinkedList，元素顺序由这个集合的迭代器返回顺序决定</span>
+    <span class="kd">public</span> <span class="nf">LinkedList</span><span class="o">(</span><span class="nc">Collection</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="no">E</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">//调用无参构造器</span>
+        <span class="k">this</span><span class="o">();</span>
+        <span class="c1">//添加元素</span>
+        <span class="n">addAll</span><span class="o">(</span><span class="n">c</span><span class="o">);</span>
+    <span class="o">}</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_类的方法"><a class="anchor" href="#_类的方法"></a>9.12. 类的方法</h3>
+<div class="paragraph">
+<p>主要的方法的基础是link和unlink方法组,Node&lt;E&gt; node(int index)定位方法（均不是public）</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./assets/images/linkedlist-insert-node.png" alt="linkedlist insert node">
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java">    <span class="c1">//在指定节点前插入节点，节点succ不能为空</span>
+    <span class="kt">void</span> <span class="nf">linkBefore</span><span class="o">(</span><span class="no">E</span> <span class="n">e</span><span class="o">,</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">succ</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">//获取succ的前结点</span>
+        <span class="kd">final</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">pred</span> <span class="o">=</span> <span class="n">succ</span><span class="o">.</span><span class="na">prev</span><span class="o">;</span>
+        <span class="kd">final</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">newNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Node</span><span class="o">&lt;&gt;(</span><span class="n">pred</span><span class="o">,</span> <span class="n">e</span><span class="o">,</span> <span class="n">succ</span><span class="o">);</span>
+        <span class="n">succ</span><span class="o">.</span><span class="na">prev</span> <span class="o">=</span> <span class="n">newNode</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">pred</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span><span class="c1">//如果前结点为空</span>
+            <span class="n">first</span> <span class="o">=</span> <span class="n">newNode</span><span class="o">;</span>
+        <span class="k">else</span>
+            <span class="n">pred</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">newNode</span><span class="o">;</span>
+        <span class="n">size</span><span class="o">++;</span>
+        <span class="n">modCount</span><span class="o">++;</span>
+    <span class="o">}</span>
+    <span class="c1">//把对应参数作为第一个节点，内部使用</span>
+    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">linkFirst</span><span class="o">(</span><span class="no">E</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">//获取头结点</span>
+        <span class="kd">final</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">f</span> <span class="o">=</span> <span class="n">first</span><span class="o">;</span>
+        <span class="c1">//定义新结点</span>
+        <span class="kd">final</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">newNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Node</span><span class="o">&lt;&gt;(</span><span class="kc">null</span><span class="o">,</span> <span class="n">e</span><span class="o">,</span> <span class="n">f</span><span class="o">);</span>
+        <span class="n">first</span> <span class="o">=</span> <span class="n">newNode</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">f</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span><span class="c1">//头结点为null</span>
+            <span class="c1">// 赋值尾结点（结果只有一个元素）</span>
+            <span class="n">last</span> <span class="o">=</span> <span class="n">newNode</span><span class="o">;</span>
+        <span class="k">else</span>
+            <span class="c1">//把原来的首结点的引用指向这个新加的结点</span>
+            <span class="n">f</span><span class="o">.</span><span class="na">prev</span> <span class="o">=</span> <span class="n">newNode</span><span class="o">;</span>
+        <span class="n">size</span><span class="o">++;</span>
+        <span class="n">modCount</span><span class="o">++;</span>
+        <span class="c1">//LinkedList也采用了“快速失败”的机制，通过记录modCount参数来实现。在面对并发的修改时，</span>
+        <span class="c1">//迭代器很快就会完全失败，而不是冒着在将来某个不确定时间发生任意不确定行为的风险。</span>
+
+    <span class="o">}</span>
+
+    <span class="c1">//把对应参数作为尾节点（和前一个方法类似）</span>
+    <span class="kt">void</span> <span class="nf">linkLast</span><span class="o">(</span><span class="no">E</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// 获取尾结点，l为final类型，不可更改</span>
+        <span class="kd">final</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">l</span> <span class="o">=</span> <span class="n">last</span><span class="o">;</span>
+        <span class="kd">final</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">newNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Node</span><span class="o">&lt;&gt;(</span><span class="n">l</span><span class="o">,</span> <span class="n">e</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+        <span class="n">last</span> <span class="o">=</span> <span class="n">newNode</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">l</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="n">first</span> <span class="o">=</span> <span class="n">newNode</span><span class="o">;</span>
+        <span class="k">else</span>
+            <span class="n">l</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">newNode</span><span class="o">;</span>
+        <span class="n">size</span><span class="o">++;</span>
+        <span class="n">modCount</span><span class="o">++;</span>
+    <span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./assets/images/linkedlist-remove-node.png" alt="linkedlist remove node">
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java">      <span class="c1">//删除指定节点并返回被删除的元素值</span>
+      <span class="no">E</span> <span class="nf">unlink</span><span class="o">(</span><span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">x</span><span class="o">)</span> <span class="o">{</span>
+          <span class="c1">// assert x != null;</span>
+          <span class="kd">final</span> <span class="no">E</span> <span class="n">element</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="na">item</span><span class="o">;</span>
+          <span class="kd">final</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">next</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="na">next</span><span class="o">;</span>
+          <span class="kd">final</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">prev</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="na">prev</span><span class="o">;</span>
+
+          <span class="k">if</span> <span class="o">(</span><span class="n">prev</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+              <span class="n">first</span> <span class="o">=</span> <span class="n">next</span><span class="o">;</span>
+          <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+              <span class="n">prev</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">next</span><span class="o">;</span>
+              <span class="n">x</span><span class="o">.</span><span class="na">prev</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+          <span class="o">}</span>
+
+          <span class="k">if</span> <span class="o">(</span><span class="n">next</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+              <span class="n">last</span> <span class="o">=</span> <span class="n">prev</span><span class="o">;</span>
+          <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+              <span class="n">next</span><span class="o">.</span><span class="na">prev</span> <span class="o">=</span> <span class="n">prev</span><span class="o">;</span>
+              <span class="n">x</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+          <span class="o">}</span>
+
+          <span class="n">x</span><span class="o">.</span><span class="na">item</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+          <span class="n">size</span><span class="o">--;</span>
+          <span class="n">modCount</span><span class="o">++;</span>
+          <span class="k">return</span> <span class="n">element</span><span class="o">;</span>
+      <span class="o">}</span>
+    <span class="c1">//删除首节点并返回删除前首节点的值，内部使用</span>
+    <span class="kd">private</span> <span class="no">E</span> <span class="nf">unlinkFirst</span><span class="o">(</span><span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">f</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// assert f == first &amp;&amp; f != null;</span>
+        <span class="kd">final</span> <span class="no">E</span> <span class="n">element</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="na">item</span><span class="o">;</span>
+        <span class="kd">final</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">next</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="na">next</span><span class="o">;</span>
+        <span class="n">f</span><span class="o">.</span><span class="na">item</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="n">f</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span> <span class="c1">// help GC</span>
+        <span class="n">first</span> <span class="o">=</span> <span class="n">next</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">next</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="n">last</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="k">else</span>
+            <span class="n">next</span><span class="o">.</span><span class="na">prev</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="n">size</span><span class="o">--;</span>
+        <span class="n">modCount</span><span class="o">++;</span>
+        <span class="k">return</span> <span class="n">element</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="c1">//删除尾节点并返回删除前尾节点的值，内部使用</span>
+    <span class="kd">private</span> <span class="no">E</span> <span class="nf">unlinkLast</span><span class="o">(</span><span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">l</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// assert l == last &amp;&amp; l != null;</span>
+        <span class="kd">final</span> <span class="no">E</span> <span class="n">element</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="na">item</span><span class="o">;</span>
+        <span class="kd">final</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">prev</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="na">prev</span><span class="o">;</span>
+        <span class="n">l</span><span class="o">.</span><span class="na">item</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="n">l</span><span class="o">.</span><span class="na">prev</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span> <span class="c1">// help GC</span>
+        <span class="n">last</span> <span class="o">=</span> <span class="n">prev</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">prev</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="n">first</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="k">else</span>
+            <span class="n">prev</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="n">size</span><span class="o">--;</span>
+        <span class="n">modCount</span><span class="o">++;</span>
+        <span class="k">return</span> <span class="n">element</span><span class="o">;</span>
+    <span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java"><span class="c1">//获取第一个元素</span>
+    <span class="kd">public</span> <span class="no">E</span> <span class="nf">getFirst</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kd">final</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">f</span> <span class="o">=</span> <span class="n">first</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">f</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">NoSuchElementException</span><span class="o">();</span>
+        <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="na">item</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="c1">//获取最后一个元素</span>
+    <span class="kd">public</span> <span class="no">E</span> <span class="nf">getLast</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kd">final</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">l</span> <span class="o">=</span> <span class="n">last</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">l</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">NoSuchElementException</span><span class="o">();</span>
+        <span class="k">return</span> <span class="n">l</span><span class="o">.</span><span class="na">item</span><span class="o">;</span>
+    <span class="o">}</span>
+
+<span class="c1">//删除第一个元素并返回删除的元素</span>
+    <span class="kd">public</span> <span class="no">E</span> <span class="nf">removeFirst</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kd">final</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">f</span> <span class="o">=</span> <span class="n">first</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">f</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">NoSuchElementException</span><span class="o">();</span>
+        <span class="k">return</span> <span class="nf">unlinkFirst</span><span class="o">(</span><span class="n">f</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="c1">//删除最后一个元素并返回删除的值</span>
+    <span class="kd">public</span> <span class="no">E</span> <span class="nf">removeLast</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kd">final</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">l</span> <span class="o">=</span> <span class="n">last</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">l</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">NoSuchElementException</span><span class="o">();</span>
+        <span class="k">return</span> <span class="nf">unlinkLast</span><span class="o">(</span><span class="n">l</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="c1">//添加元素作为第一个元素</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">addFirst</span><span class="o">(</span><span class="no">E</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">linkFirst</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span>
+ <span class="c1">//添加元素作为最后一个元素</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">addLast</span><span class="o">(</span><span class="no">E</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">linkLast</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span>
+ <span class="c1">//检查是否包含某个元素，返回bool</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">contains</span><span class="o">(</span><span class="nc">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nf">indexOf</span><span class="o">(</span><span class="n">o</span><span class="o">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="c1">//返回列表长度</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">size</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">size</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="c1">//添加一个元素，默认添加到末尾作为最后一个元素</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">add</span><span class="o">(</span><span class="no">E</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">linkLast</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="c1">//删除指定元素，默认从first节点开始，删除第一次出现的那个元素（需要迭代）</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">remove</span><span class="o">(</span><span class="nc">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">o</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">for</span> <span class="o">(</span><span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">first</span><span class="o">;</span> <span class="n">x</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="na">next</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">x</span><span class="o">.</span><span class="na">item</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">unlink</span><span class="o">(</span><span class="n">x</span><span class="o">);</span>
+                    <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="k">for</span> <span class="o">(</span><span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">first</span><span class="o">;</span> <span class="n">x</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="na">next</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">o</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">x</span><span class="o">.</span><span class="na">item</span><span class="o">))</span> <span class="o">{</span>
+                    <span class="n">unlink</span><span class="o">(</span><span class="n">x</span><span class="o">);</span>
+                    <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="c1">//添加指定集合的元素到列表，从最后开始添加</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">addAll</span><span class="o">(</span><span class="nc">Collection</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="no">E</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">//调用addAll(int index, Collection&lt;? extends E&gt; c)</span>
+        <span class="k">return</span> <span class="nf">addAll</span><span class="o">(</span><span class="n">size</span><span class="o">,</span> <span class="n">c</span><span class="o">);</span>
+    <span class="o">}</span>
+   <span class="c1">//从指定位置往后追加，index和之后的元素向后顺延</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">addAll</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">,</span> <span class="nc">Collection</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="no">E</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">checkPositionIndex</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+        <span class="c1">//转化成数组</span>
+        <span class="nc">Object</span><span class="o">[]</span> <span class="n">a</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="na">toArray</span><span class="o">();</span>
+        <span class="kt">int</span> <span class="n">numNew</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">numNew</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span>
+            <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+
+        <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">pred</span><span class="o">,</span> <span class="n">succ</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">index</span> <span class="o">==</span> <span class="n">size</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">succ</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+            <span class="n">pred</span> <span class="o">=</span> <span class="n">last</span><span class="o">;</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span><span class="c1">//如果不是从末尾开始添加，获取新加串的前后结点</span>
+            <span class="n">succ</span> <span class="o">=</span> <span class="n">node</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+            <span class="n">pred</span> <span class="o">=</span> <span class="n">succ</span><span class="o">.</span><span class="na">prev</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="c1">//遍历数组并添加到列表中</span>
+        <span class="k">for</span> <span class="o">(</span><span class="nc">Object</span> <span class="n">o</span> <span class="o">:</span> <span class="n">a</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">"unchecked"</span><span class="o">)</span> <span class="no">E</span> <span class="n">e</span> <span class="o">=</span> <span class="o">(</span><span class="no">E</span><span class="o">)</span> <span class="n">o</span><span class="o">;</span>
+            <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">newNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Node</span><span class="o">&lt;&gt;(</span><span class="n">pred</span><span class="o">,</span> <span class="n">e</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">pred</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+                <span class="n">first</span> <span class="o">=</span> <span class="n">newNode</span><span class="o">;</span>
+            <span class="k">else</span>
+                <span class="n">pred</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">newNode</span><span class="o">;</span><span class="c1">//如果存在前节点，前节点会向后指向新加的节点</span>
+            <span class="n">pred</span> <span class="o">=</span> <span class="n">newNode</span><span class="o">;</span><span class="c1">//新加的节点成为前一个节点</span>
+        <span class="o">}</span>
+
+        <span class="k">if</span> <span class="o">(</span><span class="n">succ</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">last</span> <span class="o">=</span> <span class="n">pred</span><span class="o">;</span><span class="c1">//如果是从最后开始添加的，则最后添加的节点成为尾节点</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="n">pred</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">succ</span><span class="o">;</span><span class="c1">//如果不是从最后开始添加的，则最后添加的节点向后指向之前得到的后续第一个节点</span>
+            <span class="n">succ</span><span class="o">.</span><span class="na">prev</span> <span class="o">=</span> <span class="n">pred</span><span class="o">;</span><span class="c1">//后续的第一个节点也应改为向前指向最后一个添加的节点</span>
+        <span class="o">}</span>
+
+        <span class="n">size</span> <span class="o">+=</span> <span class="n">numNew</span><span class="o">;</span>
+        <span class="n">modCount</span><span class="o">++;</span>
+        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="c1">//清空表</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">clear</span><span class="o">()</span> <span class="o">{</span>
+        <span class="c1">//方便gc回收垃圾</span>
+        <span class="k">for</span> <span class="o">(</span><span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">first</span><span class="o">;</span> <span class="n">x</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">;</span> <span class="o">)</span> <span class="o">{</span>
+            <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">next</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="na">next</span><span class="o">;</span>
+            <span class="n">x</span><span class="o">.</span><span class="na">item</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+            <span class="n">x</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+            <span class="n">x</span><span class="o">.</span><span class="na">prev</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">next</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="n">first</span> <span class="o">=</span> <span class="n">last</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="n">modCount</span><span class="o">++;</span>
+    <span class="o">}</span>
+
+    <span class="c1">//获取指定索引的节点的值</span>
+    <span class="kd">public</span> <span class="no">E</span> <span class="nf">get</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">checkElementIndex</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+        <span class="k">return</span> <span class="nf">node</span><span class="o">(</span><span class="n">index</span><span class="o">).</span><span class="na">item</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="c1">//修改指定索引的值并返回之前的值</span>
+    <span class="kd">public</span> <span class="no">E</span> <span class="nf">set</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">,</span> <span class="no">E</span> <span class="n">element</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">checkElementIndex</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+        <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">node</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+        <span class="no">E</span> <span class="n">oldVal</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="na">item</span><span class="o">;</span>
+        <span class="c1">//只是把item替换掉</span>
+        <span class="n">x</span><span class="o">.</span><span class="na">item</span> <span class="o">=</span> <span class="n">element</span><span class="o">;</span>
+        <span class="k">return</span> <span class="n">oldVal</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="c1">//在指定位置后面添加元素</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">add</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">,</span> <span class="no">E</span> <span class="n">element</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">checkPositionIndex</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+
+        <span class="k">if</span> <span class="o">(</span><span class="n">index</span> <span class="o">==</span> <span class="n">size</span><span class="o">)</span>
+            <span class="n">linkLast</span><span class="o">(</span><span class="n">element</span><span class="o">);</span>
+        <span class="k">else</span>
+            <span class="nf">linkBefore</span><span class="o">(</span><span class="n">element</span><span class="o">,</span> <span class="n">node</span><span class="o">(</span><span class="n">index</span><span class="o">));</span>
+    <span class="o">}</span>
+    <span class="c1">//删除指定位置的元素</span>
+    <span class="kd">public</span> <span class="no">E</span> <span class="nf">remove</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">checkElementIndex</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+        <span class="k">return</span> <span class="nf">unlink</span><span class="o">(</span><span class="n">node</span><span class="o">(</span><span class="n">index</span><span class="o">));</span>
+    <span class="o">}</span>
+    <span class="c1">//检查索引是否超出范围（checkElementIndex调用），因为元素索引是0~size-1的，所以index必须满足0&lt;=index&lt;size</span>
+    <span class="kd">private</span> <span class="kt">boolean</span> <span class="nf">isElementIndex</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">index</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="n">size</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="c1">//检查位置是否超出范围（checkPositionIndex调用），index必须在index~size之间（含），如果超出，返回false</span>
+    <span class="kd">private</span> <span class="kt">boolean</span> <span class="nf">isPositionIndex</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">index</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">index</span> <span class="o">&lt;=</span> <span class="n">size</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="c1">//异常详情</span>
+    <span class="kd">private</span> <span class="nc">String</span> <span class="nf">outOfBoundsMsg</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">"Index: "</span><span class="o">+</span><span class="n">index</span><span class="o">+</span><span class="s">", Size: "</span><span class="o">+</span><span class="n">size</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="c1">//检查元素索引是否超出范围（set,get,remove时检查），若已超出，就抛出异常</span>
+    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">checkElementIndex</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(!</span><span class="n">isElementIndex</span><span class="o">(</span><span class="n">index</span><span class="o">))</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">IndexOutOfBoundsException</span><span class="o">(</span><span class="n">outOfBoundsMsg</span><span class="o">(</span><span class="n">index</span><span class="o">));</span>
+    <span class="o">}</span>
+    <span class="c1">//检查位置是否超出范围（为添加和迭代检查使用），若已超出，就抛出异常</span>
+    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">checkPositionIndex</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(!</span><span class="n">isPositionIndex</span><span class="o">(</span><span class="n">index</span><span class="o">))</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">IndexOutOfBoundsException</span><span class="o">(</span><span class="n">outOfBoundsMsg</span><span class="o">(</span><span class="n">index</span><span class="o">));</span>
+    <span class="o">}</span>
+    <span class="c1">//获取指定位置的节点</span>
+    <span class="c1">//该方法返回双向链表中指定位置处的节点，而链表中是没有下标索引的，要指定位置出的元素，就要遍历该链表，从源码的实现中，我们看到这里有一个加速动作。</span>
+    <span class="c1">//源码中先将index与长度size的一半比较，如果index&lt;size/2，就只从位置0往后遍历到位置index处，而如果index&gt;size/2，就只从位置size往前遍历到位置index处。这样可以减少一部分不必要的遍历。</span>
+    <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="nf">node</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// assert isElementIndex(index);</span>
+
+        <span class="k">if</span> <span class="o">(</span><span class="n">index</span> <span class="o">&lt;</span> <span class="o">(</span><span class="n">size</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span><span class="o">))</span> <span class="o">{</span>
+            <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">first</span><span class="o">;</span>
+            <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">index</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="na">next</span><span class="o">;</span>
+            <span class="k">return</span> <span class="n">x</span><span class="o">;</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">last</span><span class="o">;</span>
+            <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="o">;</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="n">index</span><span class="o">;</span> <span class="n">i</span><span class="o">--)</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="na">prev</span><span class="o">;</span>
+            <span class="k">return</span> <span class="n">x</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="c1">//获取第一个指定元素的索引位置并返回索引，不存在就返回-1</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">indexOf</span><span class="o">(</span><span class="nc">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">o</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">for</span> <span class="o">(</span><span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">first</span><span class="o">;</span> <span class="n">x</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="na">next</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">x</span><span class="o">.</span><span class="na">item</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+                    <span class="k">return</span> <span class="n">index</span><span class="o">;</span>
+                <span class="n">index</span><span class="o">++;</span>
+            <span class="o">}</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="k">for</span> <span class="o">(</span><span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">first</span><span class="o">;</span> <span class="n">x</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="na">next</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">o</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">x</span><span class="o">.</span><span class="na">item</span><span class="o">))</span>
+                    <span class="k">return</span> <span class="n">index</span><span class="o">;</span>
+                <span class="n">index</span><span class="o">++;</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="c1">//获取最后一个指定元素索引的索引并返回索引，不存在就返回-1</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">lastIndexOf</span><span class="o">(</span><span class="nc">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="n">size</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">o</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">for</span> <span class="o">(</span><span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">last</span><span class="o">;</span> <span class="n">x</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="na">prev</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">index</span><span class="o">--;</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">x</span><span class="o">.</span><span class="na">item</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+                    <span class="k">return</span> <span class="n">index</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="k">for</span> <span class="o">(</span><span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">last</span><span class="o">;</span> <span class="n">x</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="na">prev</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">index</span><span class="o">--;</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">o</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">x</span><span class="o">.</span><span class="na">item</span><span class="o">))</span>
+                    <span class="k">return</span> <span class="n">index</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+    <span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Queue操作</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java">    <span class="c1">//提供普通队列和双端队列的功能，FIFO</span>
+     <span class="c1">//出队（从前端），获得第一个元素，不存在会返回null，不会删除元素（节点）</span>
+    <span class="kd">public</span> <span class="no">E</span> <span class="nf">peek</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kd">final</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">f</span> <span class="o">=</span> <span class="n">first</span><span class="o">;</span>
+        <span class="k">return</span> <span class="o">(</span><span class="n">f</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">?</span> <span class="kc">null</span> <span class="o">:</span> <span class="n">f</span><span class="o">.</span><span class="na">item</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="c1">//出队（从前端），不删除元素，若为null会抛出异常而不是返回null</span>
+    <span class="kd">public</span> <span class="no">E</span> <span class="nf">element</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nf">getFirst</span><span class="o">();</span>
+    <span class="o">}</span>
+    <span class="c1">//出队（从前端），如果不存在会返回null，存在的话会返回值并移除这个元素（节点）</span>
+    <span class="kd">public</span> <span class="no">E</span> <span class="nf">poll</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kd">final</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">f</span> <span class="o">=</span> <span class="n">first</span><span class="o">;</span>
+        <span class="k">return</span> <span class="o">(</span><span class="n">f</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">?</span> <span class="kc">null</span> <span class="o">:</span> <span class="n">unlinkFirst</span><span class="o">(</span><span class="n">f</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="c1">//出队（从前端），如果不存在会抛出异常而不是返回null，存在的话会返回值并移除这个元素（节点）</span>
+    <span class="kd">public</span> <span class="no">E</span> <span class="nf">remove</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nf">removeFirst</span><span class="o">();</span>
+    <span class="o">}</span>
+    <span class="c1">//入队（从后端），始终返回true</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">offer</span><span class="o">(</span><span class="no">E</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nf">add</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Deque（双端队列）操作</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java">    <span class="c1">//入队（从前端），始终返回true</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">offerFirst</span><span class="o">(</span><span class="no">E</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">addFirst</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="c1">//入队（从后端），始终返回true</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">offerLast</span><span class="o">(</span><span class="no">E</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">addLast</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="c1">//出队（从前端），获得第一个元素，不存在会返回null，不会删除元素（节点）</span>
+    <span class="kd">public</span> <span class="no">E</span> <span class="nf">peekFirst</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kd">final</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">f</span> <span class="o">=</span> <span class="n">first</span><span class="o">;</span>
+        <span class="k">return</span> <span class="o">(</span><span class="n">f</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">?</span> <span class="kc">null</span> <span class="o">:</span> <span class="n">f</span><span class="o">.</span><span class="na">item</span><span class="o">;</span>
+     <span class="o">}</span>
+     <span class="c1">//出队（从后端），获得最后一个元素，不存在会返回null，不会删除元素（节点）</span>
+    <span class="kd">public</span> <span class="no">E</span> <span class="nf">peekLast</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kd">final</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">l</span> <span class="o">=</span> <span class="n">last</span><span class="o">;</span>
+        <span class="k">return</span> <span class="o">(</span><span class="n">l</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">?</span> <span class="kc">null</span> <span class="o">:</span> <span class="n">l</span><span class="o">.</span><span class="na">item</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="c1">//出队（从前端），获得第一个元素，不存在会返回null，会删除元素（节点）</span>
+    <span class="kd">public</span> <span class="no">E</span> <span class="nf">pollFirst</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kd">final</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">f</span> <span class="o">=</span> <span class="n">first</span><span class="o">;</span>
+        <span class="k">return</span> <span class="o">(</span><span class="n">f</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">?</span> <span class="kc">null</span> <span class="o">:</span> <span class="n">unlinkFirst</span><span class="o">(</span><span class="n">f</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="c1">//出队（从后端），获得最后一个元素，不存在会返回null，会删除元素（节点）</span>
+    <span class="kd">public</span> <span class="no">E</span> <span class="nf">pollLast</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kd">final</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">l</span> <span class="o">=</span> <span class="n">last</span><span class="o">;</span>
+        <span class="k">return</span> <span class="o">(</span><span class="n">l</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">?</span> <span class="kc">null</span> <span class="o">:</span> <span class="n">unlinkLast</span><span class="o">(</span><span class="n">l</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="c1">//入栈，从前面添加</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">push</span><span class="o">(</span><span class="no">E</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">addFirst</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="c1">//出栈，返回栈顶元素，从前面移除（会删除）</span>
+    <span class="kd">public</span> <span class="no">E</span> <span class="nf">pop</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nf">removeFirst</span><span class="o">();</span>
+    <span class="o">}</span>
+    <span class="c1">//删除列表中第一出现o的节点</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">removeFirstOccurrence</span><span class="o">(</span><span class="nc">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nf">remove</span><span class="o">(</span><span class="n">o</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="c1">//逆向搜索，删除第一次出现o的节点</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">removeLastOccurrence</span><span class="o">(</span><span class="nc">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">o</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">for</span> <span class="o">(</span><span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">last</span><span class="o">;</span> <span class="n">x</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="na">prev</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">x</span><span class="o">.</span><span class="na">item</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">unlink</span><span class="o">(</span><span class="n">x</span><span class="o">);</span>
+                    <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="k">for</span> <span class="o">(</span><span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">last</span><span class="o">;</span> <span class="n">x</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="na">prev</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">o</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">x</span><span class="o">.</span><span class="na">item</span><span class="o">))</span> <span class="o">{</span>
+                    <span class="n">unlink</span><span class="o">(</span><span class="n">x</span><span class="o">);</span>
+                    <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+    <span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre> 通用迭代器实现  继承自AbstractSequentialList的方法，AbstractSequentialList抽象类中
+ public Iterator&lt;E&gt; iterator() {
+       return listIterator();
+ }
+通用迭代器与ArrayList不同，ArrayList自己实现了Iterator，说明linkedlist的迭代器天生支持反向迭代。</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>ListIterator迭代器实现与ArrayList类似
+其中的ListItr继承Itr，实现了ListIterator接口，同时重写了hasPrevious()，nextIndex()， previousIndex()，previous()，set(E e)，add(E e)等方法，
+所以这也可以看出了Iterator和ListIterator的区别，就是ListIterator在Iterator的基础上增加了添加对象，修改对象，
+逆向遍历等方法。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java">    <span class="kd">public</span> <span class="nc">ListIterator</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="nf">listIterator</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">checkPositionIndex</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nf">ListItr</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kd">class</span> <span class="nc">ListItr</span> <span class="kd">implements</span> <span class="nc">ListIterator</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="o">{</span>
+        <span class="kd">private</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">lastReturned</span><span class="o">;</span>
+        <span class="kd">private</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">next</span><span class="o">;</span>
+        <span class="kd">private</span> <span class="kt">int</span> <span class="n">nextIndex</span><span class="o">;</span>
+        <span class="kd">private</span> <span class="kt">int</span> <span class="n">expectedModCount</span> <span class="o">=</span> <span class="n">modCount</span><span class="o">;</span>
+
+        <span class="nc">ListItr</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// assert isPositionIndex(index);</span>
+            <span class="n">next</span> <span class="o">=</span> <span class="o">(</span><span class="n">index</span> <span class="o">==</span> <span class="n">size</span><span class="o">)</span> <span class="o">?</span> <span class="kc">null</span> <span class="o">:</span> <span class="n">node</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+            <span class="n">nextIndex</span> <span class="o">=</span> <span class="n">index</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">hasNext</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">nextIndex</span> <span class="o">&lt;</span> <span class="n">size</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="no">E</span> <span class="nf">next</span><span class="o">()</span> <span class="o">{</span>
+            <span class="n">checkForComodification</span><span class="o">();</span>
+            <span class="k">if</span> <span class="o">(!</span><span class="n">hasNext</span><span class="o">())</span>
+                <span class="k">throw</span> <span class="k">new</span> <span class="nf">NoSuchElementException</span><span class="o">();</span>
+
+            <span class="n">lastReturned</span> <span class="o">=</span> <span class="n">next</span><span class="o">;</span>
+            <span class="n">next</span> <span class="o">=</span> <span class="n">next</span><span class="o">.</span><span class="na">next</span><span class="o">;</span>
+            <span class="n">nextIndex</span><span class="o">++;</span>
+            <span class="k">return</span> <span class="n">lastReturned</span><span class="o">.</span><span class="na">item</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">hasPrevious</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">nextIndex</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="no">E</span> <span class="nf">previous</span><span class="o">()</span> <span class="o">{</span>
+            <span class="n">checkForComodification</span><span class="o">();</span>
+            <span class="k">if</span> <span class="o">(!</span><span class="n">hasPrevious</span><span class="o">())</span>
+                <span class="k">throw</span> <span class="k">new</span> <span class="nf">NoSuchElementException</span><span class="o">();</span>
+
+            <span class="n">lastReturned</span> <span class="o">=</span> <span class="n">next</span> <span class="o">=</span> <span class="o">(</span><span class="n">next</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">?</span> <span class="n">last</span> <span class="o">:</span> <span class="n">next</span><span class="o">.</span><span class="na">prev</span><span class="o">;</span>
+            <span class="n">nextIndex</span><span class="o">--;</span>
+            <span class="k">return</span> <span class="n">lastReturned</span><span class="o">.</span><span class="na">item</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="kt">int</span> <span class="nf">nextIndex</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">nextIndex</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="kt">int</span> <span class="nf">previousIndex</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">nextIndex</span> <span class="o">-</span> <span class="mi">1</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">remove</span><span class="o">()</span> <span class="o">{</span>
+            <span class="n">checkForComodification</span><span class="o">();</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">lastReturned</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+                <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalStateException</span><span class="o">();</span>
+
+            <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">lastNext</span> <span class="o">=</span> <span class="n">lastReturned</span><span class="o">.</span><span class="na">next</span><span class="o">;</span>
+            <span class="n">unlink</span><span class="o">(</span><span class="n">lastReturned</span><span class="o">);</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">next</span> <span class="o">==</span> <span class="n">lastReturned</span><span class="o">)</span>
+                <span class="n">next</span> <span class="o">=</span> <span class="n">lastNext</span><span class="o">;</span>
+            <span class="k">else</span>
+                <span class="n">nextIndex</span><span class="o">--;</span>
+            <span class="n">lastReturned</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+            <span class="n">expectedModCount</span><span class="o">++;</span>
+        <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">set</span><span class="o">(</span><span class="no">E</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">lastReturned</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+                <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalStateException</span><span class="o">();</span>
+            <span class="n">checkForComodification</span><span class="o">();</span>
+            <span class="n">lastReturned</span><span class="o">.</span><span class="na">item</span> <span class="o">=</span> <span class="n">e</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">add</span><span class="o">(</span><span class="no">E</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">checkForComodification</span><span class="o">();</span>
+            <span class="n">lastReturned</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">next</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+                <span class="n">linkLast</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+            <span class="k">else</span>
+                <span class="nf">linkBefore</span><span class="o">(</span><span class="n">e</span><span class="o">,</span> <span class="n">next</span><span class="o">);</span>
+            <span class="n">nextIndex</span><span class="o">++;</span>
+            <span class="n">expectedModCount</span><span class="o">++;</span>
+        <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">forEachRemaining</span><span class="o">(</span><span class="nc">Consumer</span><span class="o">&lt;?</span> <span class="kd">super</span> <span class="no">E</span><span class="o">&gt;</span> <span class="n">action</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nc">Objects</span><span class="o">.</span><span class="na">requireNonNull</span><span class="o">(</span><span class="n">action</span><span class="o">);</span>
+            <span class="k">while</span> <span class="o">(</span><span class="n">modCount</span> <span class="o">==</span> <span class="n">expectedModCount</span> <span class="o">&amp;&amp;</span> <span class="n">nextIndex</span> <span class="o">&lt;</span> <span class="n">size</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">action</span><span class="o">.</span><span class="na">accept</span><span class="o">(</span><span class="n">next</span><span class="o">.</span><span class="na">item</span><span class="o">);</span>
+                <span class="n">lastReturned</span> <span class="o">=</span> <span class="n">next</span><span class="o">;</span>
+                <span class="n">next</span> <span class="o">=</span> <span class="n">next</span><span class="o">.</span><span class="na">next</span><span class="o">;</span>
+                <span class="n">nextIndex</span><span class="o">++;</span>
+            <span class="o">}</span>
+            <span class="n">checkForComodification</span><span class="o">();</span>
+        <span class="o">}</span>
+
+        <span class="kd">final</span> <span class="kt">void</span> <span class="nf">checkForComodification</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">modCount</span> <span class="o">!=</span> <span class="n">expectedModCount</span><span class="o">)</span>
+                <span class="k">throw</span> <span class="k">new</span> <span class="nf">ConcurrentModificationException</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java">    <span class="c1">//节点的数据结构内部类，包含前后节点的引用和当前节点</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="o">{</span>
+        <span class="no">E</span> <span class="n">item</span><span class="o">;</span>
+        <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">next</span><span class="o">;</span>
+        <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">prev</span><span class="o">;</span>
+
+        <span class="nc">Node</span><span class="o">(</span><span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">prev</span><span class="o">,</span> <span class="no">E</span> <span class="n">element</span><span class="o">,</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">next</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">item</span> <span class="o">=</span> <span class="n">element</span><span class="o">;</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">next</span><span class="o">;</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">prev</span> <span class="o">=</span> <span class="n">prev</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java">    <span class="c1">//反向迭代器（实现Deque接口）</span>
+    <span class="c1">//Deque接口定义的方法，实现Iterator接口，用listIterator迭代器返回一个迭代在此双端队列逆向顺序的元素</span>
+    <span class="kd">public</span> <span class="nc">Iterator</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="nf">descendingIterator</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nf">DescendingIterator</span><span class="o">();</span>
+    <span class="o">}</span>
+    <span class="c1">//</span>
+    <span class="kd">private</span> <span class="kd">class</span> <span class="nc">DescendingIterator</span> <span class="kd">implements</span> <span class="nc">Iterator</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="o">{</span>
+        <span class="kd">private</span> <span class="kd">final</span> <span class="nc">ListItr</span> <span class="n">itr</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ListItr</span><span class="o">(</span><span class="n">size</span><span class="o">());</span>
+        <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">hasNext</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">itr</span><span class="o">.</span><span class="na">hasPrevious</span><span class="o">();</span>
+        <span class="o">}</span>
+        <span class="kd">public</span> <span class="no">E</span> <span class="nf">next</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">itr</span><span class="o">.</span><span class="na">previous</span><span class="o">();</span>
+        <span class="o">}</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">remove</span><span class="o">()</span> <span class="o">{</span>
+            <span class="n">itr</span><span class="o">.</span><span class="na">remove</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java">    <span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">"unchecked"</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="nc">LinkedList</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="nf">superClone</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="o">(</span><span class="nc">LinkedList</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;)</span> <span class="kd">super</span><span class="o">.</span><span class="na">clone</span><span class="o">();</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">CloneNotSupportedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">InternalError</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="c1">//与ArrayList一样都是调用super。clone()</span>
+    <span class="c1">//protected native Object clone() throws CloneNotSupportedException;</span>
+    <span class="c1">//被复制对象的所有变量都含有与原来的对象相同的值，而所有的对其他对象的引用仍然指向原来的对象。</span>
+    <span class="kd">public</span> <span class="nc">Object</span> <span class="nf">clone</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">LinkedList</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">clone</span> <span class="o">=</span> <span class="n">superClone</span><span class="o">();</span>
+
+        <span class="c1">// Put clone into "virgin" state</span>
+        <span class="n">clone</span><span class="o">.</span><span class="na">first</span> <span class="o">=</span> <span class="n">clone</span><span class="o">.</span><span class="na">last</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="n">clone</span><span class="o">.</span><span class="na">size</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="n">clone</span><span class="o">.</span><span class="na">modCount</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+
+        <span class="c1">// Initialize clone with our elements</span>
+        <span class="k">for</span> <span class="o">(</span><span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">first</span><span class="o">;</span> <span class="n">x</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="na">next</span><span class="o">)</span>
+            <span class="n">clone</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">x</span><span class="o">.</span><span class="na">item</span><span class="o">);</span>
+
+        <span class="k">return</span> <span class="n">clone</span><span class="o">;</span>
+    <span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>转换成数组</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java">    <span class="kd">public</span> <span class="nc">Object</span><span class="o">[]</span> <span class="nf">toArray</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">Object</span><span class="o">[]</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Object</span><span class="o">[</span><span class="n">size</span><span class="o">];</span>
+        <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="k">for</span> <span class="o">(</span><span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">first</span><span class="o">;</span> <span class="n">x</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="na">next</span><span class="o">)</span>
+            <span class="n">result</span><span class="o">[</span><span class="n">i</span><span class="o">++]</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="na">item</span><span class="o">;</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">"unchecked"</span><span class="o">)</span>
+    <span class="c1">//如果没有参数，就默认生成一个Object数组，如果给了T类型，就将节点内容放入a数组，</span>
+    <span class="c1">//如果a的长度小于链表，就使用反射生成一个链表大小的数组，这个时候由于类型是T，所以无法直接实例化。</span>
+    <span class="kd">public</span> <span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="no">T</span><span class="o">[]</span> <span class="nf">toArray</span><span class="o">(</span><span class="no">T</span><span class="o">[]</span> <span class="n">a</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">a</span><span class="o">.</span><span class="na">length</span> <span class="o">&lt;</span> <span class="n">size</span><span class="o">)</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="o">(</span><span class="no">T</span><span class="o">[])</span><span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">reflect</span><span class="o">.</span><span class="na">Array</span><span class="o">.</span><span class="na">newInstance</span><span class="o">(</span>
+                                <span class="n">a</span><span class="o">.</span><span class="na">getClass</span><span class="o">().</span><span class="na">getComponentType</span><span class="o">(),</span> <span class="n">size</span><span class="o">);</span>
+        <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="nc">Object</span><span class="o">[]</span> <span class="n">result</span> <span class="o">=</span> <span class="n">a</span><span class="o">;</span>
+        <span class="k">for</span> <span class="o">(</span><span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">first</span><span class="o">;</span> <span class="n">x</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="na">next</span><span class="o">)</span>
+            <span class="n">result</span><span class="o">[</span><span class="n">i</span><span class="o">++]</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="na">item</span><span class="o">;</span>
+
+        <span class="k">if</span> <span class="o">(</span><span class="n">a</span><span class="o">.</span><span class="na">length</span> <span class="o">&gt;</span> <span class="n">size</span><span class="o">)</span>
+            <span class="n">a</span><span class="o">[</span><span class="n">size</span><span class="o">]</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+
+        <span class="k">return</span> <span class="n">a</span><span class="o">;</span>
+    <span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>如果声明该方法，它将会被ObjectOutputStream调用而不是默认的序列化进程。如果你是第一次看见它，
+你会很惊奇尽管它们被外部类调用但事实上这是两个private的方法。并且它们既不存在于java.lang.Object，也没有在Serializable中声明。
+那么ObjectOutputStream如何使用它们的呢？这个吗，ObjectOutputStream使用了反射来寻找是否声明了这两个方法。
+因为ObjectOutputStream使用getPrivateMethod，所以这些方法不得不被声明为priate以至于供ObjectOutputStream来使用。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java">    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">long</span> <span class="n">serialVersionUID</span> <span class="o">=</span> <span class="mi">876323262645176354L</span><span class="o">;</span>
+    <span class="c1">//定义了自己的序列化方法，通过反射调用</span>
+    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">writeObject</span><span class="o">(</span><span class="n">java</span><span class="o">.</span><span class="na">io</span><span class="o">.</span><span class="na">ObjectOutputStream</span> <span class="n">s</span><span class="o">)</span>
+        <span class="kd">throws</span> <span class="n">java</span><span class="o">.</span><span class="na">io</span><span class="o">.</span><span class="na">IOException</span> <span class="o">{</span>
+        <span class="c1">// Write out any hidden serialization magic</span>
+        <span class="n">s</span><span class="o">.</span><span class="na">defaultWriteObject</span><span class="o">();</span>
+
+        <span class="c1">// Write out size</span>
+        <span class="n">s</span><span class="o">.</span><span class="na">writeInt</span><span class="o">(</span><span class="n">size</span><span class="o">);</span>
+
+        <span class="c1">// Write out all elements in the proper order.</span>
+        <span class="k">for</span> <span class="o">(</span><span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">first</span><span class="o">;</span> <span class="n">x</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="na">next</span><span class="o">)</span>
+            <span class="n">s</span><span class="o">.</span><span class="na">writeObject</span><span class="o">(</span><span class="n">x</span><span class="o">.</span><span class="na">item</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">"unchecked"</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">readObject</span><span class="o">(</span><span class="n">java</span><span class="o">.</span><span class="na">io</span><span class="o">.</span><span class="na">ObjectInputStream</span> <span class="n">s</span><span class="o">)</span>
+        <span class="kd">throws</span> <span class="n">java</span><span class="o">.</span><span class="na">io</span><span class="o">.</span><span class="na">IOException</span><span class="o">,</span> <span class="nc">ClassNotFoundException</span> <span class="o">{</span>
+        <span class="c1">// Read in any hidden serialization magic</span>
+        <span class="n">s</span><span class="o">.</span><span class="na">defaultReadObject</span><span class="o">();</span>
+
+        <span class="c1">// Read in size</span>
+        <span class="kt">int</span> <span class="n">size</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="na">readInt</span><span class="o">();</span>
+
+        <span class="c1">// Read in all elements in the proper order.</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">size</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span>
+            <span class="n">linkLast</span><span class="o">((</span><span class="no">E</span><span class="o">)</span><span class="n">s</span><span class="o">.</span><span class="na">readObject</span><span class="o">());</span>
+    <span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java">    <span class="c1">//以下关于1.8函数式编程</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="nc">Spliterator</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="nf">spliterator</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nc">LLSpliterator</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;(</span><span class="k">this</span><span class="o">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">static</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">LLSpliterator</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="kd">implements</span> <span class="nc">Spliterator</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="o">{</span>
+        <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="no">BATCH_UNIT</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">10</span><span class="o">;</span>  <span class="c1">// batch array size increment</span>
+        <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="no">MAX_BATCH</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">25</span><span class="o">;</span>  <span class="c1">// max batch array size;</span>
+        <span class="kd">final</span> <span class="nc">LinkedList</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">list</span><span class="o">;</span> <span class="c1">// null OK unless traversed</span>
+        <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">current</span><span class="o">;</span>      <span class="c1">// current node; null until initialized</span>
+        <span class="kt">int</span> <span class="n">est</span><span class="o">;</span>              <span class="c1">// size estimate; -1 until first needed</span>
+        <span class="kt">int</span> <span class="n">expectedModCount</span><span class="o">;</span> <span class="c1">// initialized when est set</span>
+        <span class="kt">int</span> <span class="n">batch</span><span class="o">;</span>            <span class="c1">// batch size for splits</span>
+
+        <span class="nc">LLSpliterator</span><span class="o">(</span><span class="nc">LinkedList</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">list</span><span class="o">,</span> <span class="kt">int</span> <span class="n">est</span><span class="o">,</span> <span class="kt">int</span> <span class="n">expectedModCount</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">list</span> <span class="o">=</span> <span class="n">list</span><span class="o">;</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">est</span> <span class="o">=</span> <span class="n">est</span><span class="o">;</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">expectedModCount</span> <span class="o">=</span> <span class="n">expectedModCount</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">final</span> <span class="kt">int</span> <span class="nf">getEst</span><span class="o">()</span> <span class="o">{</span>
+            <span class="kt">int</span> <span class="n">s</span><span class="o">;</span> <span class="c1">// force initialization</span>
+            <span class="kd">final</span> <span class="nc">LinkedList</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">lst</span><span class="o">;</span>
+            <span class="k">if</span> <span class="o">((</span><span class="n">s</span> <span class="o">=</span> <span class="n">est</span><span class="o">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">if</span> <span class="o">((</span><span class="n">lst</span> <span class="o">=</span> <span class="n">list</span><span class="o">)</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="n">est</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+                <span class="k">else</span> <span class="o">{</span>
+                    <span class="n">expectedModCount</span> <span class="o">=</span> <span class="n">lst</span><span class="o">.</span><span class="na">modCount</span><span class="o">;</span>
+                    <span class="n">current</span> <span class="o">=</span> <span class="n">lst</span><span class="o">.</span><span class="na">first</span><span class="o">;</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="n">est</span> <span class="o">=</span> <span class="n">lst</span><span class="o">.</span><span class="na">size</span><span class="o">;</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+            <span class="k">return</span> <span class="n">s</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="kt">long</span> <span class="nf">estimateSize</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="o">(</span><span class="kt">long</span><span class="o">)</span> <span class="n">getEst</span><span class="o">();</span> <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="nc">Spliterator</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="nf">trySplit</span><span class="o">()</span> <span class="o">{</span>
+            <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">p</span><span class="o">;</span>
+            <span class="kt">int</span> <span class="n">s</span> <span class="o">=</span> <span class="n">getEst</span><span class="o">();</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">s</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="o">(</span><span class="n">p</span> <span class="o">=</span> <span class="n">current</span><span class="o">)</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">batch</span> <span class="o">+</span> <span class="no">BATCH_UNIT</span><span class="o">;</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">n</span> <span class="o">&gt;</span> <span class="n">s</span><span class="o">)</span>
+                    <span class="n">n</span> <span class="o">=</span> <span class="n">s</span><span class="o">;</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">n</span> <span class="o">&gt;</span> <span class="no">MAX_BATCH</span><span class="o">)</span>
+                    <span class="n">n</span> <span class="o">=</span> <span class="no">MAX_BATCH</span><span class="o">;</span>
+                <span class="nc">Object</span><span class="o">[]</span> <span class="n">a</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Object</span><span class="o">[</span><span class="n">n</span><span class="o">];</span>
+                <span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+                <span class="k">do</span> <span class="o">{</span> <span class="n">a</span><span class="o">[</span><span class="n">j</span><span class="o">++]</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="na">item</span><span class="o">;</span> <span class="o">}</span> <span class="k">while</span> <span class="o">((</span><span class="n">p</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="na">next</span><span class="o">)</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">n</span><span class="o">);</span>
+                <span class="n">current</span> <span class="o">=</span> <span class="n">p</span><span class="o">;</span>
+                <span class="n">batch</span> <span class="o">=</span> <span class="n">j</span><span class="o">;</span>
+                <span class="n">est</span> <span class="o">=</span> <span class="n">s</span> <span class="o">-</span> <span class="n">j</span><span class="o">;</span>
+                <span class="k">return</span> <span class="nc">Spliterators</span><span class="o">.</span><span class="na">spliterator</span><span class="o">(</span><span class="n">a</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">j</span><span class="o">,</span> <span class="nc">Spliterator</span><span class="o">.</span><span class="na">ORDERED</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">forEachRemaining</span><span class="o">(</span><span class="nc">Consumer</span><span class="o">&lt;?</span> <span class="kd">super</span> <span class="no">E</span><span class="o">&gt;</span> <span class="n">action</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">p</span><span class="o">;</span> <span class="kt">int</span> <span class="n">n</span><span class="o">;</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">action</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="k">throw</span> <span class="k">new</span> <span class="nc">NullPointerException</span><span class="o">();</span>
+            <span class="k">if</span> <span class="o">((</span><span class="n">n</span> <span class="o">=</span> <span class="n">getEst</span><span class="o">())</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">(</span><span class="n">p</span> <span class="o">=</span> <span class="n">current</span><span class="o">)</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">current</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+                <span class="n">est</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+                <span class="k">do</span> <span class="o">{</span>
+                    <span class="no">E</span> <span class="n">e</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="na">item</span><span class="o">;</span>
+                    <span class="n">p</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="na">next</span><span class="o">;</span>
+                    <span class="n">action</span><span class="o">.</span><span class="na">accept</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+                <span class="o">}</span> <span class="k">while</span> <span class="o">(</span><span class="n">p</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="o">--</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">list</span><span class="o">.</span><span class="na">modCount</span> <span class="o">!=</span> <span class="n">expectedModCount</span><span class="o">)</span>
+                <span class="k">throw</span> <span class="k">new</span> <span class="nf">ConcurrentModificationException</span><span class="o">();</span>
+        <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">tryAdvance</span><span class="o">(</span><span class="nc">Consumer</span><span class="o">&lt;?</span> <span class="kd">super</span> <span class="no">E</span><span class="o">&gt;</span> <span class="n">action</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nc">Node</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="n">p</span><span class="o">;</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">action</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="k">throw</span> <span class="k">new</span> <span class="nc">NullPointerException</span><span class="o">();</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">getEst</span><span class="o">()</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">(</span><span class="n">p</span> <span class="o">=</span> <span class="n">current</span><span class="o">)</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="o">--</span><span class="n">est</span><span class="o">;</span>
+                <span class="no">E</span> <span class="n">e</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="na">item</span><span class="o">;</span>
+                <span class="n">current</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="na">next</span><span class="o">;</span>
+                <span class="n">action</span><span class="o">.</span><span class="na">accept</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">list</span><span class="o">.</span><span class="na">modCount</span> <span class="o">!=</span> <span class="n">expectedModCount</span><span class="o">)</span>
+                    <span class="k">throw</span> <span class="k">new</span> <span class="nf">ConcurrentModificationException</span><span class="o">();</span>
+                <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="kt">int</span> <span class="nf">characteristics</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="nc">Spliterator</span><span class="o">.</span><span class="na">ORDERED</span> <span class="o">|</span> <span class="nc">Spliterator</span><span class="o">.</span><span class="na">SIZED</span> <span class="o">|</span> <span class="nc">Spliterator</span><span class="o">.</span><span class="na">SUBSIZED</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+<span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>LinkedList与ArrayList的区别：
+LinkedList与ArrayList在性能上各有优缺点，都有各自适用的地方，总结如下：</p>
+</div>
+<div class="paragraph">
+<p>ArrayList是实现了基于动态数组的数据结构，LinkedList基于链表的数据结构。<br>
+LinkedList不支持高效的随机元素访问。<br>
+ArrayList的空间浪费主要体现在在list列表的结尾预留一定的容量空间，<br>
+而LinkedList的空间花费则体现在它的每一个元素都需要消耗相当的空间（需要附加的空间来表明数据元素的逻辑关系），就存储密度来说，ArrayList是优于LinkedList的。 +　　
+当操作是在一列数据的后面添加数据而不是在前面或中间,并且需要随机地访问其中的元素时,使用ArrayList会提供比较好的性能，<br>
+当你的操作是在一列数据的前面或中间添加或删除数据,并且按照顺序访问其中的元素时,就应该使用LinkedList了。</p>
+</div>
+</div>
+</div>
+</div>
+<div class="paragraph nav-footer">
+<p>← Previous: <a href="java.util.ArrayList.html">&lt;code&gt;ArrayList&lt;/code</a>&gt; | ↑ Up: <a href="index.html">JDK 源码分析</a> | Next: <a href="java.util.Stack.html">Stack</a> →</p>
+</div>
+<script src="https://giscus.app/client.js" data-repo="diguage/jdk-source-analysis" data-repo-id="MDEwOlJlcG9zaXRvcnk3MjM5MzE5Mw==" data-category="General" data-category-id="MDE4OkRpc2N1c3Npb25DYXRlZ29yeTMyMDM2MDQx" data-mapping="og:title" data-strict="0" data-reactions-enabled="1" data-emit-metadata="1" data-input-position="top" data-theme="preferred_color_scheme" data-lang="zh-CN" data-loading="lazy" crossorigin="anonymous" async></script>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2025-11-25 13:40:54 UTC
+</div>
+</div>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains("stemblock")) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script src="assets/scripts/asciidoctor-tabs.js"></script>
+<script src="assets/scripts/scroll-toc.js"></script></body>
+</html>

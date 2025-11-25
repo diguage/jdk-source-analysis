@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.26">
+<meta name="keywords" content="Java,JDK,Java source,Collection,ArrayList,Map,List,HashMap,ArrayDeque,Deque,Set,HashSet,LinkedList,Queue,TreeMap,TreeSet,Vector,Stack">
+<meta name="author" content="D瓜哥">
+<meta name="copyright" content="Apache-2.0">
+<meta property="og:title" content="preface">
+<title>JDK 源码分析: 前言：JDK &amp; STL 源码分析计划</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="assets/styles/asciidoctor.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+<style>
+    a {
+        text-decoration: none;
+    }
+
+    .img_bk {
+        text-align: center;
+    }
+
+    p > code, strong > code, div.admonitionblock tr > td.content > code {
+        color: #d14 !important;
+        background-color: #f5f5f5 !important;
+        border: 1px solid #e1e1e8;
+        white-space: nowrap;
+        border-radius: 3px;
+    }
+</style>
+<link rel="stylesheet" href="assets/styles/asciidoctor-tabs.css">
+<style>.toc-current{color:#d14;font-size:130%;font-weight: bold;} .toc-root{font-family: "Open Sans","DejaVu Sans",sans-serif;
+                       font-size: 0.9em;} #content{display: flex; flex-direction: column; flex: 1 1 auto;}
+             .nav-footer{text-align: center; margin-top: auto;}
+             .nav-footer > p > a {white-space: nowrap;}</style>
+</head>
+<body id="preface" class="book toc2 toc-left">
+<div id="header">
+<h1>JDK 源码分析: 前言：JDK &amp; STL 源码分析计划</h1>
+<div class="details">
+<span id="author" class="author">D瓜哥</span><br>
+<span id="email" class="email"><a href="https://www.diguage.com" class="bare">https://www.diguage.com</a></span><br>
+<span id="revdate">2025-11-25</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<p><span class="toc-root"><a href="index.html">JDK 源码分析</a></span></p><ul class="sectlevel1">
+<li><a href="preface.html"><span class="toc-current">前言：JDK &amp; STL 源码分析计划</span></a>
+</li>
+<li><a href="overview.html">1. 集合类概述</a>
+</li>
+<li><a href="java.util.Iterator.html">2. 迭代器 Iterator、 Enumeration、 Spliterator 与 Iterable</a>
+</li>
+<li><a href="java.util.Collection.html">3. Collection</a>
+</li>
+<li><a href="java.util.AbstractCollection.html">4. AbstractCollection</a>
+</li>
+<li><a href="java.util.List.html">5. List</a>
+</li>
+<li><a href="java.util.AbstractList.html">6. AbstractList</a>
+</li>
+<li><a href="java.util.AbstractSequentialList.html">7. AbstractSequentialList</a>
+</li>
+<li><a href="java.util.ArrayList.html">8. <code>ArrayList</code></a>
+</li>
+<li><a href="java.util.LinkedList.html">9. LinkedList</a>
+</li>
+<li><a href="java.util.Stack.html">10. Stack</a>
+</li>
+<li><a href="java.util.Vector.html">11. Vector</a>
+</li>
+<li><a href="java.util.Set.html">12. Set</a>
+</li>
+<li><a href="java.util.AbstractSet.html">13. AbstractSet</a>
+</li>
+<li><a href="java.util.SortedSet.html">14. SortedSet</a>
+</li>
+<li><a href="java.util.NavigableSet.html">15. NavigableSet</a>
+</li>
+<li><a href="java.util.HashSet.html">16. HashSet</a>
+</li>
+<li><a href="java.util.TreeSet.html">17. TreeSet</a>
+</li>
+<li><a href="java.util.LinkedHashSet.html">18. LinkedHashSet</a>
+</li>
+<li><a href="java.util.BitSet.html">19. BitSet</a>
+</li>
+<li><a href="java.util.EnumSet.html">20. EnumSet</a>
+</li>
+<li><a href="java.util.Map.html">21. Map</a>
+</li>
+<li><a href="java.util.SortedMap.html">22. SortedMap</a>
+</li>
+<li><a href="java.util.NavigableMap.html">23. NavigableMap</a>
+</li>
+<li><a href="java.util.AbstractMap.html">24. AbstractMap</a>
+</li>
+<li><a href="java.util.HashMap.html">25. HashMap</a>
+</li>
+<li><a href="java.util.TreeMap.html">26. TreeMap</a>
+</li>
+<li><a href="java.util.LinkedHashMap.html">27. LinkedHashMap</a>
+</li>
+<li><a href="java.util.Dictionary.html">28. Dictionary</a>
+</li>
+<li><a href="java.util.Hashtable.html">29. Hashtable</a>
+</li>
+<li><a href="java.util.EnumMap.html">30. EnumMap</a>
+</li>
+<li><a href="java.util.WeakHashMap.html">31. WeakHashMap</a>
+</li>
+<li><a href="java.util.IdentityHashMap.html">32. IdentityHashMap</a>
+</li>
+<li><a href="java.util.Queue.html">33. Queue</a>
+</li>
+<li><a href="java.util.Deque.html">34. Deque</a>
+</li>
+<li><a href="java.util.AbstractQueue.html">35. AbstractQueue</a>
+</li>
+<li><a href="java.util.ArrayDeque.html">36. ArrayDeque</a>
+</li>
+<li><a href="java.util.PriorityQueue.html">37. PriorityQueue</a>
+</li>
+<li><a href="java.util.Array.html">38. 工具类 <code>Arrays</code></a>
+</li>
+<li><a href="java.util.Collection.html">39. 工具类 <code>Collections</code></a>
+</li>
+<li><a href="concurrent.overview.html">40. 并发库概述</a>
+</li>
+<li><a href="java.lang.Thread.html">41. Thread</a>
+</li>
+<li><a href="java.util.concurrent.locks.LockSupport.html">42. LockSupport</a>
+</li>
+<li><a href="java.util.concurrent.locks.AbstractQueuedSynchronizer.html">43. AbstractQueuedSynchronizer</a>
+</li>
+<li><a href="java.util.concurrent.locks.ReentrantLock.html">44. ReentrantLock</a>
+</li>
+<li><a href="java.util.concurrent.locks.ReentrantReadWriteLock.html">45. ReentrantReadWriteLock</a>
+</li>
+<li><a href="java.util.concurrent.locks.StampedLock.html">46. StampedLock</a>
+</li>
+<li><a href="java.util.concurrent.Semaphore.html">47. Semaphore</a>
+</li>
+<li><a href="java.util.concurrent.CountDownLatch.html">48. CountDownLatch</a>
+</li>
+<li><a href="java.util.concurrent.CyclicBarrier.html">49. CyclicBarrier</a>
+</li>
+<li><a href="java.util.concurrent.Phaser.html">50. Phaser</a>
+</li>
+<li><a href="java.util.concurrent.Exchanger.html">51. Exchanger</a>
+</li>
+<li><a href="java.lang.ThreadLocal.html">52. ThreadLocal</a>
+</li>
+<li><a href="java.util.concurrent.atomic.AtomicInteger.html">53. AtomicInteger</a>
+</li>
+<li><a href="java.util.concurrent.atomic.LongAdder.html">54. LongAdder</a>
+</li>
+<li><a href="java.util.concurrent.Future.html">55. JUC 包基础类分析</a>
+</li>
+<li><a href="java.util.concurrent.FutureTask.html">56. FutureTask</a>
+</li>
+<li><a href="java.util.concurrent.CompletableFuture.html">57. CompletableFuture</a>
+</li>
+<li><a href="java.util.concurrent.ThreadPoolExecutor.html">58. ThreadPoolExecutor 源码分析</a>
+</li>
+<li><a href="java.util.concurrent.ForkJoinTask.html">59. ForkJoinTask</a>
+</li>
+<li><a href="java.util.concurrent.ForkJoinPool.html">60. ForkJoinPool</a>
+</li>
+<li><a href="java.util.concurrent.ConcurrentHashMap.html">61. <code>ConcurrentHashMap</code></a>
+</li>
+<li><a href="java.util.concurrent.ConcurrentSkipListMap.html">62. <code>ConcurrentSkipListMap</code></a>
+</li>
+<li><a href="java.util.concurrent.CopyOnWriteArrayList.html">63. CopyOnWriteArrayList</a>
+</li>
+<li><a href="java.util.concurrent.ConcurrentLinkedQueue.html">64. ConcurrentLinkedQueue</a>
+</li>
+<li><a href="java.util.concurrent.ArrayBlockingQueue.html">65. ArrayBlockingQueue</a>
+</li>
+<li><a href="java.util.concurrent.LinkedBlockingQueue.html">66. LinkedBlockingQueue</a>
+</li>
+<li><a href="java.util.concurrent.PriorityBlockingQueue.html">67. PriorityBlockingQueue</a>
+</li>
+<li><a href="java.util.concurrent.DelayQueue.html">68. DelayQueue</a>
+</li>
+<li><a href="java.util.concurrent.ScheduledThreadPoolExecutor.html">69. <code>ScheduledThreadPoolExecutor</code></a>
+</li>
+<li><a href="java.util.concurrent.Flow.html">70. <code>Flow</code></a>
+</li>
+<li><a href="java.lang.ClassLoader.html">71. ClassLoader</a>
+</li>
+<li><a href="java.lang.reflect.Field.html">72. Field</a>
+</li>
+<li><a href="java.lang.reflect.Proxy.html">73. Proxy</a>
+</li>
+<li><a href="java.net.ServerSocket.html">74. ServerSocket</a>
+</li>
+<li><a href="java.util.ServiceLoader.html">75. <code>ServiceLoader</code></a>
+</li>
+<li><a href="java.lang.String.html">76. <code>String</code></a>
+</li>
+<li><a href="java.util.Date.html">77. <code>Date</code></a>
+</li>
+<li><a href="java.io.Serializable.html">78. <code>Serializable</code></a>
+</li>
+<li><a href="java.regex.Pattern.html">79. <code>Pattern</code></a>
+</li>
+<li><a href="_netty.html">80. Netty</a>
+</li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="preface"><a class="anchor" href="#preface"></a>前言：JDK &amp; STL 源码分析计划</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>为了学好数据结构以及相关算法，同时也为了更好地理解 JDK 的底层实现，计划对 JDK 集合类的源码做一个系统的阅读分析。</p>
+</div>
+<div class="paragraph">
+<p>欢迎随时提交 PR 或 Issue。或者关注我的微信公众号，给我发消息。</p>
+</div>
+<div class="paragraph">
+<p>浏览请点击： <a href="https://diguage.github.io/jdk-source-analysis/">JDK 源码分析</a>。</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+本文档基于 <strong>OpenJDK 17</strong> 的代码开展分析，请 PR 的小伙伴使用相同版本的 JDK。谢谢！
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_友情支持"><a class="anchor" href="#_友情支持"></a>友情支持</h3>
+<div class="paragraph">
+<p>如果您觉得这个笔记对您有所帮助，看在D瓜哥码字的辛苦上，请友情支持一下，D瓜哥感激不尽，😜</p>
+</div>
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="./images/alipay.png" alt="支付宝" width="90%" title="支付宝"></span></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="./images/wxpay.png" alt="微信" width="90%" title="微信"></span></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>有些打赏的朋友希望可以加个好友，欢迎关注D瓜哥的微信公众号，这样就可以通过公众号的回复直接给我发信息。</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="./assets/images/wx-jikerizhi.png" alt="wx jikerizhi" width="95%">
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<strong>公众号的微信号是: <code>jikerizhi</code></strong>。<em>因为众所周知的原因，有时图片加载不出来。如果图片加载不出来可以直接通过搜索微信号来查找我的公众号。</em>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_官网及版本库"><a class="anchor" href="#_官网及版本库"></a>官网及版本库</h3>
+<div class="paragraph">
+<p>本文档的版本库托管在 Github 上，另外单独发布。</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">“地瓜哥”博客网</dt>
+<dd>
+<p><a href="https://www.diguage.com/" class="bare" target="_blank" rel="noopener">https://www.diguage.com/</a> 。D瓜哥的个人博客。欢迎光临，不过，内容很杂乱，请见谅。不见谅，你来打我啊，😂😂</p>
+</dd>
+<dt class="hdlist1">本文档官网</dt>
+<dd>
+<p><a href="https://diguage.github.io/jdk-source-analysis/" class="bare" target="_blank" rel="noopener">https://diguage.github.io/jdk-source-analysis/</a> 。为了方便阅读，这里展示了处理好的文档。阅读请点击这个网址。</p>
+</dd>
+<dt class="hdlist1">本文档版本库</dt>
+<dd>
+<p><a href="https://github.com/diguage/jdk-source-analysis" class="bare" target="_blank" rel="noopener">https://github.com/diguage/jdk-source-analysis</a> 。欢迎大家发送 PR。</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_总体思路"><a class="anchor" href="#_总体思路"></a>总体思路</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>学习基本的数据结构认识。兵马未动粮草先行。先把基础理论搞清楚。</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>学Java的，可以从下面两本书中选一本：</p>
+<div class="olist lowerroman">
+<ol class="lowerroman" type="i">
+<li>
+<p><a href="https://book.douban.com/subject/26745780/">数据结构与算法分析</a>&#8201;&#8212;&#8201;这本书的优点在于和 Java JDK 的集合类很贴近。</p>
+</li>
+<li>
+<p><a href="https://book.douban.com/subject/19952400/">算法（第4版）</a>&#8201;&#8212;&#8201;这本书胜在图很多。</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>学 C/C++ 的，可以看下面这套书：</p>
+<div class="olist lowerroman">
+<ol class="lowerroman" type="i">
+<li>
+<p><a href="https://book.douban.com/subject/4065258/">算法：C语言实现 (第1～4部分)</a></p>
+</li>
+<li>
+<p><a href="https://book.douban.com/subject/4191525/">算法：C语言实现 （第5部分）</a></p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>自己实现一遍基本的数据结构；</p>
+</li>
+<li>
+<p>阅读 JDK 或 STL 源码，做学习笔记。</p>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+对比一下自己的实现和这些经典代码的实现，总结自己差距，提高自己的编码能力。
+</td>
+</tr>
+</table>
+</div>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p><a href="https://book.douban.com/subject/1110934/">STL源码剖析 </a>&#8201;&#8212;&#8201;阅读源码时，建议参考一下本书的内容。</p>
+</li>
+<li>
+<p>建议把网上的源码分析笔记都看一看，取长补短，补充自己的分析。</p>
+</li>
+<li>
+<p>建议把网上相关面试题也看一看，检验自己的学习成果。</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>相关联的 LeetCode 上的题都刷掉。</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>还有两个想法：</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>可以把 Redis 的实现也过一下，Redis 实现也有很多不错的思路。毕竟 Redis 是目前最常用的缓存解决方案。</p>
+</li>
+<li>
+<p>Java 中有很多针对集合类做扩展的库，可以一并学了，这样就能更清楚了解 Java JDK 实现的不足，开阔自己的眼界：</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p><a href="https://github.com/google/guava">google/guava: Google core libraries for Java</a></p>
+</li>
+<li>
+<p><a href="https://commons.apache.org/proper/commons-collections/">Apache Commons Collections</a></p>
+</li>
+<li>
+<p><a href="https://www.eclipse.org/collections/">Eclipse Collections - Features you want with the collections you need.</a></p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_jdk_集合类"><a class="anchor" href="#_jdk_集合类"></a>JDK 集合类</h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>Base + Iterator</strong></dt>
+<dd>
+<p>代码总行数： 103 + 135 + 302 + 195 + 838 + 127 + 734 + 480 = 2914 行，预计 5 个小时。</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>java.lang.Iterable</code></p>
+</li>
+<li>
+<p><code>java.util.Iterator</code></p>
+</li>
+<li>
+<p><code>java.util.PrimitiveIterator</code></p>
+</li>
+<li>
+<p><code>java.util.ListIterator</code></p>
+</li>
+<li>
+<p><code>java.util.Spliterator</code></p>
+</li>
+<li>
+<p><code>java.util.Enumeration</code></p>
+</li>
+<li>
+<p><code>java.util.Collection</code></p>
+</li>
+<li>
+<p><code>java.util.AbstractCollection</code></p>
+</li>
+</ol>
+</div>
+</dd>
+<dt class="hdlist1"><strong>List</strong></dt>
+<dd>
+<p>代码总行数： 1063 + 942 + 253 + 1266 + 1509 + 141 + 1759 = 6933 行，预计 12 个小时。</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>java.util.List</code></p>
+</li>
+<li>
+<p><code>java.util.AbstractList</code></p>
+</li>
+<li>
+<p><code>java.util.AbstractSequentialList</code></p>
+</li>
+<li>
+<p><code>java.util.LinkedList</code></p>
+</li>
+<li>
+<p><code>java.util.Vector</code></p>
+</li>
+<li>
+<p><code>java.util.Stack</code></p>
+</li>
+<li>
+<p><code>java.util.ArrayList</code></p>
+</li>
+</ol>
+</div>
+</dd>
+<dt class="hdlist1"><strong>Queue</strong></dt>
+<dd>
+<p>代码总行数： 212 + 616 + 192 + 1233 + 987 = 3240 行，预计 6 个小时。</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>java.util.Queue</code></p>
+</li>
+<li>
+<p><code>java.util.Deque</code></p>
+</li>
+<li>
+<p><code>java.util.AbstractQueue</code></p>
+</li>
+<li>
+<p><code>java.util.ArrayDeque</code></p>
+</li>
+<li>
+<p><code>java.util.PriorityQueue</code></p>
+</li>
+</ol>
+</div>
+</dd>
+<dt class="hdlist1"><strong>Set</strong></dt>
+<dd>
+<p>代码总行数： 732 + 186 + 264 + 491 + 323 + 361 + 560 + 195 + 1395 = 4507 行，预计 8 个小时。</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>java.util.Set</code></p>
+</li>
+<li>
+<p><code>java.util.AbstractSet</code></p>
+</li>
+<li>
+<p><code>java.util.SortedSet</code></p>
+</li>
+<li>
+<p><code>java.util.EnumSet</code></p>
+</li>
+<li>
+<p><code>java.util.NavigableSet</code></p>
+</li>
+<li>
+<p><code>java.util.HashSet</code></p>
+</li>
+<li>
+<p><code>java.util.TreeSet</code></p>
+</li>
+<li>
+<p><code>java.util.LinkedHashSet</code></p>
+</li>
+<li>
+<p><code>java.util.BitSet</code></p>
+</li>
+</ol>
+</div>
+</dd>
+</dl>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./assets/images/java.util.Collection.png" alt="java.util.Collection">
+</div>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>Map</strong></dt>
+<dd>
+<p>代码总行数： 1687 + 284 + 424 + 857 + 3012 + 1339 + 812 + 1600 + 756 + 2444 + 155 + 1521 = 14891 行，预计 28 个小时。</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>java.util.Map</code></p>
+</li>
+<li>
+<p><code>java.util.SortedMap</code></p>
+</li>
+<li>
+<p><code>java.util.NavigableMap</code></p>
+</li>
+<li>
+<p><code>java.util.AbstractMap</code></p>
+</li>
+<li>
+<p><code>java.util.TreeMap</code></p>
+</li>
+<li>
+<p><code>java.util.WeakHashMap</code></p>
+</li>
+<li>
+<p><code>java.util.EnumMap</code></p>
+</li>
+<li>
+<p><code>java.util.IdentityHashMap</code></p>
+</li>
+<li>
+<p><code>java.util.LinkedHashMap</code></p>
+</li>
+<li>
+<p><code>java.util.HashMap</code></p>
+</li>
+<li>
+<p><code>java.util.Dictionary</code></p>
+</li>
+<li>
+<p><code>java.util.Hashtable</code></p>
+</li>
+</ol>
+</div>
+</dd>
+</dl>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./assets/images/java.util.Map.png" alt="java.util.Map">
+</div>
+</div>
+<div class="paragraph">
+<p>来张总体结构图：</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./assets/images/jdk-collection-classes.png" alt="jdk collection classes">
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+这里没有包含并发相关的集合类。这块内容放到并发中一起搞。
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="paragraph nav-footer">
+<p>↑ Up: <a href="index.html">JDK 源码分析</a> | Next: <a href="overview.html">集合类概述</a> →</p>
+</div>
+<script src="https://giscus.app/client.js" data-repo="diguage/jdk-source-analysis" data-repo-id="MDEwOlJlcG9zaXRvcnk3MjM5MzE5Mw==" data-category="General" data-category-id="MDE4OkRpc2N1c3Npb25DYXRlZ29yeTMyMDM2MDQx" data-mapping="og:title" data-strict="0" data-reactions-enabled="1" data-emit-metadata="1" data-input-position="top" data-theme="preferred_color_scheme" data-lang="zh-CN" data-loading="lazy" crossorigin="anonymous" async></script>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2025-11-25 13:40:54 UTC
+</div>
+</div>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains("stemblock")) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script src="assets/scripts/asciidoctor-tabs.js"></script>
+<script src="assets/scripts/scroll-toc.js"></script></body>
+</html>

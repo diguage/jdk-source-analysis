@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.26">
+<meta name="keywords" content="Java,JDK,Java source,Collection,ArrayList,Map,List,HashMap,ArrayDeque,Deque,Set,HashSet,LinkedList,Queue,TreeMap,TreeSet,Vector,Stack">
+<meta name="author" content="D瓜哥">
+<meta name="copyright" content="Apache-2.0">
+<meta property="og:title" content="java.lang.reflect.Proxy">
+<title>JDK 源码分析: 73. Proxy</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="assets/styles/asciidoctor.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="assets/styles/rouge-github.css">
+<style>
+    a {
+        text-decoration: none;
+    }
+
+    .img_bk {
+        text-align: center;
+    }
+
+    p > code, strong > code, div.admonitionblock tr > td.content > code {
+        color: #d14 !important;
+        background-color: #f5f5f5 !important;
+        border: 1px solid #e1e1e8;
+        white-space: nowrap;
+        border-radius: 3px;
+    }
+</style>
+<link rel="stylesheet" href="assets/styles/asciidoctor-tabs.css">
+<style>.toc-current{color:#d14;font-size:130%;font-weight: bold;} .toc-root{font-family: "Open Sans","DejaVu Sans",sans-serif;
+                       font-size: 0.9em;} #content{display: flex; flex-direction: column; flex: 1 1 auto;}
+             .nav-footer{text-align: center; margin-top: auto;}
+             .nav-footer > p > a {white-space: nowrap;}</style>
+</head>
+<body id="java.lang.reflect.Proxy" class="book toc2 toc-left">
+<div id="header">
+<h1>JDK 源码分析: 73. Proxy</h1>
+<div class="details">
+<span id="author" class="author">D瓜哥</span><br>
+<span id="email" class="email"><a href="https://www.diguage.com" class="bare">https://www.diguage.com</a></span><br>
+<span id="revdate">2025-11-25</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<p><span class="toc-root"><a href="index.html">JDK 源码分析</a></span></p><ul class="sectlevel1">
+<li><a href="preface.html">前言：JDK &amp; STL 源码分析计划</a>
+</li>
+<li><a href="overview.html">1. 集合类概述</a>
+</li>
+<li><a href="java.util.Iterator.html">2. 迭代器 Iterator、 Enumeration、 Spliterator 与 Iterable</a>
+</li>
+<li><a href="java.util.Collection.html">3. Collection</a>
+</li>
+<li><a href="java.util.AbstractCollection.html">4. AbstractCollection</a>
+</li>
+<li><a href="java.util.List.html">5. List</a>
+</li>
+<li><a href="java.util.AbstractList.html">6. AbstractList</a>
+</li>
+<li><a href="java.util.AbstractSequentialList.html">7. AbstractSequentialList</a>
+</li>
+<li><a href="java.util.ArrayList.html">8. <code>ArrayList</code></a>
+</li>
+<li><a href="java.util.LinkedList.html">9. LinkedList</a>
+</li>
+<li><a href="java.util.Stack.html">10. Stack</a>
+</li>
+<li><a href="java.util.Vector.html">11. Vector</a>
+</li>
+<li><a href="java.util.Set.html">12. Set</a>
+</li>
+<li><a href="java.util.AbstractSet.html">13. AbstractSet</a>
+</li>
+<li><a href="java.util.SortedSet.html">14. SortedSet</a>
+</li>
+<li><a href="java.util.NavigableSet.html">15. NavigableSet</a>
+</li>
+<li><a href="java.util.HashSet.html">16. HashSet</a>
+</li>
+<li><a href="java.util.TreeSet.html">17. TreeSet</a>
+</li>
+<li><a href="java.util.LinkedHashSet.html">18. LinkedHashSet</a>
+</li>
+<li><a href="java.util.BitSet.html">19. BitSet</a>
+</li>
+<li><a href="java.util.EnumSet.html">20. EnumSet</a>
+</li>
+<li><a href="java.util.Map.html">21. Map</a>
+</li>
+<li><a href="java.util.SortedMap.html">22. SortedMap</a>
+</li>
+<li><a href="java.util.NavigableMap.html">23. NavigableMap</a>
+</li>
+<li><a href="java.util.AbstractMap.html">24. AbstractMap</a>
+</li>
+<li><a href="java.util.HashMap.html">25. HashMap</a>
+</li>
+<li><a href="java.util.TreeMap.html">26. TreeMap</a>
+</li>
+<li><a href="java.util.LinkedHashMap.html">27. LinkedHashMap</a>
+</li>
+<li><a href="java.util.Dictionary.html">28. Dictionary</a>
+</li>
+<li><a href="java.util.Hashtable.html">29. Hashtable</a>
+</li>
+<li><a href="java.util.EnumMap.html">30. EnumMap</a>
+</li>
+<li><a href="java.util.WeakHashMap.html">31. WeakHashMap</a>
+</li>
+<li><a href="java.util.IdentityHashMap.html">32. IdentityHashMap</a>
+</li>
+<li><a href="java.util.Queue.html">33. Queue</a>
+</li>
+<li><a href="java.util.Deque.html">34. Deque</a>
+</li>
+<li><a href="java.util.AbstractQueue.html">35. AbstractQueue</a>
+</li>
+<li><a href="java.util.ArrayDeque.html">36. ArrayDeque</a>
+</li>
+<li><a href="java.util.PriorityQueue.html">37. PriorityQueue</a>
+</li>
+<li><a href="java.util.Array.html">38. 工具类 <code>Arrays</code></a>
+</li>
+<li><a href="java.util.Collection.html">39. 工具类 <code>Collections</code></a>
+</li>
+<li><a href="concurrent.overview.html">40. 并发库概述</a>
+</li>
+<li><a href="java.lang.Thread.html">41. Thread</a>
+</li>
+<li><a href="java.util.concurrent.locks.LockSupport.html">42. LockSupport</a>
+</li>
+<li><a href="java.util.concurrent.locks.AbstractQueuedSynchronizer.html">43. AbstractQueuedSynchronizer</a>
+</li>
+<li><a href="java.util.concurrent.locks.ReentrantLock.html">44. ReentrantLock</a>
+</li>
+<li><a href="java.util.concurrent.locks.ReentrantReadWriteLock.html">45. ReentrantReadWriteLock</a>
+</li>
+<li><a href="java.util.concurrent.locks.StampedLock.html">46. StampedLock</a>
+</li>
+<li><a href="java.util.concurrent.Semaphore.html">47. Semaphore</a>
+</li>
+<li><a href="java.util.concurrent.CountDownLatch.html">48. CountDownLatch</a>
+</li>
+<li><a href="java.util.concurrent.CyclicBarrier.html">49. CyclicBarrier</a>
+</li>
+<li><a href="java.util.concurrent.Phaser.html">50. Phaser</a>
+</li>
+<li><a href="java.util.concurrent.Exchanger.html">51. Exchanger</a>
+</li>
+<li><a href="java.lang.ThreadLocal.html">52. ThreadLocal</a>
+</li>
+<li><a href="java.util.concurrent.atomic.AtomicInteger.html">53. AtomicInteger</a>
+</li>
+<li><a href="java.util.concurrent.atomic.LongAdder.html">54. LongAdder</a>
+</li>
+<li><a href="java.util.concurrent.Future.html">55. JUC 包基础类分析</a>
+</li>
+<li><a href="java.util.concurrent.FutureTask.html">56. FutureTask</a>
+</li>
+<li><a href="java.util.concurrent.CompletableFuture.html">57. CompletableFuture</a>
+</li>
+<li><a href="java.util.concurrent.ThreadPoolExecutor.html">58. ThreadPoolExecutor 源码分析</a>
+</li>
+<li><a href="java.util.concurrent.ForkJoinTask.html">59. ForkJoinTask</a>
+</li>
+<li><a href="java.util.concurrent.ForkJoinPool.html">60. ForkJoinPool</a>
+</li>
+<li><a href="java.util.concurrent.ConcurrentHashMap.html">61. <code>ConcurrentHashMap</code></a>
+</li>
+<li><a href="java.util.concurrent.ConcurrentSkipListMap.html">62. <code>ConcurrentSkipListMap</code></a>
+</li>
+<li><a href="java.util.concurrent.CopyOnWriteArrayList.html">63. CopyOnWriteArrayList</a>
+</li>
+<li><a href="java.util.concurrent.ConcurrentLinkedQueue.html">64. ConcurrentLinkedQueue</a>
+</li>
+<li><a href="java.util.concurrent.ArrayBlockingQueue.html">65. ArrayBlockingQueue</a>
+</li>
+<li><a href="java.util.concurrent.LinkedBlockingQueue.html">66. LinkedBlockingQueue</a>
+</li>
+<li><a href="java.util.concurrent.PriorityBlockingQueue.html">67. PriorityBlockingQueue</a>
+</li>
+<li><a href="java.util.concurrent.DelayQueue.html">68. DelayQueue</a>
+</li>
+<li><a href="java.util.concurrent.ScheduledThreadPoolExecutor.html">69. <code>ScheduledThreadPoolExecutor</code></a>
+</li>
+<li><a href="java.util.concurrent.Flow.html">70. <code>Flow</code></a>
+</li>
+<li><a href="java.lang.ClassLoader.html">71. ClassLoader</a>
+</li>
+<li><a href="java.lang.reflect.Field.html">72. Field</a>
+</li>
+<li><a href="java.lang.reflect.Proxy.html"><span class="toc-current">73. Proxy</span></a>
+</li>
+<li><a href="java.net.ServerSocket.html">74. ServerSocket</a>
+</li>
+<li><a href="java.util.ServiceLoader.html">75. <code>ServiceLoader</code></a>
+</li>
+<li><a href="java.lang.String.html">76. <code>String</code></a>
+</li>
+<li><a href="java.util.Date.html">77. <code>Date</code></a>
+</li>
+<li><a href="java.io.Serializable.html">78. <code>Serializable</code></a>
+</li>
+<li><a href="java.regex.Pattern.html">79. <code>Pattern</code></a>
+</li>
+<li><a href="_netty.html">80. Netty</a>
+</li>
+</ul>
+</div>
+</div>
+<div id="content"><div class="sect2"><h3 id="_友情支持">友情支持</h3><div class="paragraph"><p>如果您觉得这个笔记对您有所帮助，看在D瓜哥码这么多字的辛苦上，请友情支持一下，D瓜哥感激不尽，😜</p></div><table class="tableblock frame-none grid-all stretch"><colgroup><col style="width: 50%;"><col style="width: 50%;"></colgroup><tbody><tr><td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="assets/images/alipay.png" alt="支付宝" width="85%" title="支付宝"></span></p></td><td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="assets/images/wxpay.jpg" alt="微信" width="85%" title="微信"></span></p></td></tr></tbody></table><div class="paragraph"><p>有些打赏的朋友希望可以加个好友，欢迎关注D 瓜哥的微信公众号，这样就可以通过公众号的回复直接给我发信息。</p></div><div class="paragraph"><p><span class="image"><img src="assets/images/wx-jikerizhi.png" alt="wx jikerizhi" width="98%"></span></p></div><div class="admonitionblock tip"><table><tbody><tr><td class="icon"><i class="fa icon-tip" title="Tip"></i></td><td class="content"><strong>公众号的微信号是: <code>jikerizhi</code></strong>。<em>因为众所周知的原因，有时图片加载不出来。 如果图片加载不出来可以直接通过搜索微信号来查找我的公众号。</em></td></tr></tbody></table></div></div>
+<div class="sect1">
+<h2 id="java.lang.reflect.Proxy"><a class="anchor" href="#java.lang.reflect.Proxy"></a>73. Proxy</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+</pre></td><td class="code"><pre><span class="kn">package</span> <span class="nn">com.diguage.truman.reflect</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">org.junit.jupiter.api.Test</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.lang.reflect.InvocationHandler</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.lang.reflect.Method</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.lang.reflect.Proxy</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.Arrays</span><span class="o">;</span>
+
+<span class="cm">/**
+ * @author D瓜哥, https://www.diguage.com/
+ * @since 2020-04-02 09:37
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ProxyTest</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">LogProxy</span> <span class="kd">implements</span> <span class="nc">InvocationHandler</span> <span class="o">{</span>
+        <span class="kd">private</span> <span class="nc">Object</span> <span class="n">realObject</span><span class="o">;</span>
+
+        <span class="kd">public</span> <span class="nf">LogProxy</span><span class="o">(</span><span class="nc">Object</span> <span class="n">realObject</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">realObject</span> <span class="o">=</span> <span class="n">realObject</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="nc">Object</span> <span class="nf">invoke</span><span class="o">(</span><span class="nc">Object</span> <span class="n">proxy</span><span class="o">,</span> <span class="nc">Method</span> <span class="n">method</span><span class="o">,</span> <span class="nc">Object</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span>
+                <span class="kd">throws</span> <span class="nc">Throwable</span> <span class="o">{</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Proxy: "</span> <span class="o">+</span> <span class="n">proxy</span><span class="o">.</span><span class="na">getClass</span><span class="o">().</span><span class="na">getName</span><span class="o">());</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"start to invoke: "</span>
+                    <span class="o">+</span> <span class="n">realObject</span><span class="o">.</span><span class="na">getClass</span><span class="o">().</span><span class="na">getName</span><span class="o">()</span> <span class="o">+</span> <span class="s">"#"</span> <span class="o">+</span> <span class="n">method</span><span class="o">.</span><span class="na">getName</span><span class="o">()</span>
+                    <span class="o">+</span> <span class="s">" args ="</span> <span class="o">+</span> <span class="nc">Arrays</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">args</span><span class="o">));</span>
+            <span class="k">return</span> <span class="n">method</span><span class="o">.</span><span class="na">invoke</span><span class="o">(</span><span class="n">realObject</span><span class="o">,</span> <span class="n">args</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">interface</span> <span class="nc">UserGetService</span> <span class="o">{</span>
+        <span class="nc">String</span> <span class="nf">getById</span><span class="o">(</span><span class="nc">Integer</span> <span class="n">id</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">static</span> <span class="kd">interface</span> <span class="nc">UserPostService</span> <span class="o">{</span>
+        <span class="nc">String</span> <span class="nf">postUser</span><span class="o">(</span><span class="nc">String</span> <span class="n">name</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">UserGetServiceImpl</span> <span class="kd">implements</span> <span class="nc">UserGetService</span><span class="o">,</span> <span class="nc">UserPostService</span> <span class="o">{</span>
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="nc">String</span> <span class="nf">getById</span><span class="o">(</span><span class="nc">Integer</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="s">"D瓜哥-"</span> <span class="o">+</span> <span class="n">id</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="nc">String</span> <span class="nf">postUser</span><span class="o">(</span><span class="nc">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="s">"119-"</span> <span class="o">+</span> <span class="n">name</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// 注意：这里不能使用 JUnit 来运行，JUnit 也是通过代理启动的，</span>
+        <span class="c1">// 先于我们的测试运行，导致设置无效。</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">getProperties</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"jdk.proxy.ProxyGenerator.saveGeneratedFiles"</span><span class="o">,</span> <span class="s">"true"</span><span class="o">);</span>
+
+        <span class="nc">UserGetServiceImpl</span> <span class="n">userService</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">UserGetServiceImpl</span><span class="o">();</span>
+        <span class="nc">ClassLoader</span> <span class="n">classLoader</span> <span class="o">=</span> <span class="nc">UserGetService</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getClassLoader</span><span class="o">();</span>
+        <span class="nc">Class</span><span class="o">&lt;?&gt;[]</span> <span class="n">interfaces</span> <span class="o">=</span> <span class="nc">UserGetServiceImpl</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getInterfaces</span><span class="o">();</span>
+        <span class="nc">Object</span> <span class="n">proxy</span> <span class="o">=</span> <span class="nc">Proxy</span><span class="o">.</span><span class="na">newProxyInstance</span><span class="o">(</span><span class="n">classLoader</span><span class="o">,</span>
+                <span class="n">interfaces</span><span class="o">,</span> <span class="k">new</span> <span class="nc">LogProxy</span><span class="o">(</span><span class="n">userService</span><span class="o">));</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"UserName = "</span>
+                <span class="o">+</span> <span class="o">((</span><span class="nc">UserGetService</span><span class="o">)</span> <span class="n">proxy</span><span class="o">).</span><span class="na">getById</span><span class="o">(</span><span class="mi">119</span><span class="o">));</span>
+
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"UserCode = "</span>
+                <span class="o">+</span> <span class="o">((</span><span class="nc">UserPostService</span><span class="o">)</span> <span class="n">proxy</span><span class="o">).</span><span class="na">postUser</span><span class="o">(</span><span class="s">"diguage"</span><span class="o">));</span>
+
+        <span class="nc">Object</span> <span class="n">proxy2</span> <span class="o">=</span> <span class="nc">Proxy</span><span class="o">.</span><span class="na">newProxyInstance</span><span class="o">(</span><span class="n">classLoader</span><span class="o">,</span>
+                <span class="n">interfaces</span><span class="o">,</span> <span class="k">new</span> <span class="nc">LogProxy</span><span class="o">(</span><span class="n">userService</span><span class="o">));</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"UserName = "</span>
+                <span class="o">+</span> <span class="o">((</span><span class="nc">UserGetService</span><span class="o">)</span> <span class="n">proxy2</span><span class="o">).</span><span class="na">getById</span><span class="o">(</span><span class="mi">119</span><span class="o">));</span>
+
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"UserCode = "</span>
+                <span class="o">+</span> <span class="o">((</span><span class="nc">UserPostService</span><span class="o">)</span> <span class="n">proxy2</span><span class="o">).</span><span class="na">postUser</span><span class="o">(</span><span class="s">"diguage"</span><span class="o">));</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testGetCallerMethodName</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">getCallerMethod</span><span class="o">());</span>
+
+        <span class="nc">String</span> <span class="n">methodName</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Object</span><span class="o">()</span> <span class="o">{</span>
+        <span class="o">}.</span><span class="na">getClass</span><span class="o">().</span><span class="na">getEnclosingMethod</span><span class="o">().</span><span class="na">getName</span><span class="o">();</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">methodName</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">getCallerMethod</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">String</span> <span class="n">methodName</span> <span class="o">=</span> <span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">getStackTrace</span><span class="o">()[</span><span class="mi">2</span><span class="o">]</span> <span class="c1">// 注意下标值</span>
+                <span class="o">.</span><span class="na">getMethodName</span><span class="o">();</span>
+        <span class="k">return</span> <span class="n">methodName</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./assets/images/Proxy-newProxyInstance-sequence-diagram.png" alt="Proxy newProxyInstance sequence diagram">
+</div>
+</div>
+<div class="paragraph">
+<p>跟着代码整体走下来，所谓的"动态代理"，其实是在 <code>java.lang.reflect.ProxyGenerator.generateProxyClass(java.lang.String, java.lang.Class&lt;?&gt;[], int)</code> 中生成了一个实现了接口的代理类。生成字节码的逻辑封装在了 <code>java.lang.reflect.ProxyGenerator.generateClassFile</code> 中，按照字节码规范中规定的格式（魔数、版本号、常量池、访问标识符、当前类索引、父类索引、接口索引、字段表、方法表、附加属性），一点一点追加内容。</p>
+</div>
+<div class="paragraph">
+<p>生成出来的类，继承了 <code>java.lang.reflect.Proxy</code>，同时实现了参数中传递的接口。在生成的类中，</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>包含一个参数为 <code>InvocationHandler</code> 的构造函数，用于保存代理业务的实现；</p>
+</li>
+<li>
+<p>每一个方法都用一个静态 <code>Method</code> 来表示；</p>
+</li>
+<li>
+<p>除了接口中的方法，还会生成 <code>boolean equals(Object obj)</code>，<code>int hashCode()</code> 和 <code>String toString()</code> 三个方法。</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>调用时，通过 <code>InvocationHandler</code> 对象的 <code>Object invoke(Object proxy, Method method, Object[] args)</code> 方法来调起代理和目标对象的方法。其中，这里的 <code>Object proxy</code> 就是生成的类本身的对象；<code>Method method</code> 就是上述生成的静态 <code>Method</code> 对象；<code>Object[] args</code> 就是实际调用的参数。</p>
+</div>
+<div class="listingblock">
+<div class="title">反编译的示例类</div>
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+</pre></td><td class="code"><pre><span class="kn">package</span> <span class="nn">com.sun.proxy</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">com.diguage.proxy.UserService</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.lang.reflect.InvocationHandler</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.lang.reflect.Method</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.lang.reflect.Proxy</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.lang.reflect.UndeclaredThrowableException</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="err">$</span><span class="nc">Proxy0</span> <span class="kd">extends</span> <span class="nc">Proxy</span> <span class="kd">implements</span> <span class="nc">UserService</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="nc">Method</span> <span class="n">m0</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="nc">Method</span> <span class="n">m1</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="nc">Method</span> <span class="n">m2</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="nc">Method</span> <span class="n">m3</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="n">$Proxy0</span><span class="o">(</span><span class="nc">InvocationHandler</span> <span class="n">var1</span><span class="o">)</span> <span class="kd">throws</span>  <span class="o">{</span>
+        <span class="kd">super</span><span class="o">(</span><span class="n">var1</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">hashCode</span><span class="o">()</span> <span class="kd">throws</span>  <span class="o">{</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="o">(</span><span class="nc">Integer</span><span class="o">)</span><span class="kd">super</span><span class="o">.</span><span class="na">h</span><span class="o">.</span><span class="na">invoke</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">m0</span><span class="o">,</span> <span class="o">(</span><span class="nc">Object</span><span class="o">[])</span><span class="kc">null</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">RuntimeException</span> <span class="o">|</span> <span class="nc">Error</span> <span class="n">var2</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="n">var2</span><span class="o">;</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Throwable</span> <span class="n">var3</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">UndeclaredThrowableException</span><span class="o">(</span><span class="n">var3</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">boolean</span> <span class="nf">equals</span><span class="o">(</span><span class="nc">Object</span> <span class="n">var1</span><span class="o">)</span> <span class="kd">throws</span>  <span class="o">{</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="o">(</span><span class="nc">Boolean</span><span class="o">)</span><span class="kd">super</span><span class="o">.</span><span class="na">h</span><span class="o">.</span><span class="na">invoke</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">m1</span><span class="o">,</span> <span class="k">new</span> <span class="nc">Object</span><span class="o">[]{</span><span class="n">var1</span><span class="o">});</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">RuntimeException</span> <span class="o">|</span> <span class="nc">Error</span> <span class="n">var3</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="n">var3</span><span class="o">;</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Throwable</span> <span class="n">var4</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">UndeclaredThrowableException</span><span class="o">(</span><span class="n">var4</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">final</span> <span class="nc">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="kd">throws</span>  <span class="o">{</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="o">(</span><span class="nc">String</span><span class="o">)</span><span class="kd">super</span><span class="o">.</span><span class="na">h</span><span class="o">.</span><span class="na">invoke</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">m2</span><span class="o">,</span> <span class="o">(</span><span class="nc">Object</span><span class="o">[])</span><span class="kc">null</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">RuntimeException</span> <span class="o">|</span> <span class="nc">Error</span> <span class="n">var2</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="n">var2</span><span class="o">;</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Throwable</span> <span class="n">var3</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">UndeclaredThrowableException</span><span class="o">(</span><span class="n">var3</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">final</span> <span class="nc">String</span> <span class="nf">getById</span><span class="o">(</span><span class="nc">Integer</span> <span class="n">var1</span><span class="o">)</span> <span class="kd">throws</span>  <span class="o">{</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="o">(</span><span class="nc">String</span><span class="o">)</span><span class="kd">super</span><span class="o">.</span><span class="na">h</span><span class="o">.</span><span class="na">invoke</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">m3</span><span class="o">,</span> <span class="k">new</span> <span class="nc">Object</span><span class="o">[]{</span><span class="n">var1</span><span class="o">});</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">RuntimeException</span> <span class="o">|</span> <span class="nc">Error</span> <span class="n">var3</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="n">var3</span><span class="o">;</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Throwable</span> <span class="n">var4</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">UndeclaredThrowableException</span><span class="o">(</span><span class="n">var4</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">static</span> <span class="o">{</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">m0</span> <span class="o">=</span> <span class="nc">Class</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">"java.lang.Object"</span><span class="o">).</span><span class="na">getMethod</span><span class="o">(</span><span class="s">"hashCode"</span><span class="o">);</span><i class="conum" data-value="1"></i><b>(1)</b>
+            <span class="n">m1</span> <span class="o">=</span> <span class="nc">Class</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">"java.lang.Object"</span><span class="o">).</span><span class="na">getMethod</span><span class="o">(</span><span class="s">"equals"</span><span class="o">,</span>
+                     <span class="nc">Class</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">"java.lang.Object"</span><span class="o">));</span>
+            <span class="n">m2</span> <span class="o">=</span> <span class="nc">Class</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">"java.lang.Object"</span><span class="o">).</span><span class="na">getMethod</span><span class="o">(</span><span class="s">"toString"</span><span class="o">);</span>
+            <span class="n">m3</span> <span class="o">=</span> <span class="nc">Class</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">"com.diguage.proxy.UserService"</span><span class="o">)</span>
+                     <span class="o">.</span><span class="na">getMethod</span><span class="o">(</span><span class="s">"getById"</span><span class="o">,</span> <span class="nc">Class</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">"java.lang.Integer"</span><span class="o">));</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">NoSuchMethodException</span> <span class="n">var2</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">NoSuchMethodError</span><span class="o">(</span><span class="n">var2</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">ClassNotFoundException</span> <span class="n">var3</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">NoClassDefFoundError</span><span class="o">(</span><span class="n">var3</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>为了排版，做了小调整。</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>还有两点值得注意：</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>运行代理时，如果想要保存生成的代理类字节码，需要系统属性 <code>jdk.proxy.ProxyGenerator.saveGeneratedFiles</code> 设置为 <code>true</code>。这个属性被解析后赋值给了 <code>java.lang.reflect.ProxyGenerator.saveGeneratedFiles</code> 字段，这个字段是 <code>final</code> 的。所以，需要在运行代码之初就要设置这个属性。所以，最好使用 <code>main</code> 方法来运行测试。否则，有可能设置失效。</p>
+</li>
+<li>
+<p>如果代码是在 Maven 项目中运行，如果接口都是 <code>public</code> 修饰，生成的类会被保存在 <code>${project.basedir}/com/sun/proxy/</code> 目录下；如果有接口是包私有的，则生成的类为接口所在的包。如果目录不存在，则会自动创建。</p>
+</li>
+<li>
+<p>最多可以有 <code>65535</code> 个接口；有两个解释：</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>代码中有明确限制：在 <code>java.lang.reflect.Proxy.ProxyBuilder.ProxyBuilder(java.lang.ClassLoader, java.util.List&lt;java.lang.Class&lt;?&gt;&gt;)</code> 中有 <code>interfaces.size() &gt; 65535</code> 的判断语句。</p>
+</li>
+<li>
+<p>字节码中，对于接口数量是用一个 <code>u2</code> 变量表示的，该变量的最大值是 <code>2<sup>16</sup> - 1 = 65535</code>。</p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>注解底层也是基于动态代理实现的。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+</pre></td><td class="code"><pre><span class="kn">package</span> <span class="nn">com.diguage.truman.reflect</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.lang.annotation.Documented</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.lang.annotation.ElementType</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.lang.annotation.Retention</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.lang.annotation.RetentionPolicy</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.lang.annotation.Target</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.Arrays</span><span class="o">;</span>
+
+<span class="cm">/**
+ * @author D瓜哥, https://www.diguage.com/
+ * @since 2020-04-08 23:34
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ProxyAnnoTest</span> <span class="o">{</span>
+    <span class="nd">@Diguage</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">AnnoTest</span> <span class="o">{</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Diguage</span><span class="o">(</span><span class="s">"https://github.com/diguage"</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">AnnoTest2</span> <span class="o">{</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Retention</span><span class="o">(</span><span class="nc">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
+    <span class="nd">@Documented</span>
+    <span class="nd">@Target</span><span class="o">(</span><span class="nc">ElementType</span><span class="o">.</span><span class="na">TYPE</span><span class="o">)</span>
+    <span class="kd">static</span> <span class="nd">@interface</span> <span class="nc">Diguage</span> <span class="o">{</span>
+        <span class="nc">String</span> <span class="nf">value</span><span class="o">()</span> <span class="k">default</span> <span class="s">"https://www.diguage.com"</span><span class="o">;</span>
+
+        <span class="nc">String</span> <span class="nf">name</span><span class="o">()</span> <span class="k">default</span> <span class="s">"D瓜哥"</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">getProperties</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"jdk.proxy.ProxyGenerator.saveGeneratedFiles"</span><span class="o">,</span> <span class="s">"true"</span><span class="o">);</span>
+
+        <span class="nc">Class</span><span class="o">&lt;</span><span class="nc">AnnoTest</span><span class="o">&gt;</span> <span class="n">clazz</span> <span class="o">=</span> <span class="nc">AnnoTest</span><span class="o">.</span><span class="na">class</span><span class="o">;</span>
+        <span class="nc">Diguage</span> <span class="n">annotation</span> <span class="o">=</span> <span class="n">clazz</span><span class="o">.</span><span class="na">getAnnotation</span><span class="o">(</span><span class="nc">Diguage</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">annotation</span> <span class="o">+</span> <span class="s">" : "</span> <span class="o">+</span> <span class="n">annotation</span><span class="o">.</span><span class="na">hashCode</span><span class="o">());</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Name: "</span> <span class="o">+</span> <span class="n">annotation</span><span class="o">.</span><span class="na">name</span><span class="o">());</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Value: "</span> <span class="o">+</span> <span class="n">annotation</span><span class="o">.</span><span class="na">value</span><span class="o">());</span>
+
+        <span class="nc">Class</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="nc">Diguage</span><span class="o">&gt;</span> <span class="n">annoClass</span> <span class="o">=</span> <span class="n">annotation</span><span class="o">.</span><span class="na">getClass</span><span class="o">();</span>
+
+
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"\n----Class----"</span><span class="o">);</span>
+        <span class="nc">String</span> <span class="n">className</span> <span class="o">=</span> <span class="n">annoClass</span><span class="o">.</span><span class="na">getName</span><span class="o">();</span>
+
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"\n----SuperClass----"</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">annoClass</span><span class="o">.</span><span class="na">getSuperclass</span><span class="o">().</span><span class="na">getName</span><span class="o">());</span>
+
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"\n----Interfaces----"</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="nc">Arrays</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">annoClass</span><span class="o">.</span><span class="na">getInterfaces</span><span class="o">()));</span>
+
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"\n----Methods----"</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="nc">Arrays</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">annoClass</span><span class="o">.</span><span class="na">getDeclaredMethods</span><span class="o">())</span>
+                <span class="o">.</span><span class="na">replaceAll</span><span class="o">(</span><span class="s">", p"</span><span class="o">,</span> <span class="s">",\n p"</span><span class="o">));</span>
+
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"\n\n=============="</span><span class="o">);</span>
+        <span class="nc">Diguage</span> <span class="n">anno2</span> <span class="o">=</span> <span class="nc">AnnoTest2</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getAnnotation</span><span class="o">(</span><span class="nc">Diguage</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">anno2</span> <span class="o">+</span> <span class="s">" : "</span> <span class="o">+</span> <span class="n">anno2</span><span class="o">.</span><span class="na">hashCode</span><span class="o">());</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>每个注解都是一个接口声明，然后基于这个接口使用动态代理生成一个代理类。而被标注的注解，就是一个代理类的实例对象。</p>
+</div>
+<div class="paragraph">
+<p>代理类中的 <code>InvocationHandler</code> 则是 <code>AnnotationInvocationHandler</code> 实例，实例变量 <code>Map&lt;String, Object&gt; memberValues</code> 保存着注解中成员属性的名称和值的映射，注解成员属性的名称实际上就对应着接口中抽象方法的名称。</p>
+</div>
+<div class="paragraph">
+<p>总结</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>用反射 + 字节码生成技术来生成字节码，然后加载出来代理对象。</p>
+</li>
+<li>
+<p>从java的角度来看这本语言,就是一个动态性语言,一切的动态性来源于类的加载方式,
+在程序运行期间,可以很大程度上修改class</p>
+</li>
+<li>
+<p><code>newProxyInstance(ClassLoader loader, Class&lt;?&gt;[] interfaces, InvocationHandler h)</code> 实际上从生成的 Class 文件和这个传递参数来看 jdk Proxy 仅仅对于接口进行代理, 即生成实现了接口的临时类对象.</p>
+</li>
+<li>
+<p>由于生成的类，继承了 <code>java.lang.reflect.Proxy</code> 类，而 Java 是单继承的。所以，动态代理只能代理生成接口，不能代理类。</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>既然都生成代理类了，为什么不直接继承代理类呢？这样就可以对代理类所有的方法进行增强了。</p>
+</div>
+<div class="sect2">
+<h3 id="_思考题_2"><a class="anchor" href="#_思考题_2"></a>73.1. 思考题</h3>
+<div class="paragraph">
+<p>如何自己写代码来实现代码生成、加载类的动态代理？</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>如何生成代理类？-- 可以考虑直接生成 Java 代码，然后调用 <code>JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();</code> 获取编译器来编译 Java 代码。</p>
+</li>
+<li>
+<p>如何加载类？-- 可以使用 <code>java.net.URLClassLoader</code> 来加载字节码文件。</p>
+</li>
+<li>
+<p>如何抽象代理动作？</p>
+</li>
+<li>
+<p>如何在方法内获取参数列表？</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cglib"><a class="anchor" href="#_cglib"></a>73.2. CGLIB</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>通过生成子类的方式来产生代理，某些情况比动态代理运行速度要快一些。</p>
+</li>
+<li>
+<p>不能代理 <code>final</code> 修饰的类。</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_参考资料_24"><a class="anchor" href="#_参考资料_24"></a>73.3. 参考资料</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><a href="https://www.cnblogs.com/gonjan-blog/p/6685611.html">java动态代理实现与原理详细分析 - Gonjian - 博客园</a></p>
+</li>
+<li>
+<p><a href="https://www.fancylight.top/2019/05/22/java%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86/#%E4%BB%A3%E7%90%86%E7%B1%BB%E6%96%87%E4%BB%B6">java动态代理 | 博客</a></p>
+</li>
+<li>
+<p><a href="https://tech.meituan.com/2019/09/05/java-bytecode-enhancement.html">字节码增强技术探索 - 美团技术团队</a></p>
+</li>
+<li>
+<p><a href="https://www.geeksforgeeks.org/get-name-of-current-method-being-executed-in-java/">Get name of current method being executed in Java - GeeksforGeeks</a></p>
+</li>
+<li>
+<p><a href="http://www.throwable.club/2018/12/08/java-reflection-dynamic-proxy/">深入分析Java反射(四)-动态代理 - Throwable&#8217;s Blog</a></p>
+</li>
+<li>
+<p><a href="http://www.throwable.club/2018/12/16/cglib-dynamic-proxy-analyze/">CGLIB动态代理原理分析 - Throwable&#8217;s Blog</a></p>
+</li>
+<li>
+<p><a href="http://www.throwable.club/2020/03/16/annotation-implementation/">JDK中注解的底层实现 - Throwable&#8217;s Blog</a></p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="paragraph nav-footer">
+<p>← Previous: <a href="java.lang.reflect.Field.html">Field</a> | ↑ Up: <a href="index.html">JDK 源码分析</a> | Next: <a href="java.net.ServerSocket.html">ServerSocket</a> →</p>
+</div>
+<script src="https://giscus.app/client.js" data-repo="diguage/jdk-source-analysis" data-repo-id="MDEwOlJlcG9zaXRvcnk3MjM5MzE5Mw==" data-category="General" data-category-id="MDE4OkRpc2N1c3Npb25DYXRlZ29yeTMyMDM2MDQx" data-mapping="og:title" data-strict="0" data-reactions-enabled="1" data-emit-metadata="1" data-input-position="top" data-theme="preferred_color_scheme" data-lang="zh-CN" data-loading="lazy" crossorigin="anonymous" async></script>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2025-11-25 13:40:54 UTC
+</div>
+</div>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains("stemblock")) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script src="assets/scripts/asciidoctor-tabs.js"></script>
+<script src="assets/scripts/scroll-toc.js"></script></body>
+</html>

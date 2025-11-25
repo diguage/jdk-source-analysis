@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.26">
+<meta name="keywords" content="Java,JDK,Java source,Collection,ArrayList,Map,List,HashMap,ArrayDeque,Deque,Set,HashSet,LinkedList,Queue,TreeMap,TreeSet,Vector,Stack">
+<meta name="author" content="D瓜哥">
+<meta name="copyright" content="Apache-2.0">
+<meta property="og:title" content="java.util.concurrent.ThreadPoolExecutor">
+<title>JDK 源码分析: 58. ThreadPoolExecutor 源码分析</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="assets/styles/asciidoctor.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="assets/styles/rouge-github.css">
+<style>
+    a {
+        text-decoration: none;
+    }
+
+    .img_bk {
+        text-align: center;
+    }
+
+    p > code, strong > code, div.admonitionblock tr > td.content > code {
+        color: #d14 !important;
+        background-color: #f5f5f5 !important;
+        border: 1px solid #e1e1e8;
+        white-space: nowrap;
+        border-radius: 3px;
+    }
+</style>
+<link rel="stylesheet" href="assets/styles/asciidoctor-tabs.css">
+<style>.toc-current{color:#d14;font-size:130%;font-weight: bold;} .toc-root{font-family: "Open Sans","DejaVu Sans",sans-serif;
+                       font-size: 0.9em;} #content{display: flex; flex-direction: column; flex: 1 1 auto;}
+             .nav-footer{text-align: center; margin-top: auto;}
+             .nav-footer > p > a {white-space: nowrap;}</style>
+</head>
+<body id="java.util.concurrent.ThreadPoolExecutor" class="book toc2 toc-left">
+<div id="header">
+<h1>JDK 源码分析: 58. ThreadPoolExecutor 源码分析</h1>
+<div class="details">
+<span id="author" class="author">D瓜哥</span><br>
+<span id="email" class="email"><a href="https://www.diguage.com" class="bare">https://www.diguage.com</a></span><br>
+<span id="revdate">2025-11-25</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<p><span class="toc-root"><a href="index.html">JDK 源码分析</a></span></p><ul class="sectlevel1">
+<li><a href="preface.html">前言：JDK &amp; STL 源码分析计划</a>
+</li>
+<li><a href="overview.html">1. 集合类概述</a>
+</li>
+<li><a href="java.util.Iterator.html">2. 迭代器 Iterator、 Enumeration、 Spliterator 与 Iterable</a>
+</li>
+<li><a href="java.util.Collection.html">3. Collection</a>
+</li>
+<li><a href="java.util.AbstractCollection.html">4. AbstractCollection</a>
+</li>
+<li><a href="java.util.List.html">5. List</a>
+</li>
+<li><a href="java.util.AbstractList.html">6. AbstractList</a>
+</li>
+<li><a href="java.util.AbstractSequentialList.html">7. AbstractSequentialList</a>
+</li>
+<li><a href="java.util.ArrayList.html">8. <code>ArrayList</code></a>
+</li>
+<li><a href="java.util.LinkedList.html">9. LinkedList</a>
+</li>
+<li><a href="java.util.Stack.html">10. Stack</a>
+</li>
+<li><a href="java.util.Vector.html">11. Vector</a>
+</li>
+<li><a href="java.util.Set.html">12. Set</a>
+</li>
+<li><a href="java.util.AbstractSet.html">13. AbstractSet</a>
+</li>
+<li><a href="java.util.SortedSet.html">14. SortedSet</a>
+</li>
+<li><a href="java.util.NavigableSet.html">15. NavigableSet</a>
+</li>
+<li><a href="java.util.HashSet.html">16. HashSet</a>
+</li>
+<li><a href="java.util.TreeSet.html">17. TreeSet</a>
+</li>
+<li><a href="java.util.LinkedHashSet.html">18. LinkedHashSet</a>
+</li>
+<li><a href="java.util.BitSet.html">19. BitSet</a>
+</li>
+<li><a href="java.util.EnumSet.html">20. EnumSet</a>
+</li>
+<li><a href="java.util.Map.html">21. Map</a>
+</li>
+<li><a href="java.util.SortedMap.html">22. SortedMap</a>
+</li>
+<li><a href="java.util.NavigableMap.html">23. NavigableMap</a>
+</li>
+<li><a href="java.util.AbstractMap.html">24. AbstractMap</a>
+</li>
+<li><a href="java.util.HashMap.html">25. HashMap</a>
+</li>
+<li><a href="java.util.TreeMap.html">26. TreeMap</a>
+</li>
+<li><a href="java.util.LinkedHashMap.html">27. LinkedHashMap</a>
+</li>
+<li><a href="java.util.Dictionary.html">28. Dictionary</a>
+</li>
+<li><a href="java.util.Hashtable.html">29. Hashtable</a>
+</li>
+<li><a href="java.util.EnumMap.html">30. EnumMap</a>
+</li>
+<li><a href="java.util.WeakHashMap.html">31. WeakHashMap</a>
+</li>
+<li><a href="java.util.IdentityHashMap.html">32. IdentityHashMap</a>
+</li>
+<li><a href="java.util.Queue.html">33. Queue</a>
+</li>
+<li><a href="java.util.Deque.html">34. Deque</a>
+</li>
+<li><a href="java.util.AbstractQueue.html">35. AbstractQueue</a>
+</li>
+<li><a href="java.util.ArrayDeque.html">36. ArrayDeque</a>
+</li>
+<li><a href="java.util.PriorityQueue.html">37. PriorityQueue</a>
+</li>
+<li><a href="java.util.Array.html">38. 工具类 <code>Arrays</code></a>
+</li>
+<li><a href="java.util.Collection.html">39. 工具类 <code>Collections</code></a>
+</li>
+<li><a href="concurrent.overview.html">40. 并发库概述</a>
+</li>
+<li><a href="java.lang.Thread.html">41. Thread</a>
+</li>
+<li><a href="java.util.concurrent.locks.LockSupport.html">42. LockSupport</a>
+</li>
+<li><a href="java.util.concurrent.locks.AbstractQueuedSynchronizer.html">43. AbstractQueuedSynchronizer</a>
+</li>
+<li><a href="java.util.concurrent.locks.ReentrantLock.html">44. ReentrantLock</a>
+</li>
+<li><a href="java.util.concurrent.locks.ReentrantReadWriteLock.html">45. ReentrantReadWriteLock</a>
+</li>
+<li><a href="java.util.concurrent.locks.StampedLock.html">46. StampedLock</a>
+</li>
+<li><a href="java.util.concurrent.Semaphore.html">47. Semaphore</a>
+</li>
+<li><a href="java.util.concurrent.CountDownLatch.html">48. CountDownLatch</a>
+</li>
+<li><a href="java.util.concurrent.CyclicBarrier.html">49. CyclicBarrier</a>
+</li>
+<li><a href="java.util.concurrent.Phaser.html">50. Phaser</a>
+</li>
+<li><a href="java.util.concurrent.Exchanger.html">51. Exchanger</a>
+</li>
+<li><a href="java.lang.ThreadLocal.html">52. ThreadLocal</a>
+</li>
+<li><a href="java.util.concurrent.atomic.AtomicInteger.html">53. AtomicInteger</a>
+</li>
+<li><a href="java.util.concurrent.atomic.LongAdder.html">54. LongAdder</a>
+</li>
+<li><a href="java.util.concurrent.Future.html">55. JUC 包基础类分析</a>
+</li>
+<li><a href="java.util.concurrent.FutureTask.html">56. FutureTask</a>
+</li>
+<li><a href="java.util.concurrent.CompletableFuture.html">57. CompletableFuture</a>
+</li>
+<li><a href="java.util.concurrent.ThreadPoolExecutor.html"><span class="toc-current">58. ThreadPoolExecutor 源码分析</span></a>
+</li>
+<li><a href="java.util.concurrent.ForkJoinTask.html">59. ForkJoinTask</a>
+</li>
+<li><a href="java.util.concurrent.ForkJoinPool.html">60. ForkJoinPool</a>
+</li>
+<li><a href="java.util.concurrent.ConcurrentHashMap.html">61. <code>ConcurrentHashMap</code></a>
+</li>
+<li><a href="java.util.concurrent.ConcurrentSkipListMap.html">62. <code>ConcurrentSkipListMap</code></a>
+</li>
+<li><a href="java.util.concurrent.CopyOnWriteArrayList.html">63. CopyOnWriteArrayList</a>
+</li>
+<li><a href="java.util.concurrent.ConcurrentLinkedQueue.html">64. ConcurrentLinkedQueue</a>
+</li>
+<li><a href="java.util.concurrent.ArrayBlockingQueue.html">65. ArrayBlockingQueue</a>
+</li>
+<li><a href="java.util.concurrent.LinkedBlockingQueue.html">66. LinkedBlockingQueue</a>
+</li>
+<li><a href="java.util.concurrent.PriorityBlockingQueue.html">67. PriorityBlockingQueue</a>
+</li>
+<li><a href="java.util.concurrent.DelayQueue.html">68. DelayQueue</a>
+</li>
+<li><a href="java.util.concurrent.ScheduledThreadPoolExecutor.html">69. <code>ScheduledThreadPoolExecutor</code></a>
+</li>
+<li><a href="java.util.concurrent.Flow.html">70. <code>Flow</code></a>
+</li>
+<li><a href="java.lang.ClassLoader.html">71. ClassLoader</a>
+</li>
+<li><a href="java.lang.reflect.Field.html">72. Field</a>
+</li>
+<li><a href="java.lang.reflect.Proxy.html">73. Proxy</a>
+</li>
+<li><a href="java.net.ServerSocket.html">74. ServerSocket</a>
+</li>
+<li><a href="java.util.ServiceLoader.html">75. <code>ServiceLoader</code></a>
+</li>
+<li><a href="java.lang.String.html">76. <code>String</code></a>
+</li>
+<li><a href="java.util.Date.html">77. <code>Date</code></a>
+</li>
+<li><a href="java.io.Serializable.html">78. <code>Serializable</code></a>
+</li>
+<li><a href="java.regex.Pattern.html">79. <code>Pattern</code></a>
+</li>
+<li><a href="_netty.html">80. Netty</a>
+</li>
+</ul>
+</div>
+</div>
+<div id="content"><div class="sect2"><h3 id="_友情支持">友情支持</h3><div class="paragraph"><p>如果您觉得这个笔记对您有所帮助，看在D瓜哥码这么多字的辛苦上，请友情支持一下，D瓜哥感激不尽，😜</p></div><table class="tableblock frame-none grid-all stretch"><colgroup><col style="width: 50%;"><col style="width: 50%;"></colgroup><tbody><tr><td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="assets/images/alipay.png" alt="支付宝" width="85%" title="支付宝"></span></p></td><td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="assets/images/wxpay.jpg" alt="微信" width="85%" title="微信"></span></p></td></tr></tbody></table><div class="paragraph"><p>有些打赏的朋友希望可以加个好友，欢迎关注D 瓜哥的微信公众号，这样就可以通过公众号的回复直接给我发信息。</p></div><div class="paragraph"><p><span class="image"><img src="assets/images/wx-jikerizhi.png" alt="wx jikerizhi" width="98%"></span></p></div><div class="admonitionblock tip"><table><tbody><tr><td class="icon"><i class="fa icon-tip" title="Tip"></i></td><td class="content"><strong>公众号的微信号是: <code>jikerizhi</code></strong>。<em>因为众所周知的原因，有时图片加载不出来。 如果图片加载不出来可以直接通过搜索微信号来查找我的公众号。</em></td></tr></tbody></table></div></div>
+<div class="sect1">
+<h2 id="java.util.concurrent.ThreadPoolExecutor"><a class="anchor" href="#java.util.concurrent.ThreadPoolExecutor"></a>58. ThreadPoolExecutor 源码分析</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 10.1123%;">
+<col style="width: 37.0786%;">
+<col style="width: 10.1123%;">
+<col style="width: 42.6968%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">状态名称</th>
+<th class="tableblock halign-left valign-top">比特位</th>
+<th class="tableblock halign-left valign-top">十进制</th>
+<th class="tableblock halign-left valign-top">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">RUNNING</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">111-00000000000000000000000000000</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">-536870912</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">运行中状态，可以接收新的任务和执行任务队列中的任务</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SHUTDOWN</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">000-00000000000000000000000000000</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">shutdown状态，不再接收新的任务，但是会执行任务队列中的任务</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STOP</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">001-00000000000000000000000000000</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">536870912</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">停止状态，不再接收新的任务，也不会执行任务队列中的任务，中断所有执行中的任务</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">TIDYING</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">010-00000000000000000000000000000</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">1073741824</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">整理中状态，所有任务已经终结，工作线程数为0，过渡到此状态的工作线程会调用钩子方法 <code>terminated()</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">TERMINATED</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">011-00000000000000000000000000000</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">1610612736</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">终结状态，钩子方法 <code>terminated()</code> 执行完毕</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>由于运行状态值存放在高3位，所以可以直接通过十进制值（甚至可以忽略低29位，直接用ctl进行比较，或者使用ctl和线程池状态常量进行比较）来比较和判断线程池的状态：工作线程数为0的前提下：<code>RUNNING(-536870912)</code> &lt; <code>SHUTDOWN(0)</code> &lt; <code>STOP(536870912)</code> &lt; <code>TIDYING(1073741824)</code> &lt; <code>TERMINATED(1610612736)</code>。</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./assets/images/ThreadPoolExecutor-states.jpeg" alt="ThreadPoolExecutor states">
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+</pre></td><td class="code"><pre>    <span class="cm">/**
+     * Executes the given task sometime in the future.  The task
+     * may execute in a new thread or in an existing pooled thread.
+     *
+     * If the task cannot be submitted for execution, either because this
+     * executor has been shutdown or because its capacity has been reached,
+     * the task is handled by the current {@link RejectedExecutionHandler}.
+     *
+     * @param command the task to execute
+     * @throws RejectedExecutionException at discretion of
+     *         {@code RejectedExecutionHandler}, if the task
+     *         cannot be accepted for execution
+     * @throws NullPointerException if {@code command} is null
+     */</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">execute</span><span class="o">(</span><span class="nc">Runnable</span> <span class="n">command</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">command</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">NullPointerException</span><span class="o">();</span>
+        <span class="cm">/*
+         * Proceed in 3 steps:
+         *
+         * 1. If fewer than corePoolSize threads are running, try to
+         * start a new thread with the given command as its first
+         * task.  The call to addWorker atomically checks runState and
+         * workerCount, and so prevents false alarms that would add
+         * threads when it shouldn't, by returning false.
+         *
+         * 2. If a task can be successfully queued, then we still need
+         * to double-check whether we should have added a thread
+         * (because existing ones died since last checking) or that
+         * the pool shut down since entry into this method. So we
+         * recheck state and if necessary roll back the enqueuing if
+         * stopped, or start a new thread if there are none.
+         *
+         * 3. If we cannot queue task, then we try to add a new
+         * thread.  If it fails, we know we are shut down or saturated
+         * and so reject the task.
+         */</span>
+        <span class="kt">int</span> <span class="n">c</span> <span class="o">=</span> <span class="n">ctl</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
+        <span class="c1">// 如果当前工作线程数小于核心线程数，则创建新的线程并执行传入的任务</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">workerCountOf</span><span class="o">(</span><span class="n">c</span><span class="o">)</span> <span class="o">&lt;</span> <span class="n">corePoolSize</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">addWorker</span><span class="o">(</span><span class="n">command</span><span class="o">,</span> <span class="kc">true</span><span class="o">))</span>
+                <span class="c1">// 创建核心线程成功则直接返回</span>
+                <span class="k">return</span><span class="o">;</span>
+            <span class="c1">// 创建核心线程失败，则在其他任务提交时，已经创建了足够多的线程数</span>
+            <span class="c1">// 或者线程池关闭等等，总之线程池状态已经发生变化，</span>
+            <span class="c1">// 则更新 ctl 的临时变量</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">ctl</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
+        <span class="o">}</span>
+        <span class="c1">// 运行到这里说明创建核心线程失败，则当前工作线程已经大于等于 corePoolSize</span>
+        <span class="c1">// 判断线程池是否运行并且尝试用非阻塞方法向任务队列中添加任务（失败则返回 false）</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">isRunning</span><span class="o">(</span><span class="n">c</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="n">workQueue</span><span class="o">.</span><span class="na">offer</span><span class="o">(</span><span class="n">command</span><span class="o">))</span> <span class="o">{</span>
+            <span class="kt">int</span> <span class="n">recheck</span> <span class="o">=</span> <span class="n">ctl</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
+            <span class="c1">// 向任务队列投放任务成功，对线程池状态做二次检查</span>
+            <span class="c1">// 如果线程池状态不是运行中，则从任务队列中移除任务并执行拒绝策略</span>
+            <span class="k">if</span> <span class="o">(!</span> <span class="n">isRunning</span><span class="o">(</span><span class="n">recheck</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="n">remove</span><span class="o">(</span><span class="n">command</span><span class="o">))</span>
+                <span class="c1">// 执行拒绝策略 -- 结束</span>
+                <span class="n">reject</span><span class="o">(</span><span class="n">command</span><span class="o">);</span>
+            <span class="c1">// 走到下面的 else if 分支，则说明</span>
+            <span class="c1">// 0、线程池可能是 RUNNING 状态</span>
+            <span class="c1">// 1、任务移除失败（失败原因可能是任务已经被执行）</span>
+            <span class="c1">// 如果当前线程数为0，则创建一个非核心线程并传入任务为 null -- 结束</span>
+            <span class="c1">// 创建的线程不会马上执行任务，而是等待获取任务队列中的任务去执行</span>
+            <span class="c1">// 如果当前线程数不为0，则什么也不做。因为任务已经成功加入队列，总会执行。</span>
+            <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">workerCountOf</span><span class="o">(</span><span class="n">recheck</span><span class="o">)</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span>
+                <span class="n">addWorker</span><span class="o">(</span><span class="kc">null</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="c1">// 执行到这里说明：</span>
+        <span class="c1">// 0、线程池中的工作线程总数已经大于等于 corePoolSize</span>
+        <span class="c1">// 1、线程池可能不是 RUNNING 状态</span>
+        <span class="c1">// 2、线程池可能是 RUNNING 状态同时任务队列已经满了</span>
+        <span class="c1">// 如果向任务队列投放任务失败，则会尝试创建非核心线程传入任务执行</span>
+        <span class="c1">// 创建非核心线程失败，此时需要拒绝执行任务</span>
+        <span class="k">else</span> <span class="nf">if</span> <span class="o">(!</span><span class="n">addWorker</span><span class="o">(</span><span class="n">command</span><span class="o">,</span> <span class="kc">false</span><span class="o">))</span>
+            <span class="c1">// 执行拒绝策略 -- 结束</span>
+            <span class="n">reject</span><span class="o">(</span><span class="n">command</span><span class="o">);</span>
+    <span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>为什么需要二次检查线程池的运行状态，当前工作线程数量为 <code>0</code>，尝试创建一个非核心线程并且传入的任务对象为 <code>null</code>？这个可以看API注释：</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p>如果一个任务成功加入任务队列，我们依然需要二次检查是否需要添加一个工作线程（因为所有存活的工作线程有可能在最后一次检查之后已经终结）或者执行当前方法的时候线程池是否已经 <code>shutdown</code> 了。所以我们需要二次检查线程池的状态，必要时把任务从任务队列中移除或者在没有可用的工作线程的前提下新建一个工作线程。</p>
+</div>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./assets/images/ThreadPoolExecutor-process.jpeg" alt="ThreadPoolExecutor process">
+</div>
+</div>
+<div class="paragraph">
+<p><code>runWorker()</code> 方法的核心流程：</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./assets/images/ThreadPoolExecutor-runWorker.jpeg" alt="ThreadPoolExecutor runWorker">
+</div>
+</div>
+<div class="sect2">
+<h3 id="_大纲"><a class="anchor" href="#_大纲"></a>58.1. 大纲</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>基本使用</p>
+</li>
+<li>
+<p>使用 <code>Executors</code> 创建线程池</p>
+</li>
+<li>
+<p>自定义任务，并提交任务</p>
+</li>
+<li>
+<p>获取返回结果</p>
+</li>
+<li>
+<p>线程池的类图结构</p>
+</li>
+<li>
+<p>创建执行线程</p>
+</li>
+<li>
+<p>取出任务执行</p>
+</li>
+<li>
+<p>如何实现 <code>invokeAny(Collection&lt;? extends Callable&lt;T&gt;&gt; tasks)</code> ？</p>
+</li>
+<li>
+<p>如何实现 <code>invokeAny(Collection&lt;? extends Callable&lt;T&gt;&gt; tasks, long timeout, TimeUnit unit)</code> ?</p>
+</li>
+<li>
+<p>如何实现 <code>invokeAll(Collection&lt;? extends Callable&lt;T&gt;&gt; tasks)</code> ?</p>
+</li>
+<li>
+<p>如何实现 <code>invokeAll(Collection&lt;? extends Callable&lt;T&gt;&gt; tasks, long timeout, TimeUnit unit)</code> ？</p>
+</li>
+<li>
+<p>如何判断线程超时？以及超时后如何杀掉线程？</p>
+</li>
+<li>
+<p>如何终止任务？温柔终止？或者野蛮终止？</p>
+</li>
+<li>
+<p>线程池在jDK5、6、7中有哪些升级变化？</p>
+</li>
+<li>
+<p>拒绝策略</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_核心点_2"><a class="anchor" href="#_核心点_2"></a>58.2. 核心点</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>关键参数</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p><code>corePoolSize</code></p>
+</li>
+<li>
+<p><code>maximumPoolSize</code></p>
+</li>
+<li>
+<p><code>BlockingQueue</code></p>
+</li>
+<li>
+<p><code>RejectedExecutionHandler</code></p>
+</li>
+<li>
+<p><code>keepAliveTime</code></p>
+</li>
+<li>
+<p><code>threadFactory</code></p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p><code>RejectedExecutionHandler</code></p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p><code>AbortPolicy</code></p>
+</li>
+<li>
+<p><code>CallerRunsPolicy</code></p>
+</li>
+<li>
+<p><code>DiscardPolicy</code></p>
+</li>
+<li>
+<p><code>DiscardOldestPolicy</code></p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>在生产环境，为了避免首次调用超时，可以调用 <code>executor.prestartAllCoreThreads()</code> 预创建所有 <code>core</code> 线程，避免来一个创一个带来首次调用慢的问题。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_问题_2"><a class="anchor" href="#_问题_2"></a>58.3. 问题</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>任务添加后，如何执行？</p>
+</li>
+<li>
+<p>一个任务执行完成后，如何在同一个线程执行下一个任务？</p>
+</li>
+<li>
+<p>在 <code>corePoolSize</code> 比 <code>maximumPoolSize</code> 小的情况下，如何判定一个线程是否超时？并且如何删除一个线程？</p>
+</li>
+<li>
+<p>任务添加后，</p>
+</li>
+<li>
+<p>如何返回任务执行的结果？</p>
+</li>
+<li>
+<p>这个线程池还有哪些可以改进的地方？比如 Guava 中提供了哪些线程池？</p>
+</li>
+<li>
+<p>如何改造成添加任务，如果没有达到 <code>maxPoolSize</code> 则先创建线程？</p>
+</li>
+</ol>
+</div>
+<div class="sect3">
+<h4 id="_tomcat_改进"><a class="anchor" href="#_tomcat_改进"></a>58.3.1. Tomcat 改进</h4>
+<div class="paragraph">
+<p>可不可以自己封装一个Queue，在插入时增加以下逻辑呢？</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>如果当前有空闲线程等待接客，则把任务加入队列让孩儿们去抢。</p>
+</li>
+<li>
+<p>如果没有空闲的了，总线程数又没到达max，那就返回false，让Executor去创建线程。</p>
+</li>
+<li>
+<p>如果总线程数已达到max，则继续把任务加入队列缓冲一下。</p>
+</li>
+<li>
+<p>如果缓冲队列也满了，抛出拒绝异常。</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title"><a href="https://github.com/apache/tomcat/blob/master/java/org/apache/tomcat/util/threads/TaskQueue.java" class="bare">https://github.com/apache/tomcat/blob/master/java/org/apache/tomcat/util/threads/TaskQueue.java</a></div>
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td><td class="code"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TaskQueue</span> <span class="kd">extends</span> <span class="nc">LinkedBlockingQueue</span><span class="o">&lt;</span><span class="nc">Runnable</span><span class="o">&gt;</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="kd">transient</span> <span class="kd">volatile</span> <span class="nc">ThreadPoolExecutor</span> <span class="n">parent</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">offer</span><span class="o">(</span><span class="nc">Runnable</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+      <span class="c1">//we can't do any checks</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">parent</span><span class="o">==</span><span class="kc">null</span><span class="o">)</span> <span class="k">return</span> <span class="kd">super</span><span class="o">.</span><span class="na">offer</span><span class="o">(</span><span class="n">o</span><span class="o">);</span>
+        <span class="c1">//we are maxed out on threads, simply queue the object</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">parent</span><span class="o">.</span><span class="na">getPoolSize</span><span class="o">()</span> <span class="o">==</span> <span class="n">parent</span><span class="o">.</span><span class="na">getMaximumPoolSize</span><span class="o">())</span> <span class="k">return</span> <span class="kd">super</span><span class="o">.</span><span class="na">offer</span><span class="o">(</span><span class="n">o</span><span class="o">);</span>
+        <span class="c1">//we have idle threads, just add it to the queue</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">parent</span><span class="o">.</span><span class="na">getSubmittedCount</span><span class="o">()&lt;=(</span><span class="n">parent</span><span class="o">.</span><span class="na">getPoolSize</span><span class="o">()))</span> <span class="k">return</span> <span class="kd">super</span><span class="o">.</span><span class="na">offer</span><span class="o">(</span><span class="n">o</span><span class="o">);</span>
+        <span class="c1">//if we have less threads than maximum force creation of a new thread</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">parent</span><span class="o">.</span><span class="na">getPoolSize</span><span class="o">()&lt;</span><span class="n">parent</span><span class="o">.</span><span class="na">getMaximumPoolSize</span><span class="o">())</span> <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="c1">//if we reached here, we need to add it to the queue</span>
+        <span class="k">return</span> <span class="kd">super</span><span class="o">.</span><span class="na">offer</span><span class="o">(</span><span class="n">o</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>如何判断当前有没有空闲的线程等待接客？Tomcat 则靠扩展 <code>Executor</code>，增加一个当前请求数的计数器，在 <code>execute()</code> 方法前加1，再重载 <code>afterExecute()</code> 方法减1，然后判断当前线程总数是否大于当前请求总数就知道有咩有围观群众。</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_需要注意的点"><a class="anchor" href="#_需要注意的点"></a>58.4. 需要注意的点</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>线程池如何初始化？</p>
+</li>
+<li>
+<p>任务如何添加？</p>
+</li>
+<li>
+<p>任务如何执行？</p>
+</li>
+<li>
+<p>任务如何终止？</p>
+</li>
+<li>
+<p>遇到异常如何处理？</p>
+</li>
+<li>
+<p>线程池队列已满，如何拒绝？</p>
+</li>
+<li>
+<p>任务执行过程中出现异常，如何处理？关闭该线程，重启一个吗？</p>
+</li>
+<li>
+<p>？？</p>
+</li>
+<li>
+<p>任务如何存放？</p>
+</li>
+<li>
+<p>任务存放后，如何取出来？</p>
+</li>
+<li>
+<p>如何做到不断地一个一个执行下去？</p>
+</li>
+<li>
+<p>为什么 <code>Worker</code> 继承 <code>AbstractQueuedSynchronizer</code> ？AQS起什么作用？是否需要先研究一下？</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_收获"><a class="anchor" href="#_收获"></a>58.5. 收获</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>可以继承 <code>ThreadPoolExecutor</code>，实现 <code>beforeExecute()</code> 和 <code>afterExecute()</code> 等方法，来加入执行时的回调。类似的回调，还有 <code>terminated()</code></p>
+</li>
+<li>
+<p>添加任务时， <code>execute()</code> 方法的第二种情况，为什么还有再次检查？</p>
+</li>
+</ol>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">  1
+  2
+  3
+  4
+  5
+  6
+  7
+  8
+  9
+ 10
+ 11
+ 12
+ 13
+ 14
+ 15
+ 16
+ 17
+ 18
+ 19
+ 20
+ 21
+ 22
+ 23
+ 24
+ 25
+ 26
+ 27
+ 28
+ 29
+ 30
+ 31
+ 32
+ 33
+ 34
+ 35
+ 36
+ 37
+ 38
+ 39
+ 40
+ 41
+ 42
+ 43
+ 44
+ 45
+ 46
+ 47
+ 48
+ 49
+ 50
+ 51
+ 52
+ 53
+ 54
+ 55
+ 56
+ 57
+ 58
+ 59
+ 60
+ 61
+ 62
+ 63
+ 64
+ 65
+ 66
+ 67
+ 68
+ 69
+ 70
+ 71
+ 72
+ 73
+ 74
+ 75
+ 76
+ 77
+ 78
+ 79
+ 80
+ 81
+ 82
+ 83
+ 84
+ 85
+ 86
+ 87
+ 88
+ 89
+ 90
+ 91
+ 92
+ 93
+ 94
+ 95
+ 96
+ 97
+ 98
+ 99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+</pre></td><td class="code"><pre><span class="kn">package</span> <span class="nn">com.diguage.truman.concurrent</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">org.junit.jupiter.api.Test</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.time.LocalDateTime</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.ArrayList</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.List</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.concurrent.Callable</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.concurrent.ExecutionException</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.concurrent.Future</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.concurrent.LinkedBlockingQueue</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.concurrent.ThreadPoolExecutor</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.concurrent.TimeUnit</span><span class="o">;</span>
+
+<span class="cm">/**
+ * @author D瓜哥, https://www.diguage.com/
+ * @since 2020-03-10 10:50
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ThreadPoolExecutorTest</span> <span class="o">{</span>
+
+    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testStatus</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="no">COUNT_BITS</span> <span class="o">=</span> <span class="nc">Integer</span><span class="o">.</span><span class="na">SIZE</span> <span class="o">-</span> <span class="mi">3</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="no">COUNT_MASK</span> <span class="o">=</span> <span class="o">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="no">COUNT_BITS</span><span class="o">)</span> <span class="o">-</span> <span class="mi">1</span><span class="o">;</span>
+
+        <span class="c1">// runState is stored in the high-order bits</span>
+        <span class="kt">int</span> <span class="no">RUNNING</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="no">COUNT_BITS</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="no">SHUTDOWN</span> <span class="o">=</span> <span class="mi">0</span> <span class="o">&lt;&lt;</span> <span class="no">COUNT_BITS</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="no">STOP</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="no">COUNT_BITS</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="no">TIDYING</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">&lt;&lt;</span> <span class="no">COUNT_BITS</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="no">TERMINATED</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">&lt;&lt;</span> <span class="no">COUNT_BITS</span><span class="o">;</span>
+
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">"%32s // %d%n"</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="no">RUNNING</span><span class="o">),</span> <span class="no">RUNNING</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">"%32s // %d%n"</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="no">SHUTDOWN</span><span class="o">),</span> <span class="no">SHUTDOWN</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">"%32s // %d%n"</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="no">STOP</span><span class="o">),</span> <span class="no">STOP</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">"%32s // %d%n"</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="no">TIDYING</span><span class="o">),</span> <span class="no">TIDYING</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">"%32s // %d%n"</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="no">TERMINATED</span><span class="o">),</span> <span class="no">TERMINATED</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testPoolSize</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">ThreadPoolExecutor</span> <span class="n">executorService</span>
+                <span class="o">=</span> <span class="k">new</span> <span class="nc">ThreadPoolExecutor</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="mi">4</span><span class="o">,</span> <span class="mi">1L</span><span class="o">,</span>
+                <span class="nc">TimeUnit</span><span class="o">.</span><span class="na">MINUTES</span><span class="o">,</span> <span class="k">new</span> <span class="nc">LinkedBlockingQueue</span><span class="o">&lt;&gt;(</span><span class="mi">6</span><span class="o">));</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+            <span class="n">executorService</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="k">new</span> <span class="nc">Task</span><span class="o">(</span><span class="s">"Task-"</span> <span class="o">+</span> <span class="n">i</span><span class="o">));</span>
+        <span class="o">}</span>
+        <span class="n">executorService</span><span class="o">.</span><span class="na">shutdown</span><span class="o">();</span>
+        <span class="k">while</span> <span class="o">(!</span><span class="n">executorService</span><span class="o">.</span><span class="na">isTerminated</span><span class="o">())</span> <span class="o">{</span>
+        <span class="o">}</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Finish all thread..."</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCallable</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">ThreadPoolExecutor</span> <span class="n">executorService</span>
+                <span class="o">=</span> <span class="k">new</span> <span class="nc">ThreadPoolExecutor</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="mi">4</span><span class="o">,</span> <span class="mi">1L</span><span class="o">,</span>
+                <span class="nc">TimeUnit</span><span class="o">.</span><span class="na">MINUTES</span><span class="o">,</span> <span class="k">new</span> <span class="nc">LinkedBlockingQueue</span><span class="o">&lt;&gt;(</span><span class="mi">6</span><span class="o">));</span>
+
+        <span class="nc">List</span><span class="o">&lt;</span><span class="nc">Future</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;&gt;</span> <span class="n">futures</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;&gt;(</span><span class="mi">10</span><span class="o">);</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+            <span class="nc">Future</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">executorService</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span>
+                    <span class="k">new</span> <span class="nf">CallableTask</span><span class="o">(</span><span class="s">"CallableTask-"</span> <span class="o">+</span> <span class="n">i</span><span class="o">));</span>
+
+            <span class="n">futures</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">future</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">for</span> <span class="o">(</span><span class="nc">Future</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">:</span> <span class="n">futures</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="nc">LocalDateTime</span><span class="o">.</span><span class="na">now</span><span class="o">()</span> <span class="o">+</span> <span class="s">"::"</span> <span class="o">+</span> <span class="n">future</span><span class="o">.</span><span class="na">get</span><span class="o">());</span>
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">InterruptedException</span> <span class="o">|</span> <span class="nc">ExecutionException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">while</span> <span class="o">(!</span><span class="n">executorService</span><span class="o">.</span><span class="na">isTerminated</span><span class="o">())</span> <span class="o">{</span>
+        <span class="o">}</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Finish all thread..."</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testComplete</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">ThreadPoolExecutor</span> <span class="n">executorService</span>
+                <span class="o">=</span> <span class="k">new</span> <span class="nc">ThreadPoolExecutor</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="mi">4</span><span class="o">,</span> <span class="mi">1L</span><span class="o">,</span>
+                <span class="nc">TimeUnit</span><span class="o">.</span><span class="na">MINUTES</span><span class="o">,</span> <span class="k">new</span> <span class="nc">LinkedBlockingQueue</span><span class="o">&lt;&gt;(</span><span class="mi">6</span><span class="o">));</span>
+
+        <span class="nc">List</span><span class="o">&lt;</span><span class="nc">Future</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;&gt;</span> <span class="n">futures</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;&gt;(</span><span class="mi">10</span><span class="o">);</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+            <span class="nc">Future</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">executorService</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span>
+                    <span class="k">new</span> <span class="nf">CallableTask</span><span class="o">(</span><span class="s">"CallableTask-"</span> <span class="o">+</span> <span class="n">i</span><span class="o">));</span>
+            <span class="n">futures</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">future</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">for</span> <span class="o">(</span><span class="nc">Future</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">:</span> <span class="n">futures</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="nc">LocalDateTime</span><span class="o">.</span><span class="na">now</span><span class="o">()</span> <span class="o">+</span> <span class="s">"::"</span> <span class="o">+</span> <span class="n">future</span><span class="o">.</span><span class="na">get</span><span class="o">());</span>
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">InterruptedException</span> <span class="o">|</span> <span class="nc">ExecutionException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">while</span> <span class="o">(!</span><span class="n">executorService</span><span class="o">.</span><span class="na">isTerminated</span><span class="o">())</span> <span class="o">{</span>
+        <span class="o">}</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Finish all thread..."</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">CallableTask</span> <span class="kd">implements</span> <span class="nc">Callable</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="o">{</span>
+        <span class="kd">private</span> <span class="kd">final</span> <span class="nc">String</span> <span class="n">name</span><span class="o">;</span>
+
+        <span class="kd">public</span> <span class="nf">CallableTask</span><span class="o">(</span><span class="nc">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="nc">String</span> <span class="nf">call</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">Exception</span> <span class="o">{</span>
+            <span class="nc">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">1000</span><span class="o">);</span>
+            <span class="c1">//返回执行当前 Callable 的线程名字</span>
+            <span class="k">return</span> <span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">Task</span> <span class="kd">implements</span> <span class="nc">Runnable</span> <span class="o">{</span>
+        <span class="kd">private</span> <span class="nc">String</span> <span class="n">name</span><span class="o">;</span>
+
+        <span class="kd">public</span> <span class="nf">Task</span><span class="o">(</span><span class="nc">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">()</span>
+                    <span class="o">+</span> <span class="s">" Start. Time = "</span> <span class="o">+</span> <span class="nc">LocalDateTime</span><span class="o">.</span><span class="na">now</span><span class="o">());</span>
+
+            <span class="n">processCommand</span><span class="o">();</span>
+
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">()</span>
+                    <span class="o">+</span> <span class="s">" End. Time = "</span> <span class="o">+</span> <span class="nc">LocalDateTime</span><span class="o">.</span><span class="na">now</span><span class="o">());</span>
+        <span class="o">}</span>
+
+        <span class="kd">private</span> <span class="kt">void</span> <span class="nf">processCommand</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="nc">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">5000</span><span class="o">);</span>
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">InterruptedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="nc">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">name</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_思考题"><a class="anchor" href="#_思考题"></a>58.6. 思考题</h3>
+<div class="paragraph">
+<p>自己实现一个线程池。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_参考资料_14"><a class="anchor" href="#_参考资料_14"></a>58.7. 参考资料</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><a href="http://www.throwable.club/2019/07/15/java-concurrency-thread-pool-executor/">JUC线程池ThreadPoolExecutor源码分析 - Throwable&#8217;s Blog</a></p>
+</li>
+<li>
+<p><a href="https://www.cnblogs.com/leesf456/p/5585627.html">【JUC】JDK1.8源码分析之ThreadPoolExecutor（一） - leesf - 博客园</a></p>
+</li>
+<li>
+<p><a href="https://mp.weixin.qq.com/s/baYuX8aCwQ9PP6k7TDl2Ww">Java线程池实现原理及其在美团业务中的实践</a></p>
+</li>
+<li>
+<p><a href="http://calvin1978.blogcn.com/articles/java-threadpool.html">Java ThreadPool的正确打开方式 | 江南白衣</a></p>
+</li>
+<li>
+<p><a href="http://calvin1978.blogcn.com/articles/tomcat-threadpool.html">Tomcat线程池，更符合大家想象的可扩展线程池 | 江南白衣</a></p>
+</li>
+<li>
+<p><a href="https://mp.weixin.qq.com/s/YAeneN-x_En55FlC2mVcaA">每天都在用，但你知道 Tomcat 的线程池有多努力吗？</a></p>
+</li>
+<li>
+<p><a href="http://www.throwable.club/2019/07/15/java-concurrency-thread-pool-executor/" class="bare">http://www.throwable.club/2019/07/15/java-concurrency-thread-pool-executor/</a>[JUC线程池ThreadPoolExecutor源码分析 - Throwable&#8217;s Blog</p>
+</li>
+<li>
+<p><a href="http://jindong.io/2015/03/30/java-concurrent-package-ThreadPoolExecutor/">Java并发包源码学习之线程池（一）ThreadPoolExecutor源码分析 - Jindong</a></p>
+</li>
+<li>
+<p><a href="http://my.oschina.net/zouqun/blog/407149">ThreadPoolExecutor简介与源码分析 - 邹胜群的个人页面 - 开源中国社区</a></p>
+</li>
+<li>
+<p><a href="http://onlychoice.github.io/blog/2013/09/13/java-concurrent-source-code-reading-2/">Java并发源码分析 - ThreadPoolExecutor - SHOW ME THE CODE</a></p>
+</li>
+<li>
+<p><a href="http://blog.csdn.net/xieyuooo/article/details/8718741">Java线程池架构原理和源码解析(ThreadPoolExecutor) - xieyuooo的专栏 - 博客频道 - CSDN.NET</a></p>
+</li>
+<li>
+<p><a href="http://www.cnblogs.com/skywang12345/p/java_threads_category.html">Java多线程系列目录(共43篇) - 如果天空不死 - 博客园</a></p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>搞清楚了 <code>ctl</code> 的含义，高三位是状态，低29位是线程数</p>
+</li>
+<li>
+<p>主要属性的含义，主要方法的实现，任务添加后，三种不同的处理方式</p>
+</li>
+<li>
+<p>线程池状态变换</p>
+</li>
+<li>
+<p>线程池拒绝策略的实现</p>
+</li>
+<li>
+<p>带返回值的任务的实现方式，<code>Callable</code>，<code>Future</code></p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p><a href="http://www.molotang.com/articles/514.html">ThreadPoolExecutor的基本使用 | 三石·道</a></p>
+</li>
+<li>
+<p><a href="http://www.molotang.com/articles/522.html">ThreadPoolExecutor的任务提交、任务处理、线程复用和维护相关源码分析 | 三石·道</a></p>
+</li>
+<li>
+<p><a href="http://www.molotang.com/articles/526.html">ThreadPoolExecutor的生命周期相关源码分析 | 三石·道</a></p>
+</li>
+<li>
+<p><a href="http://www.molotang.com/articles/553.html">ThreadPoolExecutor的任务饱和丢弃策略及源码实现 | 三石·道</a></p>
+</li>
+<li>
+<p><a href="http://ifeve.com/java-threadpool/">聊聊并发（三）Java线程池的分析和使用 | 并发编程网 - ifeve.com</a></p>
+</li>
+<li>
+<p><a href="http://www.infoq.com/cn/articles/executor-framework-thread-pool-task-execution-part-01?utm_campaign=rightbar_v2&amp;utm_source=infoq&amp;utm_medium=articles_link&amp;utm_content=link_text">戏（细）说Executor框架线程池任务执行全过程（上）</a></p>
+</li>
+<li>
+<p><a href="http://www.infoq.com/cn/articles/executor-framework-thread-pool-task-execution-part-02?utm_campaign=rightbar_v2&amp;utm_source=infoq&amp;utm_medium=articles_link&amp;utm_content=link_text">戏（细）说Executor框架线程池任务执行全过程（下）</a></p>
+</li>
+<li>
+<p><a href="http://blog.csdn.net/techq/article/details/6818201">ThreadPoolExecutor 源码分析 - techq’s blog - 博客频道 - CSDN.NET</a></p>
+</li>
+<li>
+<p><a href="http://blog.sina.com.cn/s/blog_753035050100wbtm.html">JAVA线程池(ThreadPoolExecutor)源码分析_journeylin_新浪博客</a></p>
+</li>
+<li>
+<p><a href="http://www.cnblogs.com/rilley/archive/2012/02/07/2341767.html">ThreadPoolExecutor源码分析 - rilley - 博客园</a></p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="paragraph nav-footer">
+<p>← Previous: <a href="java.util.concurrent.CompletableFuture.html">CompletableFuture</a> | ↑ Up: <a href="index.html">JDK 源码分析</a> | Next: <a href="java.util.concurrent.ForkJoinTask.html">ForkJoinTask</a> →</p>
+</div>
+<script src="https://giscus.app/client.js" data-repo="diguage/jdk-source-analysis" data-repo-id="MDEwOlJlcG9zaXRvcnk3MjM5MzE5Mw==" data-category="General" data-category-id="MDE4OkRpc2N1c3Npb25DYXRlZ29yeTMyMDM2MDQx" data-mapping="og:title" data-strict="0" data-reactions-enabled="1" data-emit-metadata="1" data-input-position="top" data-theme="preferred_color_scheme" data-lang="zh-CN" data-loading="lazy" crossorigin="anonymous" async></script>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2025-11-25 13:40:54 UTC
+</div>
+</div>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains("stemblock")) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script src="assets/scripts/asciidoctor-tabs.js"></script>
+<script src="assets/scripts/scroll-toc.js"></script></body>
+</html>

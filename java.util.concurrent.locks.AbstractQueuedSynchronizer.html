@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.26">
+<meta name="keywords" content="Java,JDK,Java source,Collection,ArrayList,Map,List,HashMap,ArrayDeque,Deque,Set,HashSet,LinkedList,Queue,TreeMap,TreeSet,Vector,Stack">
+<meta name="author" content="D瓜哥">
+<meta name="copyright" content="Apache-2.0">
+<meta property="og:title" content="java.util.concurrent.locks.AbstractQueuedSynchronizer">
+<title>JDK 源码分析: 43. AbstractQueuedSynchronizer</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="assets/styles/asciidoctor.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="assets/styles/rouge-github.css">
+<style>
+    a {
+        text-decoration: none;
+    }
+
+    .img_bk {
+        text-align: center;
+    }
+
+    p > code, strong > code, div.admonitionblock tr > td.content > code {
+        color: #d14 !important;
+        background-color: #f5f5f5 !important;
+        border: 1px solid #e1e1e8;
+        white-space: nowrap;
+        border-radius: 3px;
+    }
+</style>
+<link rel="stylesheet" href="assets/styles/asciidoctor-tabs.css">
+<style>.toc-current{color:#d14;font-size:130%;font-weight: bold;} .toc-root{font-family: "Open Sans","DejaVu Sans",sans-serif;
+                       font-size: 0.9em;} #content{display: flex; flex-direction: column; flex: 1 1 auto;}
+             .nav-footer{text-align: center; margin-top: auto;}
+             .nav-footer > p > a {white-space: nowrap;}</style>
+</head>
+<body id="java.util.concurrent.locks.AbstractQueuedSynchronizer" class="book toc2 toc-left">
+<div id="header">
+<h1>JDK 源码分析: 43. AbstractQueuedSynchronizer</h1>
+<div class="details">
+<span id="author" class="author">D瓜哥</span><br>
+<span id="email" class="email"><a href="https://www.diguage.com" class="bare">https://www.diguage.com</a></span><br>
+<span id="revdate">2025-11-25</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<p><span class="toc-root"><a href="index.html">JDK 源码分析</a></span></p><ul class="sectlevel1">
+<li><a href="preface.html">前言：JDK &amp; STL 源码分析计划</a>
+</li>
+<li><a href="overview.html">1. 集合类概述</a>
+</li>
+<li><a href="java.util.Iterator.html">2. 迭代器 Iterator、 Enumeration、 Spliterator 与 Iterable</a>
+</li>
+<li><a href="java.util.Collection.html">3. Collection</a>
+</li>
+<li><a href="java.util.AbstractCollection.html">4. AbstractCollection</a>
+</li>
+<li><a href="java.util.List.html">5. List</a>
+</li>
+<li><a href="java.util.AbstractList.html">6. AbstractList</a>
+</li>
+<li><a href="java.util.AbstractSequentialList.html">7. AbstractSequentialList</a>
+</li>
+<li><a href="java.util.ArrayList.html">8. <code>ArrayList</code></a>
+</li>
+<li><a href="java.util.LinkedList.html">9. LinkedList</a>
+</li>
+<li><a href="java.util.Stack.html">10. Stack</a>
+</li>
+<li><a href="java.util.Vector.html">11. Vector</a>
+</li>
+<li><a href="java.util.Set.html">12. Set</a>
+</li>
+<li><a href="java.util.AbstractSet.html">13. AbstractSet</a>
+</li>
+<li><a href="java.util.SortedSet.html">14. SortedSet</a>
+</li>
+<li><a href="java.util.NavigableSet.html">15. NavigableSet</a>
+</li>
+<li><a href="java.util.HashSet.html">16. HashSet</a>
+</li>
+<li><a href="java.util.TreeSet.html">17. TreeSet</a>
+</li>
+<li><a href="java.util.LinkedHashSet.html">18. LinkedHashSet</a>
+</li>
+<li><a href="java.util.BitSet.html">19. BitSet</a>
+</li>
+<li><a href="java.util.EnumSet.html">20. EnumSet</a>
+</li>
+<li><a href="java.util.Map.html">21. Map</a>
+</li>
+<li><a href="java.util.SortedMap.html">22. SortedMap</a>
+</li>
+<li><a href="java.util.NavigableMap.html">23. NavigableMap</a>
+</li>
+<li><a href="java.util.AbstractMap.html">24. AbstractMap</a>
+</li>
+<li><a href="java.util.HashMap.html">25. HashMap</a>
+</li>
+<li><a href="java.util.TreeMap.html">26. TreeMap</a>
+</li>
+<li><a href="java.util.LinkedHashMap.html">27. LinkedHashMap</a>
+</li>
+<li><a href="java.util.Dictionary.html">28. Dictionary</a>
+</li>
+<li><a href="java.util.Hashtable.html">29. Hashtable</a>
+</li>
+<li><a href="java.util.EnumMap.html">30. EnumMap</a>
+</li>
+<li><a href="java.util.WeakHashMap.html">31. WeakHashMap</a>
+</li>
+<li><a href="java.util.IdentityHashMap.html">32. IdentityHashMap</a>
+</li>
+<li><a href="java.util.Queue.html">33. Queue</a>
+</li>
+<li><a href="java.util.Deque.html">34. Deque</a>
+</li>
+<li><a href="java.util.AbstractQueue.html">35. AbstractQueue</a>
+</li>
+<li><a href="java.util.ArrayDeque.html">36. ArrayDeque</a>
+</li>
+<li><a href="java.util.PriorityQueue.html">37. PriorityQueue</a>
+</li>
+<li><a href="java.util.Array.html">38. 工具类 <code>Arrays</code></a>
+</li>
+<li><a href="java.util.Collection.html">39. 工具类 <code>Collections</code></a>
+</li>
+<li><a href="concurrent.overview.html">40. 并发库概述</a>
+</li>
+<li><a href="java.lang.Thread.html">41. Thread</a>
+</li>
+<li><a href="java.util.concurrent.locks.LockSupport.html">42. LockSupport</a>
+</li>
+<li><a href="java.util.concurrent.locks.AbstractQueuedSynchronizer.html"><span class="toc-current">43. AbstractQueuedSynchronizer</span></a>
+</li>
+<li><a href="java.util.concurrent.locks.ReentrantLock.html">44. ReentrantLock</a>
+</li>
+<li><a href="java.util.concurrent.locks.ReentrantReadWriteLock.html">45. ReentrantReadWriteLock</a>
+</li>
+<li><a href="java.util.concurrent.locks.StampedLock.html">46. StampedLock</a>
+</li>
+<li><a href="java.util.concurrent.Semaphore.html">47. Semaphore</a>
+</li>
+<li><a href="java.util.concurrent.CountDownLatch.html">48. CountDownLatch</a>
+</li>
+<li><a href="java.util.concurrent.CyclicBarrier.html">49. CyclicBarrier</a>
+</li>
+<li><a href="java.util.concurrent.Phaser.html">50. Phaser</a>
+</li>
+<li><a href="java.util.concurrent.Exchanger.html">51. Exchanger</a>
+</li>
+<li><a href="java.lang.ThreadLocal.html">52. ThreadLocal</a>
+</li>
+<li><a href="java.util.concurrent.atomic.AtomicInteger.html">53. AtomicInteger</a>
+</li>
+<li><a href="java.util.concurrent.atomic.LongAdder.html">54. LongAdder</a>
+</li>
+<li><a href="java.util.concurrent.Future.html">55. JUC 包基础类分析</a>
+</li>
+<li><a href="java.util.concurrent.FutureTask.html">56. FutureTask</a>
+</li>
+<li><a href="java.util.concurrent.CompletableFuture.html">57. CompletableFuture</a>
+</li>
+<li><a href="java.util.concurrent.ThreadPoolExecutor.html">58. ThreadPoolExecutor 源码分析</a>
+</li>
+<li><a href="java.util.concurrent.ForkJoinTask.html">59. ForkJoinTask</a>
+</li>
+<li><a href="java.util.concurrent.ForkJoinPool.html">60. ForkJoinPool</a>
+</li>
+<li><a href="java.util.concurrent.ConcurrentHashMap.html">61. <code>ConcurrentHashMap</code></a>
+</li>
+<li><a href="java.util.concurrent.ConcurrentSkipListMap.html">62. <code>ConcurrentSkipListMap</code></a>
+</li>
+<li><a href="java.util.concurrent.CopyOnWriteArrayList.html">63. CopyOnWriteArrayList</a>
+</li>
+<li><a href="java.util.concurrent.ConcurrentLinkedQueue.html">64. ConcurrentLinkedQueue</a>
+</li>
+<li><a href="java.util.concurrent.ArrayBlockingQueue.html">65. ArrayBlockingQueue</a>
+</li>
+<li><a href="java.util.concurrent.LinkedBlockingQueue.html">66. LinkedBlockingQueue</a>
+</li>
+<li><a href="java.util.concurrent.PriorityBlockingQueue.html">67. PriorityBlockingQueue</a>
+</li>
+<li><a href="java.util.concurrent.DelayQueue.html">68. DelayQueue</a>
+</li>
+<li><a href="java.util.concurrent.ScheduledThreadPoolExecutor.html">69. <code>ScheduledThreadPoolExecutor</code></a>
+</li>
+<li><a href="java.util.concurrent.Flow.html">70. <code>Flow</code></a>
+</li>
+<li><a href="java.lang.ClassLoader.html">71. ClassLoader</a>
+</li>
+<li><a href="java.lang.reflect.Field.html">72. Field</a>
+</li>
+<li><a href="java.lang.reflect.Proxy.html">73. Proxy</a>
+</li>
+<li><a href="java.net.ServerSocket.html">74. ServerSocket</a>
+</li>
+<li><a href="java.util.ServiceLoader.html">75. <code>ServiceLoader</code></a>
+</li>
+<li><a href="java.lang.String.html">76. <code>String</code></a>
+</li>
+<li><a href="java.util.Date.html">77. <code>Date</code></a>
+</li>
+<li><a href="java.io.Serializable.html">78. <code>Serializable</code></a>
+</li>
+<li><a href="java.regex.Pattern.html">79. <code>Pattern</code></a>
+</li>
+<li><a href="_netty.html">80. Netty</a>
+</li>
+</ul>
+</div>
+</div>
+<div id="content"><div class="sect2"><h3 id="_友情支持">友情支持</h3><div class="paragraph"><p>如果您觉得这个笔记对您有所帮助，看在D瓜哥码这么多字的辛苦上，请友情支持一下，D瓜哥感激不尽，😜</p></div><table class="tableblock frame-none grid-all stretch"><colgroup><col style="width: 50%;"><col style="width: 50%;"></colgroup><tbody><tr><td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="assets/images/alipay.png" alt="支付宝" width="85%" title="支付宝"></span></p></td><td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="assets/images/wxpay.jpg" alt="微信" width="85%" title="微信"></span></p></td></tr></tbody></table><div class="paragraph"><p>有些打赏的朋友希望可以加个好友，欢迎关注D 瓜哥的微信公众号，这样就可以通过公众号的回复直接给我发信息。</p></div><div class="paragraph"><p><span class="image"><img src="assets/images/wx-jikerizhi.png" alt="wx jikerizhi" width="98%"></span></p></div><div class="admonitionblock tip"><table><tbody><tr><td class="icon"><i class="fa icon-tip" title="Tip"></i></td><td class="content"><strong>公众号的微信号是: <code>jikerizhi</code></strong>。<em>因为众所周知的原因，有时图片加载不出来。 如果图片加载不出来可以直接通过搜索微信号来查找我的公众号。</em></td></tr></tbody></table></div></div>
+<div class="sect1">
+<h2 id="java.util.concurrent.locks.AbstractQueuedSynchronizer"><a class="anchor" href="#java.util.concurrent.locks.AbstractQueuedSynchronizer"></a>43. AbstractQueuedSynchronizer</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Doug Lea</p>
+</div>
+<div class="paragraph">
+<p>在 Java 5 之后，JDK 内置了大量的并发工具类。粗略去看这些工具类的源码，你会发现，大多数都在内部继承了 <code>AbstractQueuedSynchronizer</code>。由此可见，<code>AbstractQueuedSynchronizer</code> 的核心地位。想搞清楚这些并发工具类的原理，<code>AbstractQueuedSynchronizer</code> 的源码可以说是不可不看。</p>
+</div>
+<div class="sect2">
+<h3 id="_clh_lock_queue_介绍"><a class="anchor" href="#_clh_lock_queue_介绍"></a>43.1. CLH lock queue 介绍</h3>
+<div class="imageblock">
+<div class="content">
+<img src="./assets/images/AbstractQueuedSynchronizer-CLH-queue.png" alt="AbstractQueuedSynchronizer CLH queue">
+</div>
+</div>
+<div class="paragraph">
+<p>终于看明白了 CLH lock queue。CLH 通过自旋来锁定当前节点。自旋的好处是线程不需要睡眠和唤醒，减小了系统调用的开销。</p>
+</div>
+<div class="paragraph">
+<p>AQS 中线程不是一直在自旋的，而可能会反复的睡眠和唤醒，这就需要前继释放锁的时候通过 next 指针找到其后继将其唤醒，也就是 AQS 的等待队列中后继是被前继唤醒的。AQS 结合了自旋和睡眠/唤醒两种方法的优点。</p>
+</div>
+<div class="paragraph">
+<p><em>AQS 结合了自旋和睡眠/唤醒两种方法的优点。</em> 这句话该如何理解？刚刚想到的一点： AQS 中会先自旋两次，如果不成功则休眠。应该是这样来使用两者的好处！</p>
+</div>
+<div class="paragraph">
+<p>自己实现一个 CLH 锁！</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_核心点"><a class="anchor" href="#_核心点"></a>43.2. 核心点</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>模板方法模式</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p><code>boolean tryAcquire(int arg)</code></p>
+</li>
+<li>
+<p><code>boolean tryRelease(int arg)</code></p>
+</li>
+<li>
+<p><code>int tryAcquireShared(int arg)</code></p>
+</li>
+<li>
+<p><code>boolean tryReleaseShared(int arg)</code></p>
+</li>
+<li>
+<p><code>boolean isHeldExclusively()</code></p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>基于 <code>AbstractQueuedSynchronizer</code>，我们实现一个互斥锁：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+</pre></td><td class="code"><pre><span class="kn">package</span> <span class="nn">com.diguage.truman.concurrent</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.concurrent.TimeUnit</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.concurrent.locks.AbstractQueuedSynchronizer</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.concurrent.locks.Condition</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.concurrent.locks.Lock</span><span class="o">;</span>
+
+<span class="cm">/**
+ * @author D瓜哥, https://www.diguage.com/
+ * @since 2020-03-31 10:27
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Mutex</span> <span class="kd">implements</span> <span class="nc">Lock</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">Sync</span> <span class="kd">extends</span> <span class="nc">AbstractQueuedSynchronizer</span> <span class="o">{</span>
+        <span class="nd">@Override</span>
+        <span class="kd">protected</span> <span class="kt">boolean</span> <span class="nf">tryAcquire</span><span class="o">(</span><span class="kt">int</span> <span class="n">arg</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">compareAndSetState</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="mi">1</span><span class="o">))</span> <span class="o">{</span>
+                <span class="n">setExclusiveOwnerThread</span><span class="o">(</span><span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">());</span>
+                <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">protected</span> <span class="kt">boolean</span> <span class="nf">tryRelease</span><span class="o">(</span><span class="kt">int</span> <span class="n">arg</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">getState</span><span class="o">()</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalMonitorStateException</span><span class="o">();</span>
+            <span class="o">}</span>
+            <span class="n">setExclusiveOwnerThread</span><span class="o">(</span><span class="kc">null</span><span class="o">);</span>
+            <span class="n">setState</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+            <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">protected</span> <span class="kt">boolean</span> <span class="nf">isHeldExclusively</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="nf">getState</span><span class="o">()</span> <span class="o">==</span> <span class="mi">1</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="nc">Condition</span> <span class="nf">newCodition</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="k">new</span> <span class="nf">ConditionObject</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kd">final</span> <span class="nc">Sync</span> <span class="n">sync</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Sync</span><span class="o">();</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">lock</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">sync</span><span class="o">.</span><span class="na">acquire</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">lockInterruptibly</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">InterruptedException</span> <span class="o">{</span>
+        <span class="n">sync</span><span class="o">.</span><span class="na">acquireInterruptibly</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">tryLock</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">sync</span><span class="o">.</span><span class="na">tryAcquire</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">tryLock</span><span class="o">(</span><span class="kt">long</span> <span class="n">time</span><span class="o">,</span> <span class="nc">TimeUnit</span> <span class="n">unit</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">InterruptedException</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">sync</span><span class="o">.</span><span class="na">tryAcquireSharedNanos</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="n">unit</span><span class="o">.</span><span class="na">toNanos</span><span class="o">(</span><span class="n">time</span><span class="o">));</span>
+    <span class="o">}</span>
+    
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">unlock</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">sync</span><span class="o">.</span><span class="na">release</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="nc">Condition</span> <span class="nf">newCondition</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">sync</span><span class="o">.</span><span class="na">newCodition</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isLocked</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">sync</span><span class="o">.</span><span class="na">isHeldExclusively</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">hasQueuedThreads</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">sync</span><span class="o">.</span><span class="na">hasQueuedThreads</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>互斥锁，也可以称为独占锁，顾名思义就是同一个时刻只能有一个线程获取到锁，而其他获取锁的线程只能在同步队列中等待，只有获取锁的线程释放了锁，后继的线程才能获取锁。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">  1
+  2
+  3
+  4
+  5
+  6
+  7
+  8
+  9
+ 10
+ 11
+ 12
+ 13
+ 14
+ 15
+ 16
+ 17
+ 18
+ 19
+ 20
+ 21
+ 22
+ 23
+ 24
+ 25
+ 26
+ 27
+ 28
+ 29
+ 30
+ 31
+ 32
+ 33
+ 34
+ 35
+ 36
+ 37
+ 38
+ 39
+ 40
+ 41
+ 42
+ 43
+ 44
+ 45
+ 46
+ 47
+ 48
+ 49
+ 50
+ 51
+ 52
+ 53
+ 54
+ 55
+ 56
+ 57
+ 58
+ 59
+ 60
+ 61
+ 62
+ 63
+ 64
+ 65
+ 66
+ 67
+ 68
+ 69
+ 70
+ 71
+ 72
+ 73
+ 74
+ 75
+ 76
+ 77
+ 78
+ 79
+ 80
+ 81
+ 82
+ 83
+ 84
+ 85
+ 86
+ 87
+ 88
+ 89
+ 90
+ 91
+ 92
+ 93
+ 94
+ 95
+ 96
+ 97
+ 98
+ 99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+</pre></td><td class="code"><pre><span class="kn">package</span> <span class="nn">com.diguage.truman.concurrent</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">org.junit.jupiter.api.Test</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.lang.invoke.MethodHandles</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.lang.invoke.VarHandle</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.ArrayList</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.List</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.Random</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.concurrent.ExecutorService</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.concurrent.Executors</span><span class="o">;</span>
+
+<span class="cm">/**
+ * @author D瓜哥, https://www.diguage.com/
+ * @since 2020-03-31 11:41
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">AbstractQueuedSynchronizerTest</span> <span class="o">{</span>
+
+    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testNode</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">AqsNode</span> <span class="n">head</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">AqsNode</span><span class="o">();</span>
+        <span class="nc">AqsNode</span> <span class="n">next</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">AqsNode</span><span class="o">(</span><span class="nc">AqsNode</span><span class="o">.</span><span class="na">EXCLUSIVE</span><span class="o">);</span>
+        <span class="n">head</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">next</span><span class="o">;</span>
+        <span class="n">next</span><span class="o">.</span><span class="na">prev</span> <span class="o">=</span> <span class="n">head</span><span class="o">;</span>
+        <span class="nc">AqsNode</span> <span class="n">tail</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">AqsNode</span><span class="o">(</span><span class="nc">AqsNode</span><span class="o">.</span><span class="na">EXCLUSIVE</span><span class="o">);</span>
+        <span class="n">next</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">tail</span><span class="o">;</span>
+        <span class="n">tail</span><span class="o">.</span><span class="na">prev</span> <span class="o">=</span> <span class="n">next</span><span class="o">;</span>
+        <span class="nc">List</span><span class="o">&lt;</span><span class="nc">Thread</span><span class="o">&gt;</span> <span class="n">threads</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;&gt;();</span>
+        <span class="k">for</span> <span class="o">(</span><span class="nc">AqsNode</span> <span class="n">node</span> <span class="o">=</span> <span class="n">head</span><span class="o">;</span> <span class="n">node</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">;</span> <span class="n">node</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="na">next</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">threads</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">node</span><span class="o">.</span><span class="na">thread</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">threads</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">AqsNode</span> <span class="o">{</span>
+
+        <span class="kd">static</span> <span class="kd">final</span> <span class="nc">AqsNode</span> <span class="no">SHARED</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">AqsNode</span><span class="o">();</span>
+        <span class="kd">static</span> <span class="kd">final</span> <span class="nc">AqsNode</span> <span class="no">EXCLUSIVE</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+
+        <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="no">CANCELLED</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+        <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="no">SIGNAL</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+        <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="no">CONDITION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span><span class="o">;</span>
+        <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="no">PROPAGATE</span> <span class="o">=</span> <span class="o">-</span><span class="mi">3</span><span class="o">;</span>
+
+        <span class="kd">volatile</span> <span class="kt">int</span> <span class="n">waitStatus</span><span class="o">;</span>
+
+        <span class="kd">volatile</span> <span class="nc">AqsNode</span> <span class="n">prev</span><span class="o">;</span>
+
+        <span class="kd">volatile</span> <span class="nc">AqsNode</span> <span class="n">next</span><span class="o">;</span>
+
+        <span class="kd">volatile</span> <span class="nc">Thread</span> <span class="n">thread</span><span class="o">;</span>
+
+        <span class="nc">AqsNode</span> <span class="n">nextWaiter</span><span class="o">;</span>
+
+        <span class="kd">final</span> <span class="kt">boolean</span> <span class="nf">isShared</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">nextWaiter</span> <span class="o">==</span> <span class="no">SHARED</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">final</span> <span class="nc">AqsNode</span> <span class="nf">predecessor</span><span class="o">()</span> <span class="o">{</span>
+            <span class="nc">AqsNode</span> <span class="n">p</span> <span class="o">=</span> <span class="n">prev</span><span class="o">;</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">p</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+                <span class="k">throw</span> <span class="k">new</span> <span class="nf">NullPointerException</span><span class="o">();</span>
+            <span class="k">else</span>
+                <span class="k">return</span> <span class="n">p</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="nc">AqsNode</span><span class="o">()</span> <span class="o">{</span>
+        <span class="o">}</span>
+
+        <span class="nc">AqsNode</span><span class="o">(</span><span class="nc">AqsNode</span> <span class="n">nextWaiter</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">nextWaiter</span> <span class="o">=</span> <span class="n">nextWaiter</span><span class="o">;</span>
+            <span class="no">THREAD</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">());</span>
+        <span class="o">}</span>
+
+        <span class="nc">AqsNode</span><span class="o">(</span><span class="kt">int</span> <span class="n">waitStatus</span><span class="o">)</span> <span class="o">{</span>
+            <span class="no">WAITSTATUS</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">waitStatus</span><span class="o">);</span>
+            <span class="no">THREAD</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">());</span>
+        <span class="o">}</span>
+
+        <span class="kd">final</span> <span class="kt">boolean</span> <span class="nf">compareAndSetWaitStatus</span><span class="o">(</span><span class="kt">int</span> <span class="n">expect</span><span class="o">,</span> <span class="kt">int</span> <span class="n">update</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="no">WAITSTATUS</span><span class="o">.</span><span class="na">compareAndSet</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">expect</span><span class="o">,</span> <span class="n">update</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="kd">final</span> <span class="kt">boolean</span> <span class="nf">compareAndSetNext</span><span class="o">(</span><span class="nc">AqsNode</span> <span class="n">expect</span><span class="o">,</span> <span class="nc">AqsNode</span> <span class="n">update</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="no">NEXT</span><span class="o">.</span><span class="na">compareAndSet</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">expect</span><span class="o">,</span> <span class="n">update</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="kd">final</span> <span class="kt">void</span> <span class="nf">setPrevRelaxed</span><span class="o">(</span><span class="nc">AqsNode</span> <span class="n">p</span><span class="o">)</span> <span class="o">{</span>
+            <span class="no">PREV</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">p</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="nc">VarHandle</span> <span class="no">NEXT</span><span class="o">;</span>
+        <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="nc">VarHandle</span> <span class="no">PREV</span><span class="o">;</span>
+        <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="nc">VarHandle</span> <span class="no">THREAD</span><span class="o">;</span>
+        <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="nc">VarHandle</span> <span class="no">WAITSTATUS</span><span class="o">;</span>
+
+        <span class="kd">static</span> <span class="o">{</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="nc">MethodHandles</span><span class="o">.</span><span class="na">Lookup</span> <span class="n">l</span> <span class="o">=</span> <span class="nc">MethodHandles</span><span class="o">.</span><span class="na">lookup</span><span class="o">();</span>
+                <span class="no">NEXT</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="na">findVarHandle</span><span class="o">(</span><span class="nc">AqsNode</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">"next"</span><span class="o">,</span> <span class="nc">AqsNode</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+                <span class="no">PREV</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="na">findVarHandle</span><span class="o">(</span><span class="nc">AqsNode</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">"prev"</span><span class="o">,</span> <span class="nc">AqsNode</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+                <span class="no">THREAD</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="na">findVarHandle</span><span class="o">(</span><span class="nc">AqsNode</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">"thread"</span><span class="o">,</span> <span class="nc">Thread</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+                <span class="no">WAITSTATUS</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="na">findVarHandle</span><span class="o">(</span><span class="nc">AqsNode</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">"waitStatus"</span><span class="o">,</span> <span class="kt">int</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">ReflectiveOperationException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">throw</span> <span class="k">new</span> <span class="nf">ExceptionInInitializerError</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCustomLock</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">InterruptedException</span> <span class="o">{</span>
+        <span class="nc">Mutex</span> <span class="n">mutex</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Mutex</span><span class="o">();</span>
+        <span class="nc">ExecutorService</span> <span class="n">executorService</span> <span class="o">=</span> <span class="nc">Executors</span><span class="o">.</span><span class="na">newFixedThreadPool</span><span class="o">(</span><span class="mi">5</span><span class="o">);</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+            <span class="n">executorService</span><span class="o">.</span><span class="na">execute</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+                <span class="k">try</span> <span class="o">{</span>
+                    <span class="kt">int</span> <span class="n">time</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Random</span><span class="o">().</span><span class="na">nextInt</span><span class="o">(</span><span class="mi">5000</span><span class="o">);</span>
+                    <span class="n">mutex</span><span class="o">.</span><span class="na">lock</span><span class="o">();</span>
+                    <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">"thread=%d running time=%d%n"</span><span class="o">,</span>
+                            <span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getId</span><span class="o">(),</span> <span class="n">time</span><span class="o">);</span>
+                    <span class="nc">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="n">time</span><span class="o">);</span>
+                    <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">"thread=%d finished%n"</span><span class="o">,</span>
+                            <span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getId</span><span class="o">());</span>
+                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">InterruptedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+                <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+                    <span class="n">mutex</span><span class="o">.</span><span class="na">unlock</span><span class="o">();</span>
+
+                <span class="o">}</span>
+            <span class="o">});</span>
+        <span class="o">}</span>
+        <span class="n">executorService</span><span class="o">.</span><span class="na">shutdown</span><span class="o">();</span>
+        <span class="k">while</span> <span class="o">(</span><span class="n">executorService</span><span class="o">.</span><span class="na">isTerminated</span><span class="o">())</span> <span class="o">{</span>
+        <span class="o">}</span>
+        <span class="nc">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">50000</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"All task were finished."</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>运行结果显示，指定时刻，只有一个线程在运行。</p>
+</div>
+<div class="paragraph">
+<p>查看 <code>AbstractQueuedSynchronizer</code> 继承关系可以看出，在 <code>ReentrantLock</code>，<code>ReentrantReadWriteLock</code> 和 <code>Semaphore</code> 三个类中实现了公平锁和非公平锁。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_node_详解"><a class="anchor" href="#_node_详解"></a>43.3. <code>Node</code> 详解</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>waitStatus</code>：当前 <code>Node</code> 的等待状态，有五个可选值。</p>
+</li>
+<li>
+<p><code>prev</code>：当前 <code>Node</code> 实例的前驱节点引用。</p>
+</li>
+<li>
+<p><code>next</code>：当前 <code>Node</code> 实例的后继节点引用。</p>
+</li>
+<li>
+<p><code>thread</code>：当前 <code>Node</code> 实例持有的线程实例引用。</p>
+</li>
+<li>
+<p><code>nextWaiter</code>：这个值是一个比较容易令人生疑的值，虽然表面上它称为"下一个等待的节点"，但是实际上它有三种取值的情况。</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>值为静态实例 <code>Node.EXCLUSIVE</code>(也就是 <code>null</code>)，代表当前的 <code>Node</code> 实例是独占模式。</p>
+</li>
+<li>
+<p>值为静态实例 <code>Node.SHARED</code>，代表当前的 <code>Node</code> 实例是共享模式。</p>
+</li>
+<li>
+<p>值为非 <code>Node.EXCLUSIVE</code> 和 <code>Node.SHARED</code> 的其他节点实例，代表 <code>Condition</code> 等待队列中当前节点的下一个等待节点。</p>
+</li>
+</ol>
+</div>
+</li>
+</ul>
+</div>
+<div class="sect3">
+<h4 id="_node_中一些常量定义"><a class="anchor" href="#_node_中一些常量定义"></a>43.3.1. <code>Node</code> 中一些常量定义</h4>
+<div class="paragraph">
+<p>区分共享锁还是独占式锁的常量，是如何被使用的？独占锁为何没有初始化？</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>static final Node SHARED = new Node();</code></p>
+</li>
+<li>
+<p><code>static final Node EXCLUSIVE = null;</code>&#8201;&#8212;&#8201;为何没有被初始化？</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>共享锁的话，大家使用同一个 <code>Node</code> 实例，而独自锁则是每个任务使用一个 <code>Node</code> 实例。可以这样理解吗？</p>
+</div>
+<div class="paragraph">
+<p>节点的状态</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>static final int CANCELLED =  1;</code>&#8201;&#8212;&#8201;表示当前的线程被取消；</p>
+</li>
+<li>
+<p><code>static final int SIGNAL    = -1;</code>&#8201;&#8212;&#8201;表示当前节点的后继节点包含的线程需要运行，也就是unpark；</p>
+</li>
+<li>
+<p><code>static final int CONDITION = -2;</code>&#8201;&#8212;&#8201;表示当前节点在等待condition，也就是在condition队列中；</p>
+</li>
+<li>
+<p><code>static final int PROPAGATE = -3;</code>&#8201;&#8212;&#8201;表示当前场景下后续的acquireShared能够得以执行；</p>
+</li>
+<li>
+<p><code>0</code>&#8201;&#8212;&#8201;表示当前节点在sync队列中，等待着获取锁。</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>模板方法：</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>isHeldExclusively()</code>&#8201;&#8212;&#8201;该线程是否正在独占资源。只有用到condition才需要去实现它。</p>
+</li>
+<li>
+<p><code>tryAcquire(int)</code>&#8201;&#8212;&#8201;独占方式。尝试获取资源，成功则返回true，失败则返回false。</p>
+</li>
+<li>
+<p><code>tryRelease(int)</code>&#8201;&#8212;&#8201;独占方式。尝试释放资源，成功则返回true，失败则返回false。</p>
+</li>
+<li>
+<p><code>tryAcquireShared(int)</code>&#8201;&#8212;&#8201;共享方式。尝试获取资源。负数表示失败；0表示成功，但没有剩余可用资源；正数表示成功，且有剩余资源。</p>
+</li>
+<li>
+<p><code>tryReleaseShared(int)</code>&#8201;&#8212;&#8201;共享方式。尝试释放资源，成功则返回true，失败则返回false。</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_独占模式"><a class="anchor" href="#_独占模式"></a>43.4. 独占模式</h3>
+<div class="paragraph">
+<p>独占模式的同步器的一个显著特点就是：头节点的第一个有效(非取消)的后继节点，总是尝试获取资源，一旦获取资源成功就会解除阻塞并且晋升为头节点，原来所在节点会移除出同步等待队列，原来的队列长度就会减少1，然后头结点的第一个有效的后继节点继续开始竞争资源。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">  1
+  2
+  3
+  4
+  5
+  6
+  7
+  8
+  9
+ 10
+ 11
+ 12
+ 13
+ 14
+ 15
+ 16
+ 17
+ 18
+ 19
+ 20
+ 21
+ 22
+ 23
+ 24
+ 25
+ 26
+ 27
+ 28
+ 29
+ 30
+ 31
+ 32
+ 33
+ 34
+ 35
+ 36
+ 37
+ 38
+ 39
+ 40
+ 41
+ 42
+ 43
+ 44
+ 45
+ 46
+ 47
+ 48
+ 49
+ 50
+ 51
+ 52
+ 53
+ 54
+ 55
+ 56
+ 57
+ 58
+ 59
+ 60
+ 61
+ 62
+ 63
+ 64
+ 65
+ 66
+ 67
+ 68
+ 69
+ 70
+ 71
+ 72
+ 73
+ 74
+ 75
+ 76
+ 77
+ 78
+ 79
+ 80
+ 81
+ 82
+ 83
+ 84
+ 85
+ 86
+ 87
+ 88
+ 89
+ 90
+ 91
+ 92
+ 93
+ 94
+ 95
+ 96
+ 97
+ 98
+ 99
+100
+101
+102
+103
+</pre></td><td class="code"><pre>    <span class="cm">/**
+     * Checks and updates status for a node that failed to acquire.
+     * Returns true if thread should block. This is the main signal
+     * control in all acquire loops.  Requires that pred == node.prev.
+     *
+     * @param pred node's predecessor holding status
+     * @param node the node
+     * @return {@code true} if thread should block
+     */</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kt">boolean</span> <span class="nf">shouldParkAfterFailedAcquire</span><span class="o">(</span><span class="nc">Node</span> <span class="n">pred</span><span class="o">,</span> <span class="nc">Node</span> <span class="n">node</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// 如果前一个节点已经在排队，则新加入的节点就应该 park</span>
+        <span class="kt">int</span> <span class="n">ws</span> <span class="o">=</span> <span class="n">pred</span><span class="o">.</span><span class="na">waitStatus</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">ws</span> <span class="o">==</span> <span class="nc">Node</span><span class="o">.</span><span class="na">SIGNAL</span><span class="o">)</span>
+            <span class="cm">/*
+             * This node has already set status asking a release
+             * to signal it, so it can safely park.
+             */</span>
+            <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+        <span class="c1">// 如果前一个节点已经取消，则删除取消节点</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">ws</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+            <span class="cm">/*
+             * Predecessor was cancelled. Skip over predecessors and
+             * indicate retry.
+             */</span>
+            <span class="c1">// 跳过已经取消的节点</span>
+            <span class="k">do</span> <span class="o">{</span>
+                <span class="n">node</span><span class="o">.</span><span class="na">prev</span> <span class="o">=</span> <span class="n">pred</span> <span class="o">=</span> <span class="n">pred</span><span class="o">.</span><span class="na">prev</span><span class="o">;</span>
+            <span class="o">}</span> <span class="k">while</span> <span class="o">(</span><span class="n">pred</span><span class="o">.</span><span class="na">waitStatus</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">);</span>
+            <span class="c1">// 加入队列</span>
+            <span class="n">pred</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">node</span><span class="o">;</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="cm">/*
+             * waitStatus must be 0 or PROPAGATE.  Indicate that we
+             * need a signal, but don't park yet.  Caller will need to
+             * retry to make sure it cannot acquire before parking.
+             */</span>
+            <span class="c1">// 如果前一个节点没有取消，则尝试将前一个节点设置为 Node.SIGNAL</span>
+            <span class="n">pred</span><span class="o">.</span><span class="na">compareAndSetWaitStatus</span><span class="o">(</span><span class="n">ws</span><span class="o">,</span> <span class="nc">Node</span><span class="o">.</span><span class="na">SIGNAL</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+     * Convenience method to interrupt current thread.
+     */</span>
+    <span class="kd">static</span> <span class="kt">void</span> <span class="nf">selfInterrupt</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">interrupt</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+     * Convenience method to park and then check if interrupted.
+     *
+     * @return {@code true} if interrupted
+     */</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="kt">boolean</span> <span class="nf">parkAndCheckInterrupt</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">LockSupport</span><span class="o">.</span><span class="na">park</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+        <span class="k">return</span> <span class="nc">Thread</span><span class="o">.</span><span class="na">interrupted</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="cm">/*
+     * Various flavors of acquire, varying in exclusive/shared and
+     * control modes.  Each is mostly the same, but annoyingly
+     * different.  Only a little bit of factoring is possible due to
+     * interactions of exception mechanics (including ensuring that we
+     * cancel if tryAcquire throws exception) and other control, at
+     * least not without hurting performance too much.
+     */</span>
+
+    <span class="cm">/**
+     * Acquires in exclusive uninterruptible mode for thread already in
+     * queue. Used by condition wait methods as well as acquire.
+     *
+     * @param node the node
+     * @param arg the acquire argument
+     * @return {@code true} if interrupted while waiting
+     */</span>
+    <span class="kd">final</span> <span class="kt">boolean</span> <span class="nf">acquireQueued</span><span class="o">(</span><span class="kd">final</span> <span class="nc">Node</span> <span class="n">node</span><span class="o">,</span> <span class="kt">int</span> <span class="n">arg</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">boolean</span> <span class="n">interrupted</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="k">for</span> <span class="o">(;;)</span> <span class="o">{</span>
+                <span class="kd">final</span> <span class="nc">Node</span> <span class="n">p</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="na">predecessor</span><span class="o">();</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">p</span> <span class="o">==</span> <span class="n">head</span> <span class="o">&amp;&amp;</span> <span class="n">tryAcquire</span><span class="o">(</span><span class="n">arg</span><span class="o">))</span> <span class="o">{</span>
+                    <span class="n">setHead</span><span class="o">(</span><span class="n">node</span><span class="o">);</span>
+                    <span class="n">p</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span> <span class="c1">// help GC</span>
+                    <span class="k">return</span> <span class="n">interrupted</span><span class="o">;</span>
+                <span class="o">}</span>
+                <span class="c1">// 此时 node 节点已经通过 addWaiter 方法加入到队列中</span>
+                <span class="c1">// 1、如果前一个节点是 SIGNAL，则返回 true，park 该线程</span>
+                <span class="c1">// 2.1 如果前一个节点取消，则通过遍历将之前的连续的取消节点全部删除，</span>
+                <span class="c1">//     返回 false，再次自旋尝试获取锁</span>
+                <span class="c1">// 2.2 如果前一个节点没有取消，则将前一个节点尝试修改为 SIGNAL。</span>
+                <span class="c1">//     那么下一次循环时，走第一个判断，返回 true，park 该线程。</span>
+                <span class="c1">//     或者前驱节点已经弹出队列，则该线程尝试获取锁。</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">shouldParkAfterFailedAcquire</span><span class="o">(</span><span class="n">p</span><span class="o">,</span> <span class="n">node</span><span class="o">))</span>
+                    <span class="n">interrupted</span> <span class="o">|=</span> <span class="n">parkAndCheckInterrupt</span><span class="o">();</span>
+            <span class="o">}</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Throwable</span> <span class="n">t</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">cancelAcquire</span><span class="o">(</span><span class="n">node</span><span class="o">);</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">interrupted</span><span class="o">)</span>
+                <span class="n">selfInterrupt</span><span class="o">();</span>
+            <span class="k">throw</span> <span class="n">t</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>可以画一下流程图：</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>以 <code>ReentrantLock</code> 为例，在独占模式下，获取锁的过程</p>
+</li>
+<li>
+<p>以 <code>ReentrantLock</code> 为例，在独占模式下，释放锁的过程</p>
+</li>
+<li>
+<p>使用 <code>Condition</code> 对象，<code>await()</code> 的过程</p>
+</li>
+<li>
+<p>使用 <code>Condition</code> 对象，<code>signal()</code> 的过程</p>
+</li>
+<li>
+<p>以 <code>Semaphore</code> 为例，在共享模式下，获取锁的过程</p>
+</li>
+<li>
+<p>以 <code>Semaphore</code> 为例，在共享模式下，释放锁的过程</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_共享模式"><a class="anchor" href="#_共享模式"></a>43.5. 共享模式</h3>
+<div class="paragraph">
+<p>共享模式的同步器的一个显著特点就是：头节点的第一个有效(非取消)的后继节点，总是尝试获取资源，一旦获取资源成功就会解除阻塞并且晋升为头节点，原来所在节点会移除出同步等待队列，原来的队列长度就会减少1，重新设置头节点的过程会传播唤醒的状态，简单来说就是唤醒一个有效的后继节点，只要一个节点可以晋升为头节点，它的后继节点就能被唤醒。节点的唤醒顺序遵循类似于FIFO的原则，通俗说就是先阻塞或者阻塞时间最长则先被唤醒。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_conditionobject"><a class="anchor" href="#_conditionobject"></a>43.6. <code>ConditionObject</code></h3>
+<div class="paragraph">
+<p>关于这段代码的研究，可以参看 <a href="#"><code>java.util.concurrent.ArrayBlockingQueue</code></a>。<code>ArrayBlockingQueue</code> 在实现 <code>poll(long, java.util.concurrent.TimeUnit)</code> 方法时，使用了 <code>Condition notEmpty</code> 对象来调用 <code>ConditionObject.awaitNanos(long)</code> 方法。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_参考资料_9"><a class="anchor" href="#_参考资料_9"></a>43.7. 参考资料</h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+访问一些页面时发现一些页面已经不能访问了，后续再搜索补上吧。
+</td>
+</tr>
+</table>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><a href="http://www.throwable.club/2019/04/07/java-juc-aqs-source-code/">JUC同步器框架AbstractQueuedSynchronizer源码图文分析 - Throwable&#8217;s Blog</a></p>
+</li>
+<li>
+<p><a href="https://www.cnblogs.com/dennyzhangdd/p/7218510.html">《The java.util.concurrent Synchronizer Framework》 JUC同步器框架（AQS框架）原文翻译 - 只会一点java - 博客园</a></p>
+</li>
+<li>
+<p><a href="https://www.cnblogs.com/waterystone/p/4920797.html">Java并发之AQS详解 - waterystone - 博客园</a></p>
+</li>
+<li>
+<p><a href="https://www.cnblogs.com/chengxiao/archive/2017/07/24/7141160.html">Java并发包基石-AQS详解 - dreamcatcher-cx - 博客园</a></p>
+</li>
+<li>
+<p><a href="http://www.cnblogs.com/leesf456/p/5350186.html">【JUC】JDK1.8源码分析之AbstractQueuedSynchronizer（二） - leesf - 博客园</a></p>
+</li>
+<li>
+<p><a href="http://www.infoq.com/cn/articles/jdk1.8-abstractqueuedsynchronizer">深度解析Java 8：JDK1.8 AbstractQueuedSynchronizer的实现分析（上）</a></p>
+</li>
+<li>
+<p><a href="http://www.infoq.com/cn/articles/java8-abstractqueuedsynchronizer">深度解析Java 8：AbstractQueuedSynchronizer的实现分析（下）</a></p>
+</li>
+<li>
+<p><a href="http://www.molotang.com/articles/480.html">Lock、ReentrantLock和AbstractQueuedSynchronizer的源码要点分析整理 | 三石·道</a></p>
+</li>
+<li>
+<p><a href="http://zhanjindong.com/2015/03/10/java-concurrent-package-aqs-overview">Java并发包源码学习之AQS框架（一）概述 - Jindong Zhan</a></p>
+</li>
+<li>
+<p><a href="http://zhanjindong.com/2015/03/11/java-concurrent-package-aqs-clh-and-spin-lock">Java并发包源码学习之AQS框架（二）CLH lock queue和自旋锁 - Jindong Zhan</a></p>
+</li>
+<li>
+<p><a href="http://zhanjindong.com/2015/03/14/java-concurrent-package-aqs-locksupport-and-thread-interrupt">Java并发包源码学习之AQS框架（三）LockSupport和interrupt - Jindong Zhan</a></p>
+</li>
+<li>
+<p><a href="http://zhanjindong.com/2015/03/15/java-concurrent-package-aqs-AbstractQueuedSynchronizer">Java并发包源码学习之AQS框架（四）AbstractQueuedSynchronizer源码分析 - Jindong Zhan</a></p>
+</li>
+<li>
+<p><a href="http://ifeve.com/introduce-abstractqueuedsynchronizer/">AbstractQueuedSynchronizer的介绍和原理分析 | 并发编程网 - ifeve.com</a></p>
+</li>
+<li>
+<p><a href="http://coderbee.net/index.php/concurrent/20131209/614">JUC 源码分析 一 AbstractQueuedSynchronizer | 码蜂笔记</a></p>
+</li>
+<li>
+<p><a href="http://www.hiyangqi.com/java%20concurrency/java-concurrency-AQS.html">Java 多线程基本工具的原理AQS</a></p>
+</li>
+<li>
+<p><a href="http://www.tqcto.com/article/internet/5807.html">JUC 源码分析 3 AbstractQueuedSynchronizer 共享模式 与 CountDownLatch - 互联网 - 爱上编程技术博客</a></p>
+</li>
+<li>
+<p><a href="http://jiangwenfeng762.iteye.com/blog/1293814">通过CountDownLatch来分析AbstractQueuedSynchronizer的源码 - - ITeye技术网站</a></p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="paragraph nav-footer">
+<p>← Previous: <a href="java.util.concurrent.locks.LockSupport.html">LockSupport</a> | ↑ Up: <a href="index.html">JDK 源码分析</a> | Next: <a href="java.util.concurrent.locks.ReentrantLock.html">ReentrantLock</a> →</p>
+</div>
+<script src="https://giscus.app/client.js" data-repo="diguage/jdk-source-analysis" data-repo-id="MDEwOlJlcG9zaXRvcnk3MjM5MzE5Mw==" data-category="General" data-category-id="MDE4OkRpc2N1c3Npb25DYXRlZ29yeTMyMDM2MDQx" data-mapping="og:title" data-strict="0" data-reactions-enabled="1" data-emit-metadata="1" data-input-position="top" data-theme="preferred_color_scheme" data-lang="zh-CN" data-loading="lazy" crossorigin="anonymous" async></script>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2025-11-25 13:40:54 UTC
+</div>
+</div>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains("stemblock")) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script src="assets/scripts/asciidoctor-tabs.js"></script>
+<script src="assets/scripts/scroll-toc.js"></script></body>
+</html>

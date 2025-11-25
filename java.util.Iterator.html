@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.26">
+<meta name="keywords" content="Java,JDK,Java source,Collection,ArrayList,Map,List,HashMap,ArrayDeque,Deque,Set,HashSet,LinkedList,Queue,TreeMap,TreeSet,Vector,Stack">
+<meta name="author" content="D瓜哥">
+<meta name="copyright" content="Apache-2.0">
+<meta property="og:title" content="java.util.Iterator">
+<title>JDK 源码分析: 2. 迭代器 Iterator、 Enumeration、 Spliterator 与 Iterable</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="assets/styles/asciidoctor.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="assets/styles/rouge-github.css">
+<style>
+    a {
+        text-decoration: none;
+    }
+
+    .img_bk {
+        text-align: center;
+    }
+
+    p > code, strong > code, div.admonitionblock tr > td.content > code {
+        color: #d14 !important;
+        background-color: #f5f5f5 !important;
+        border: 1px solid #e1e1e8;
+        white-space: nowrap;
+        border-radius: 3px;
+    }
+</style>
+<link rel="stylesheet" href="assets/styles/asciidoctor-tabs.css">
+<style>.toc-current{color:#d14;font-size:130%;font-weight: bold;} .toc-root{font-family: "Open Sans","DejaVu Sans",sans-serif;
+                       font-size: 0.9em;} #content{display: flex; flex-direction: column; flex: 1 1 auto;}
+             .nav-footer{text-align: center; margin-top: auto;}
+             .nav-footer > p > a {white-space: nowrap;}</style>
+</head>
+<body id="java.util.Iterator" class="book toc2 toc-left">
+<div id="header">
+<h1>JDK 源码分析: 2. 迭代器 Iterator、 Enumeration、 Spliterator 与 Iterable</h1>
+<div class="details">
+<span id="author" class="author">D瓜哥</span><br>
+<span id="email" class="email"><a href="https://www.diguage.com" class="bare">https://www.diguage.com</a></span><br>
+<span id="revdate">2025-11-25</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<p><span class="toc-root"><a href="index.html">JDK 源码分析</a></span></p><ul class="sectlevel1">
+<li><a href="preface.html">前言：JDK &amp; STL 源码分析计划</a>
+</li>
+<li><a href="overview.html">1. 集合类概述</a>
+</li>
+<li><a href="java.util.Iterator.html"><span class="toc-current">2. 迭代器 Iterator、 Enumeration、 Spliterator 与 Iterable</span></a>
+</li>
+<li><a href="java.util.Collection.html">3. Collection</a>
+</li>
+<li><a href="java.util.AbstractCollection.html">4. AbstractCollection</a>
+</li>
+<li><a href="java.util.List.html">5. List</a>
+</li>
+<li><a href="java.util.AbstractList.html">6. AbstractList</a>
+</li>
+<li><a href="java.util.AbstractSequentialList.html">7. AbstractSequentialList</a>
+</li>
+<li><a href="java.util.ArrayList.html">8. <code>ArrayList</code></a>
+</li>
+<li><a href="java.util.LinkedList.html">9. LinkedList</a>
+</li>
+<li><a href="java.util.Stack.html">10. Stack</a>
+</li>
+<li><a href="java.util.Vector.html">11. Vector</a>
+</li>
+<li><a href="java.util.Set.html">12. Set</a>
+</li>
+<li><a href="java.util.AbstractSet.html">13. AbstractSet</a>
+</li>
+<li><a href="java.util.SortedSet.html">14. SortedSet</a>
+</li>
+<li><a href="java.util.NavigableSet.html">15. NavigableSet</a>
+</li>
+<li><a href="java.util.HashSet.html">16. HashSet</a>
+</li>
+<li><a href="java.util.TreeSet.html">17. TreeSet</a>
+</li>
+<li><a href="java.util.LinkedHashSet.html">18. LinkedHashSet</a>
+</li>
+<li><a href="java.util.BitSet.html">19. BitSet</a>
+</li>
+<li><a href="java.util.EnumSet.html">20. EnumSet</a>
+</li>
+<li><a href="java.util.Map.html">21. Map</a>
+</li>
+<li><a href="java.util.SortedMap.html">22. SortedMap</a>
+</li>
+<li><a href="java.util.NavigableMap.html">23. NavigableMap</a>
+</li>
+<li><a href="java.util.AbstractMap.html">24. AbstractMap</a>
+</li>
+<li><a href="java.util.HashMap.html">25. HashMap</a>
+</li>
+<li><a href="java.util.TreeMap.html">26. TreeMap</a>
+</li>
+<li><a href="java.util.LinkedHashMap.html">27. LinkedHashMap</a>
+</li>
+<li><a href="java.util.Dictionary.html">28. Dictionary</a>
+</li>
+<li><a href="java.util.Hashtable.html">29. Hashtable</a>
+</li>
+<li><a href="java.util.EnumMap.html">30. EnumMap</a>
+</li>
+<li><a href="java.util.WeakHashMap.html">31. WeakHashMap</a>
+</li>
+<li><a href="java.util.IdentityHashMap.html">32. IdentityHashMap</a>
+</li>
+<li><a href="java.util.Queue.html">33. Queue</a>
+</li>
+<li><a href="java.util.Deque.html">34. Deque</a>
+</li>
+<li><a href="java.util.AbstractQueue.html">35. AbstractQueue</a>
+</li>
+<li><a href="java.util.ArrayDeque.html">36. ArrayDeque</a>
+</li>
+<li><a href="java.util.PriorityQueue.html">37. PriorityQueue</a>
+</li>
+<li><a href="java.util.Array.html">38. 工具类 <code>Arrays</code></a>
+</li>
+<li><a href="java.util.Collection.html">39. 工具类 <code>Collections</code></a>
+</li>
+<li><a href="concurrent.overview.html">40. 并发库概述</a>
+</li>
+<li><a href="java.lang.Thread.html">41. Thread</a>
+</li>
+<li><a href="java.util.concurrent.locks.LockSupport.html">42. LockSupport</a>
+</li>
+<li><a href="java.util.concurrent.locks.AbstractQueuedSynchronizer.html">43. AbstractQueuedSynchronizer</a>
+</li>
+<li><a href="java.util.concurrent.locks.ReentrantLock.html">44. ReentrantLock</a>
+</li>
+<li><a href="java.util.concurrent.locks.ReentrantReadWriteLock.html">45. ReentrantReadWriteLock</a>
+</li>
+<li><a href="java.util.concurrent.locks.StampedLock.html">46. StampedLock</a>
+</li>
+<li><a href="java.util.concurrent.Semaphore.html">47. Semaphore</a>
+</li>
+<li><a href="java.util.concurrent.CountDownLatch.html">48. CountDownLatch</a>
+</li>
+<li><a href="java.util.concurrent.CyclicBarrier.html">49. CyclicBarrier</a>
+</li>
+<li><a href="java.util.concurrent.Phaser.html">50. Phaser</a>
+</li>
+<li><a href="java.util.concurrent.Exchanger.html">51. Exchanger</a>
+</li>
+<li><a href="java.lang.ThreadLocal.html">52. ThreadLocal</a>
+</li>
+<li><a href="java.util.concurrent.atomic.AtomicInteger.html">53. AtomicInteger</a>
+</li>
+<li><a href="java.util.concurrent.atomic.LongAdder.html">54. LongAdder</a>
+</li>
+<li><a href="java.util.concurrent.Future.html">55. JUC 包基础类分析</a>
+</li>
+<li><a href="java.util.concurrent.FutureTask.html">56. FutureTask</a>
+</li>
+<li><a href="java.util.concurrent.CompletableFuture.html">57. CompletableFuture</a>
+</li>
+<li><a href="java.util.concurrent.ThreadPoolExecutor.html">58. ThreadPoolExecutor 源码分析</a>
+</li>
+<li><a href="java.util.concurrent.ForkJoinTask.html">59. ForkJoinTask</a>
+</li>
+<li><a href="java.util.concurrent.ForkJoinPool.html">60. ForkJoinPool</a>
+</li>
+<li><a href="java.util.concurrent.ConcurrentHashMap.html">61. <code>ConcurrentHashMap</code></a>
+</li>
+<li><a href="java.util.concurrent.ConcurrentSkipListMap.html">62. <code>ConcurrentSkipListMap</code></a>
+</li>
+<li><a href="java.util.concurrent.CopyOnWriteArrayList.html">63. CopyOnWriteArrayList</a>
+</li>
+<li><a href="java.util.concurrent.ConcurrentLinkedQueue.html">64. ConcurrentLinkedQueue</a>
+</li>
+<li><a href="java.util.concurrent.ArrayBlockingQueue.html">65. ArrayBlockingQueue</a>
+</li>
+<li><a href="java.util.concurrent.LinkedBlockingQueue.html">66. LinkedBlockingQueue</a>
+</li>
+<li><a href="java.util.concurrent.PriorityBlockingQueue.html">67. PriorityBlockingQueue</a>
+</li>
+<li><a href="java.util.concurrent.DelayQueue.html">68. DelayQueue</a>
+</li>
+<li><a href="java.util.concurrent.ScheduledThreadPoolExecutor.html">69. <code>ScheduledThreadPoolExecutor</code></a>
+</li>
+<li><a href="java.util.concurrent.Flow.html">70. <code>Flow</code></a>
+</li>
+<li><a href="java.lang.ClassLoader.html">71. ClassLoader</a>
+</li>
+<li><a href="java.lang.reflect.Field.html">72. Field</a>
+</li>
+<li><a href="java.lang.reflect.Proxy.html">73. Proxy</a>
+</li>
+<li><a href="java.net.ServerSocket.html">74. ServerSocket</a>
+</li>
+<li><a href="java.util.ServiceLoader.html">75. <code>ServiceLoader</code></a>
+</li>
+<li><a href="java.lang.String.html">76. <code>String</code></a>
+</li>
+<li><a href="java.util.Date.html">77. <code>Date</code></a>
+</li>
+<li><a href="java.io.Serializable.html">78. <code>Serializable</code></a>
+</li>
+<li><a href="java.regex.Pattern.html">79. <code>Pattern</code></a>
+</li>
+<li><a href="_netty.html">80. Netty</a>
+</li>
+</ul>
+</div>
+</div>
+<div id="content"><div class="sect2"><h3 id="_友情支持">友情支持</h3><div class="paragraph"><p>如果您觉得这个笔记对您有所帮助，看在D瓜哥码这么多字的辛苦上，请友情支持一下，D瓜哥感激不尽，😜</p></div><table class="tableblock frame-none grid-all stretch"><colgroup><col style="width: 50%;"><col style="width: 50%;"></colgroup><tbody><tr><td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="assets/images/alipay.png" alt="支付宝" width="85%" title="支付宝"></span></p></td><td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="assets/images/wxpay.jpg" alt="微信" width="85%" title="微信"></span></p></td></tr></tbody></table><div class="paragraph"><p>有些打赏的朋友希望可以加个好友，欢迎关注D 瓜哥的微信公众号，这样就可以通过公众号的回复直接给我发信息。</p></div><div class="paragraph"><p><span class="image"><img src="assets/images/wx-jikerizhi.png" alt="wx jikerizhi" width="98%"></span></p></div><div class="admonitionblock tip"><table><tbody><tr><td class="icon"><i class="fa icon-tip" title="Tip"></i></td><td class="content"><strong>公众号的微信号是: <code>jikerizhi</code></strong>。<em>因为众所周知的原因，有时图片加载不出来。 如果图片加载不出来可以直接通过搜索微信号来查找我的公众号。</em></td></tr></tbody></table></div></div>
+<div class="sect1">
+<h2 id="java.util.Iterator"><a class="anchor" href="#java.util.Iterator"></a>2. 迭代器 Iterator、 Enumeration、 Spliterator 与 Iterable</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_涉及代码"><a class="anchor" href="#_涉及代码"></a>2.1. 涉及代码</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>java.util.Iterator</code></p>
+</li>
+<li>
+<p><code>java.util.PrimitiveIterator</code></p>
+</li>
+<li>
+<p><code>java.util.ListIterator</code></p>
+</li>
+<li>
+<p><code>java.util.Spliterator</code></p>
+</li>
+<li>
+<p><code>java.util.Enumeration</code></p>
+</li>
+<li>
+<p><code>java.lang.Iterable</code></p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_迭代器模式"><a class="anchor" href="#_迭代器模式"></a>2.2. 迭代器模式</h3>
+<div class="paragraph">
+<p>在进行代码分析之前，D瓜哥想先来讲解一下设计模式。然后结合 Java 中 <code>Iterator</code> 和 <code>Iteratable</code> ，具体分析一下迭代器在 Java 中的实现。</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">迭代器模式（Iterator）</dt>
+<dd>
+<p>提供一种方法顺序访问一个聚合对象中各个元素，而不是暴露该对象的内部表示。</p>
+</dd>
+</dl>
+</div>
+</blockquote>
+<div class="attribution">
+&#8212; Erich Gamma、Richard Helm、Ralph Johnson、John Vlissides<br>
+<cite>《设计模式》</cite>
+</div>
+</div>
+<div class="paragraph">
+<p>类图如下：</p>
+</div>
+<div class="imageblock text-center kroki">
+<div class="content">
+<img src="./diag-cefa09139fb268bef8d2efc8f014dc7fae96ba854c057ef32098155a0eb5fec6.svg" alt="Diagram" width="95%">
+</div>
+</div>
+<div class="paragraph">
+<p>当需要访问一个聚集对象，而且不管这些对象是什么都需要遍历的时候，就应该考虑用迭代器模式。</p>
+</div>
+<div class="paragraph">
+<p>当需要对聚集有多种方式遍历时，可以考虑用迭代器模式。</p>
+</div>
+<div class="paragraph">
+<p>为遍历不同的聚集结构提供如开始、下一个、是否结束、当前哪一项等统一的接口。</p>
+</div>
+<div class="paragraph">
+<p>尽管我们不需要显式的引用迭代器，但系统本身还是通过迭代器来实现遍历的。总地来说，迭代器（<code>Iterator</code>）模式就是分离了集合对象的遍历行为，抽象出一个迭代器类来负责，这样既可以做到不暴露集合的内部结构，又可让外部代码透明地访问集合内部的数据。</p>
+</div>
+<div class="paragraph">
+<p>请问： Java 中是如何应用迭代器模式呢？</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_iterator"><a class="anchor" href="#_iterator"></a>2.3. <code>Iterator</code></h3>
+<div class="paragraph">
+<p>从上面的设计模式可以看出，迭代器模式就是为了遍历不同的聚集结构提供诸如开始、下一个、是否结束、当前元素等常见操作的统一接口。来看看 Java 集合类是如何提炼接口的。</p>
+</div>
+<div class="listingblock">
+<div class="title">java.util.Iterator</div>
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td><td class="code"><pre><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Iterator</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="o">{</span>
+
+    <span class="kt">boolean</span> <span class="nf">hasNext</span><span class="o">();</span>
+
+    <span class="no">E</span> <span class="nf">next</span><span class="o">();</span>
+
+    <span class="k">default</span> <span class="kt">void</span> <span class="nf">remove</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">UnsupportedOperationException</span><span class="o">(</span><span class="s">"remove"</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+     * @since 1.8
+     */</span>
+    <span class="k">default</span> <span class="kt">void</span> <span class="nf">forEachRemaining</span><span class="o">(</span><span class="nc">Consumer</span><span class="o">&lt;?</span> <span class="kd">super</span> <span class="no">E</span><span class="o">&gt;</span> <span class="n">action</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Objects</span><span class="o">.</span><span class="na">requireNonNull</span><span class="o">(</span><span class="n">action</span><span class="o">);</span>
+        <span class="k">while</span> <span class="o">(</span><span class="n">hasNext</span><span class="o">())</span>
+            <span class="n">action</span><span class="o">.</span><span class="na">accept</span><span class="o">(</span><span class="n">next</span><span class="o">());</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>从上述代码中，可以看出 Java 提取了 <code>boolean hasNext()</code>、 <code>E next()</code>、 <code>void remove()</code> 等三个操作方法；在 Java 8 中，为了支持 Stream API，有增加了 <code>void forEachRemaining(Consumer&lt;? super E&gt; action)</code> 方法。</p>
+</div>
+<div class="paragraph">
+<p>这里多扯一句，Java 在 1.2 以前迭代器是通过另外一个接口实现的：</p>
+</div>
+<div class="listingblock">
+<div class="title">java.util.Enumeration</div>
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="code"><pre><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Enumeration</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="o">{</span>
+
+    <span class="kt">boolean</span> <span class="nf">hasMoreElements</span><span class="o">();</span>
+
+    <span class="no">E</span> <span class="nf">nextElement</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>与上面的 <code>java.util.Iterator</code> 对比可以看出，两者差别不大。那为什么 Java 在已有 <code>java.util.Iterator</code> 接口的情况下，还要推出 <code>java.util.Enumeration</code> 接口呢？在 <code>java.util.Iterator</code> 接口的 JavaDoc 中给出了如下理由：</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Iterators allow the caller to remove elements from the underlying collection during the iteration with well-defined semantics.</p>
+</li>
+<li>
+<p>Method names have been improved.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>我们都知道，在 Java 8 之前，接口中的方法不能有任何实现。所以，为了保持兼容性，不能在已有接口中增加方法。只能另起炉灶，把“洞”补上。这也就不难理解，为什么又搞出了个 <code>java.util.Iterator</code>。</p>
+</div>
+<div class="paragraph">
+<p>这里再多提一句，需要增加自定义的迭代器实现时，请优先选择 <code>java.util.Iterator</code>。</p>
+</div>
+<div class="paragraph">
+<p>请问：既然有迭代器接口定义了，那么 Java 又是如何生成迭代器实例呢？</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_iterable"><a class="anchor" href="#_iterable"></a>2.4. <code>Iterable</code></h3>
+<div class="paragraph">
+<p>既然迭代器可以抽象成一个公共的接口，那么生成迭代器实例的这个操作，也可以抽象成一个接口。 Java 也确实是这样做的：</p>
+</div>
+<div class="listingblock">
+<div class="title">java.lang.Iterable</div>
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="code"><pre><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Iterable</span><span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="o">{</span>
+
+    <span class="nc">Iterator</span><span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="nf">iterator</span><span class="o">();</span>
+
+    <span class="cm">/**
+     * @since 1.8
+     */</span>
+    <span class="k">default</span> <span class="kt">void</span> <span class="nf">forEach</span><span class="o">(</span><span class="nc">Consumer</span><span class="o">&lt;?</span> <span class="kd">super</span> <span class="no">T</span><span class="o">&gt;</span> <span class="n">action</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Objects</span><span class="o">.</span><span class="na">requireNonNull</span><span class="o">(</span><span class="n">action</span><span class="o">);</span>
+        <span class="k">for</span> <span class="o">(</span><span class="no">T</span> <span class="n">t</span> <span class="o">:</span> <span class="k">this</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">action</span><span class="o">.</span><span class="na">accept</span><span class="o">(</span><span class="n">t</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+     * @since 1.8
+     */</span>
+    <span class="k">default</span> <span class="nc">Spliterator</span><span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="nf">spliterator</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nc">Spliterators</span><span class="o">.</span><span class="na">spliteratorUnknownSize</span><span class="o">(</span><span class="n">iterator</span><span class="o">(),</span> <span class="mi">0</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>从类的定义中，可以看到 <code>java.lang.Iterable</code> 提供了 <code>iterator()</code>，用于创建 <code>java.util.Iterator</code> 示例对象。</p>
+</div>
+<div class="paragraph">
+<p>在 Java 8 中，为了支持 Lambda 表达式和 Stream API，又增加了 <code>forEach(Consumer&lt;? super T&gt; action)</code> 和 <code>spliterator()</code> 方法。</p>
+</div>
+<div class="paragraph">
+<p>在思考实现原理的过程中，D瓜哥突然想到，<code>java.lang.Iterable</code> 就是一个工厂方法模式的应用。来分析一下：</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_工厂方法模式"><a class="anchor" href="#_工厂方法模式"></a>2.5. 工厂方法模式</h3>
+<div class="paragraph">
+<p>先来看看工厂方法模式的定义：</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">工厂方法模式（Factory Method）</dt>
+<dd>
+<p>定义一个用于创建对象的接口，让子类决定实例化哪一个类。工厂方法使一个类的实例化延迟到其子类。</p>
+</dd>
+</dl>
+</div>
+</blockquote>
+<div class="attribution">
+&#8212; Erich Gamma、Richard Helm、Ralph Johnson、John Vlissides<br>
+<cite>《设计模式》</cite>
+</div>
+</div>
+<div class="paragraph">
+<p>类图如下：</p>
+</div>
+<div class="imageblock text-center kroki">
+<div class="content">
+<img src="./diag-4c630ae25956dea63dee1b9c115e73e3d7a782a9bdeab274906bfefd867d61f4.svg" alt="Diagram" width="95%">
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>java.lang.Iterable</code> 就相当于 <code>Factory</code> 接口，也就是工厂；</p>
+</li>
+<li>
+<p><code>java.util.Iterator</code> 就相当于工厂生成的产品 <code>Product</code>；</p>
+</li>
+<li>
+<p><code>iterator()</code> 方法就是工厂方法 <code>factoryMethod()</code>；</p>
+</li>
+<li>
+<p><code>java.lang.Iterable</code> 和 <code>java.util.Iterator</code> 子类，都放在了各个集合类中来具体实现。</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>在各个聚集类中，去实现 <code>java.lang.Iterable</code> 接口，然后根据聚集类的情况，返回对应的 <code>java.util.Iterator</code> 具体类对象即可。</p>
+</div>
+<div class="paragraph">
+<p>细心的童鞋，可能发现还有个类似迭代器的类 <code>Spliterator</code>。这是个什么类？为啥要增加相关的接口呢？</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_spliterator"><a class="anchor" href="#_spliterator"></a>2.6. <code>Spliterator</code></h3>
+
+</div>
+<div class="sect2">
+<h3 id="ListIterator"><a class="anchor" href="#ListIterator"></a>2.7. <code>ListIterator</code></h3>
+<div class="paragraph">
+<p><code>java.util.Iterator</code> 是针对整个集合类抽象出来的通用迭代器。但是，可以思考一下，对于 <code>java.util.List</code> 是不是可以有更契合的迭代器？</p>
+</div>
+<div class="paragraph">
+<p>关于这个问题的答案，JDK 给出了自己的答案：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+</pre></td><td class="code"><pre><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">ListIterator</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="kd">extends</span> <span class="nc">Iterator</span><span class="o">&lt;</span><span class="no">E</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="c1">// Query Operations</span>
+
+    <span class="kt">boolean</span> <span class="nf">hasNext</span><span class="o">();</span>
+
+    <span class="no">E</span> <span class="nf">next</span><span class="o">();</span>
+
+    <span class="kt">boolean</span> <span class="nf">hasPrevious</span><span class="o">();</span>
+
+    <span class="no">E</span> <span class="nf">previous</span><span class="o">();</span>
+
+    <span class="kt">int</span> <span class="nf">nextIndex</span><span class="o">();</span>
+
+    <span class="kt">int</span> <span class="nf">previousIndex</span><span class="o">();</span>
+
+
+    <span class="c1">// Modification Operations</span>
+
+    <span class="kt">void</span> <span class="nf">remove</span><span class="o">();</span>
+
+    <span class="kt">void</span> <span class="nf">set</span><span class="o">(</span><span class="no">E</span> <span class="n">e</span><span class="o">);</span>
+
+    <span class="kt">void</span> <span class="nf">add</span><span class="o">(</span><span class="no">E</span> <span class="n">e</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>由于 <code>List</code> 是有序的，从代码中可以看出，所以，<code>ListIterator</code> 在 <code>Iterator</code> 基础之上，增加了获前后元素相关的方法；同时，还增加了修改相关的操作方法。</p>
+</div>
+<div class="paragraph">
+<p>因为增加了 <code>hasPrevious()</code> 和 <code>previous()</code>，那么 <code>ListIterator</code> 就有了双向遍历的能力：既可以像传统迭代器那样，从前向后遍历；又可以逆向，从后想前遍历。这样在某些场景下就会特别方便。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_参考资料"><a class="anchor" href="#_参考资料"></a>2.8. 参考资料</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://www.journaldev.com/13457/java-listiterator">Java ListIterator - ListIterator in Java - JournalDev</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="paragraph nav-footer">
+<p>← Previous: <a href="overview.html">集合类概述</a> | ↑ Up: <a href="index.html">JDK 源码分析</a> | Next: <a href="java.util.Collection.html">Collection</a> →</p>
+</div>
+<script src="https://giscus.app/client.js" data-repo="diguage/jdk-source-analysis" data-repo-id="MDEwOlJlcG9zaXRvcnk3MjM5MzE5Mw==" data-category="General" data-category-id="MDE4OkRpc2N1c3Npb25DYXRlZ29yeTMyMDM2MDQx" data-mapping="og:title" data-strict="0" data-reactions-enabled="1" data-emit-metadata="1" data-input-position="top" data-theme="preferred_color_scheme" data-lang="zh-CN" data-loading="lazy" crossorigin="anonymous" async></script>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2025-11-25 13:40:54 UTC
+</div>
+</div>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains("stemblock")) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script src="assets/scripts/asciidoctor-tabs.js"></script>
+<script src="assets/scripts/scroll-toc.js"></script></body>
+</html>
