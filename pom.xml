@@ -38,12 +38,12 @@
     <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
     <extra-enforcer-rules.version>1.10.0</extra-enforcer-rules.version>
 
-    <asciidoctorj.version>3.0.0</asciidoctorj.version>
-    <asciidoctorj-pdf.version>2.3.19</asciidoctorj-pdf.version>
-    <asciidoctorj-epub3.version>2.1.3</asciidoctorj-epub3.version>
-    <asciidoctorj-diagram.version>2.3.2</asciidoctorj-diagram.version>
-    <asciidoctor-diagram.version>3.0.0</asciidoctor-diagram.version>
-    <asciidoctor-diagram-plantuml.version>1.2025.2</asciidoctor-diagram-plantuml.version>
+    <asciidoctorj.version>3.0.1</asciidoctorj.version>
+    <asciidoctorj-pdf.version>2.3.23</asciidoctorj-pdf.version>
+    <asciidoctorj-epub3.version>2.2.0</asciidoctorj-epub3.version>
+    <asciidoctorj-diagram.version>3.0.1</asciidoctorj-diagram.version>
+    <asciidoctor-diagram.version>3.0.1</asciidoctor-diagram.version>
+    <asciidoctor-diagram-plantuml.version>1.2025.3</asciidoctor-diagram-plantuml.version>
     <asciidoctor-comment-links.version>0.0.2</asciidoctor-comment-links.version>
     <asciidoctor-multipage.version>0.0.19</asciidoctor-multipage.version>
     <asciidoctor-tabs.version>1.0.0.beta.6</asciidoctor-tabs.version>
@@ -54,13 +54,13 @@
     <mavengem-wagon.version>2.0.2</mavengem-wagon.version>
     <gem-maven-plugin.version>3.0.5</gem-maven-plugin.version>
     <download-maven-plugin.version>1.13.0</download-maven-plugin.version>
-    <exec-maven-plugin.version>3.5.0</exec-maven-plugin.version>
-    <jruby.version>10.0.0.1</jruby.version>
+    <exec-maven-plugin.version>3.5.1</exec-maven-plugin.version>
+    <jruby.version>10.0.2.0</jruby.version>
     <gem.path>${project.basedir}/cfg/gems</gem.path>
     <pdf-fonts.path>${user.home}/.fonts</pdf-fonts.path>
     <pdf-fonts.baseuri>https://github.com/diguage/open-fonts/releases/download/latest</pdf-fonts.baseuri>
 
-    <java.version>21</java.version>
+    <java.version>25</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <maven.compiler.release>${java.version}</maven.compiler.release>
